@@ -355,7 +355,7 @@ PROC should both take and return an individual element"
    (let* 
       ((v (widget-get wid :value)))
 
-      (widget-insert (firrtl-ephemeral-name v))
+      (widget-insert (firrtl-ephemeral-full-name v))
       (widget-insert "  ")
       (widget-insert
 	 (number-to-string (component-value-v (firrtl-ephemeral-current v))))))
