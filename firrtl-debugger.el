@@ -188,6 +188,17 @@ PROC should both take and return an individual element"
 	 proc
 	 data)))
 
+
+(defun firrtl-dbg-add-ephemeral (full-name value valid-p)
+   ""
+   (firrtl-mutate-current-components full-name
+      ;; For now, no point keeping the old one.
+      #'(lambda (dummy data) data)
+      (make-firrtl-ephemeral
+	 :current (make-component-value :v value :valid-p valid-p)
+	 :full-name full-name)))
+
+
 ;; Helper to set up current data to develop on
 (defun firrtl-write-to-current-components (comp)
    ""
