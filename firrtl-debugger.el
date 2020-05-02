@@ -71,6 +71,7 @@
 	      :named)
    "An output wire")
 
+;; Make this customizable
 (defface firrtl-dbg-face-invalid '((t :background "gray"))
    "The face for poisoned values")
 
@@ -398,16 +399,24 @@ PROC should both take and return an individual element"
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
    (let* 
-      ((v (widget-get wid :value)))
+      ((v (widget-get wid :value))
+	 (val (firrtl-ephemeral-current v))
+	 (val-string (number-to-string (component-value-v val))))
+      
 
       (widget-insert (firrtl-ephemeral-full-name v))
       ;; `current-column' seems to take visual widget indentation into
       ;; account, so no extra work is needed for this.
       (while (< (current-column) firrtl-dbg-value-column)
 	 (widget-insert " "))
+
+      (case (component-value-valid-p val)
+	 ((t) )
+	 ((nil)
+	    (setq val-string
+	       (propertize val-string 'face 'firrtl-dbg-face-invalid))))
       
-      (widget-insert
-	 (number-to-string (component-value-v (firrtl-ephemeral-current v))))))
+      (widget-insert val-string)))
 
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
