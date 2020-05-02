@@ -293,7 +293,7 @@ PROC should both take and return an individual element"
    (let* 
       (
 	 (m (string-match
-	       "^ *\\([^=]+\\)=\\(☠?\\) *\\([0-9]+\\)\\(☠?\\)"
+	       "^ *\\([^=]+\\)=\\(☠?\\) *\\([-0-9]+\\)\\(☠?\\)"
 	       component-str))
 	 (full-name (match-string 1 component-str))
 	 (valid-p (string-empty-p (match-string 2 component-str)))
@@ -310,14 +310,13 @@ PROC should both take and return an individual element"
 '
 (firrtl-dbg-act-on-component-str (second split) #'list)
 '
-(firrtl-dbg-act-on-component-str (second ephems)
-   #'(lambda (full-name value valid-p)
-	(firrtl-mutate-current-components full-name
-	   ;; For now, no point keeping the old one.
-	   #'(lambda (dummy data) data)
-	   (make-firrtl-ephemeral
-	      :current (make-component-value :v value :valid-p valid-p)
-	      :full-name full-name))))
+(firrtl-dbg-act-on-component-str (third ephems)
+   #'firrtl-dbg-add-ephemeral)
+'
+(mapcar
+   #'(lambda (v)
+	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
+   ephems)
 
 
 
