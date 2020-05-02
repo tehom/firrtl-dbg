@@ -140,9 +140,10 @@ PROC should both take and return an individual element"
 		     (list*
 			(car current-tag+tree)
 			'list
-			;; New sub-element, same as old except with an
+			;; One sub-element, same as old except with an
 			;; empty subname
-			(cons "" (cdr current-tag+tree)))
+			(list
+			   (cons "" (cdr current-tag+tree))))
 		     subtree-info-list))
 	       (setq current-tag+tree (cons subname '(list))))))
 
@@ -352,12 +353,12 @@ PROC should both take and return an individual element"
 (mapcar
    #'(lambda (v)
 	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
-   ephems)
+   '(" _T= 1" " _T_1=☠ 13☠" " _T_2=☠ 13☠" " _T_3=☠ -13☠" " _T_4=☠ 3☠" " _T_5= 0")
+   ;;ephems
+   )
 
-;; BUG: We got a tag of firrtl-ephemeral where it should be list.  It's because there's a bare "_T" in there.  So how to index it?  Just notice 'list' and pad with blank subnames?  And make a non-list into a list if we see it?
-;;firrtl-current-components
-'
-(list ("" list ("T" firrtl-ephemeral ("5" firrtl-ephemeral "_T_5" (0 t)) ("4" firrtl-ephemeral "_T_4" (3 nil)) ("3" firrtl-ephemeral "_T_3" (-13 nil)) ("2" firrtl-ephemeral "_T_2" (13 nil)) ("1" firrtl-ephemeral "_T_1" (13 nil)) "_T" (1 t)) ("GEN" list ("3" firrtl-ephemeral "_GEN_3" (2 t)) ("2" firrtl-ephemeral "_GEN_2" (13 t)) ("1" firrtl-ephemeral "_GEN_1" (2 nil)) ("0" firrtl-ephemeral "_GEN_0" (13 nil)))))
+;; firrtl-current-components
+
 
 ;; For most components, non-editable.  Just displays it.
 
