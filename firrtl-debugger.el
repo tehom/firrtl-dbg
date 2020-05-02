@@ -179,6 +179,15 @@ PROC should both take and return an individual element"
 '
 (firrtl-split-component-name "io_a.b")
 
+(defun firrtl-mutate-current-components (full-name proc data)
+   ""
+   (setq
+      firrtl-current-components
+      (firrtl-write-to-component firrtl-current-components
+	 (firrtl-split-component-name full-name)
+	 proc
+	 data)))
+
 ;; Helper to set up current data to develop on
 (defun firrtl-write-to-current-components (comp)
    ""
@@ -295,12 +304,15 @@ PROC should both take and return an individual element"
 '
 (firrtl-dbg-act-on-component-str (second split) #'list)
 '
-(firrtl-dbg-act-on-component-str (first ephems)
+(firrtl-dbg-act-on-component-str (second ephems)
    #'(lambda (full-name value valid-p)
-	(firrtl-write-to-current-components
+	(firrtl-mutate-current-components full-name
+	   ;; For now, no point keeping the old one.
+	   #'(lambda (dummy data) data)
 	   (make-firrtl-ephemeral
 	      :current (make-component-value :v value :valid-p valid-p)
 	      :full-name full-name))))
+
 
 
 ;; For most components, non-editable.  Just displays it.
