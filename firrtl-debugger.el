@@ -353,9 +353,8 @@ PROC should both take and return an individual element"
 (mapcar
    #'(lambda (v)
 	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
-   '(" _T= 1" " _T_1=☠ 13☠" " _T_2=☠ 13☠" " _T_3=☠ -13☠" " _T_4=☠ 3☠" " _T_5= 0")
-   ;;ephems
-   )
+   ephems)
+
 
 ;; firrtl-current-components
 
@@ -388,14 +387,19 @@ PROC should both take and return an individual element"
       
       ))
 
-
+(defconst firrtl-dbg-value-column 15
+   "Column that values should print at" )
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
    (let* 
       ((v (widget-get wid :value)))
 
       (widget-insert (firrtl-ephemeral-full-name v))
-      (widget-insert "  ")
+      ;; `current-column' seems to take visual widget indentation into
+      ;; account, so no extra work is needed for this.
+      (while (< (current-column) firrtl-dbg-value-column)
+	 (widget-insert " "))
+      
       (widget-insert
 	 (number-to-string (component-value-v (firrtl-ephemeral-current v))))))
 
