@@ -27,7 +27,6 @@
 ;;;_ , Requires
 
 (require 'cl)
-(require 'parse-time) ;; For parse-integer
 (require 'subr-x)
 (require 'tree-widget)
 ;;;_. Body
@@ -229,7 +228,7 @@ PROC should both take and return an individual element"
 (let* 
    ((str circuit-state-str)
       (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
-      (step (parse-integer (match-string 1 str)))
+      (step (string-to-number (match-string 1 str)))
       ;; We need better info on this.  Only "FRESH" or "STALE"?
       (freshness-str (match-string 2 str)))
    
@@ -329,7 +328,7 @@ PROC should both take and return an individual element"
       (widget-insert (firrtl-ephemeral-name v))
       (widget-insert "  ")
       (widget-insert
-	 (int-to-string (component-value-v (firrtl-ephemeral-current v))))))
+	 (number-to-string (component-value-v (firrtl-ephemeral-current v))))))
 
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
