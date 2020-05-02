@@ -205,8 +205,10 @@ PROC should both take and return an individual element"
 	  :current (make-component-value :v 14)
 	  :full-name "a.c")))
 
-
-
+;; BUG about structure accesses, but just because proper type
+;; management isn't ready yet.
+'
+(mapcar #'firrtl-write-to-current-components comp-list)
 
 
 ;; Setup:
@@ -276,8 +278,8 @@ PROC should both take and return an individual element"
       ;; then always return a component.  We must split up name before
       ;; any of this happens.
 
-      (make-component
-	 :name (match-string 1 component-str)
+      (make-firrtl-component
+	 :full-name (match-string 1 component-str)
 	 :current
 	 (make-component-value
 	    :v value
@@ -286,7 +288,7 @@ PROC should both take and return an individual element"
 	 (make-component-value
 	    :v 0
 	    :valid-p nil))))
-
+'
 (setq comp-list
    (mapcar #'firrtl-dbg-parse-component split))
 
