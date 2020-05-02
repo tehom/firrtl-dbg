@@ -294,6 +294,14 @@ PROC should both take and return an individual element"
 
 '
 (firrtl-dbg-act-on-component-str (second split) #'list)
+'
+(firrtl-dbg-act-on-component-str (first ephems)
+   #'(lambda (full-name value valid-p)
+	(firrtl-write-to-current-components
+	   (make-firrtl-ephemeral
+	      :current (make-component-value :v value :valid-p valid-p)
+	      :full-name full-name))))
+
 
 ;; For most components, non-editable.  Just displays it.
 
