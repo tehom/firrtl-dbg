@@ -62,6 +62,8 @@ Even comint mode seems too much.  Just capture into a buffer.
 
 *** Parsing "show" output
 
+(Equivalently "show" or "show state")
+
  * CircuitState
  * Inputs:
  * Outputs:
@@ -93,11 +95,16 @@ waitfor componentName value
 Possibly wrt a componentName we point at
 
 *** Other commands
+show lofirrtl (We'd just capture it into a buffer)
+show input (This would require way more parsing)
 reset
-randomize
+randomize (Randomizes inputs, so it overlaps with us)
 poison
-timing
+timing (Shows it)
+timing clear
+timing bin (Not clear what it does)
 Setting flags: {ordered-exec,allow-cycles,eval-all}
+load fileName (Loads a whole new file.  We'd better reset)
 
 And that's about it.  Other existing commands are pointless in this
 environment.
