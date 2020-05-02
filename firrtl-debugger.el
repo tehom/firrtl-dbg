@@ -324,7 +324,7 @@ PROC should both take and return an individual element"
       ))
 
 
-(defun firrtl-dbg-insert-normal-component (wid)
+(defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
    (let* 
       ((v (widget-get wid :value)))
@@ -348,7 +348,7 @@ PROC should both take and return an individual element"
 	 `(const
 	     :format "%v\n"
 	     :value ,(cdr cell)
-	     :value-create ,#'firrtl-dbg-insert-normal-component))))
+	     :value-create ,#'firrtl-dbg-insert-ephemeral-component))))
 
 
 (defun firrtl-dbg-tree-expand (tree)
