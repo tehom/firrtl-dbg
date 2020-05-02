@@ -96,7 +96,8 @@ Where 'leaf' is one of the node types.
 
 (defun firrtl-write-to-component (tree subname-list proc data)
    "
-TREE should be '(list subtree...).  We don't try to handle the case where TREE begins with something else such as a structure tag.
+TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
+
 PROC should both take and return an individual element"
    (let* 
       (  (tree (or tree '(list)))
@@ -106,29 +107,64 @@ PROC should both take and return an individual element"
 
       ;; Drill down to the component that we want.
       (dolist (subname subname-list)
-	 ;; This assumes that what we're exploring is an alist and
-	 ;; doesn't try to handle structure tags.
-	 (let* 
-	    (  (alist (cddr current-tag+tree))
-	       (found
-		  (assoc subname alist)))
-	    (if found
-	       (progn
-		  (setq subtree-info-list
-		     (cons
-			(list*
-			   (car current-tag+tree)
-			   'list
-			   (delete found alist))
-			subtree-info-list))
-		  (setq current-tag+tree found))
+	 (if (eq (cadr current-tag+tree) 'list)
+	    ;; What we're exploring is an alist
+	    (let* 
+	       (  (alist (cddr current-tag+tree))
+		  (found
+		     (assoc subname alist)))
+	       (if found
+		  (progn
+		     (setq subtree-info-list
+			(cons
+			   (list*
+			      (car current-tag+tree)
+			      'list
+			      (delete found alist))
+			   subtree-info-list))
+		     (setq current-tag+tree found))
 	       
-	       (progn
-		  (setq subtree-info-list
-		     (cons
-			current-tag+tree
-			subtree-info-list))
-		  (setq current-tag+tree (cons subname '(list)))))))
+		  (progn
+		     (setq subtree-info-list
+			(cons
+			   current-tag+tree
+			   subtree-info-list))
+		     (setq current-tag+tree (cons subname '(list))))))
+
+	    ;; What we're exploring is a structure.  Demote it to the
+	    ;; next level and make a list.
+	    (let* 
+	       ()
+	       (setq subtree-info-list
+		  (cons
+		     (list*
+			(car current-tag+tree)
+			'list
+			;; New sub-element, same as old except with an
+			;; empty subname
+			(cons "" (cdr current-tag+tree)))
+		     subtree-info-list))
+	       (setq current-tag+tree (cons subname '(list))))))
+
+      ;; If current-tag+tree points at a true list, drill once more
+      ;; with a blank subname.  Note we might get a blank list because
+      ;; the code above us assumes that current-tag+tree might be
+      ;; partway thru a list of subnames, but here we know we've ended
+      ;; the subnames.
+
+      ;; After this, current-tag+tree had better represent a non-list,
+      ;; because how could we have put more than one component into a
+      ;; blank subname?  (IMPROVE ME: maybe use an out-of-bounds
+      ;; object as sub-name and let widget button thing handle that)
+      (when
+	 (and
+	    (eq (cadr current-tag+tree) 'list)
+	    (not (null (cddr current-tag+tree))))
+	 (setq subtree-info-list
+	    (cons
+	       current-tag+tree
+	       subtree-info-list))
+	 (setq current-tag+tree (cons "" '(unbuilt))))
       
       ;; Now current-tag+tree points at the leaf that corresponds to
       ;; subname-list
@@ -318,7 +354,10 @@ PROC should both take and return an individual element"
 	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
    ephems)
 
-
+;; BUG: We got a tag of firrtl-ephemeral where it should be list.  It's because there's a bare "_T" in there.  So how to index it?  Just notice 'list' and pad with blank subnames?  And make a non-list into a list if we see it?
+;;firrtl-current-components
+'
+(list ("" list ("T" firrtl-ephemeral ("5" firrtl-ephemeral "_T_5" (0 t)) ("4" firrtl-ephemeral "_T_4" (3 nil)) ("3" firrtl-ephemeral "_T_3" (-13 nil)) ("2" firrtl-ephemeral "_T_2" (13 nil)) ("1" firrtl-ephemeral "_T_1" (13 nil)) "_T" (1 t)) ("GEN" list ("3" firrtl-ephemeral "_GEN_3" (2 t)) ("2" firrtl-ephemeral "_GEN_2" (13 t)) ("1" firrtl-ephemeral "_GEN_1" (2 nil)) ("0" firrtl-ephemeral "_GEN_0" (13 nil)))))
 
 ;; For most components, non-editable.  Just displays it.
 
