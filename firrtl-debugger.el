@@ -24,229 +24,6 @@
 
 ;;;_ , Commentary:
 
-;; Copied for convenience
-;; (defun widget-tree-ancestor (widget)
-;;   (let ((parent (car (get widget 'widget-type))))
-;;     (if parent
-;;         (cons widget (widget-tree-ancestor parent)))))
-;; 
-;; (defvar widget-tree-list nil
-;;   "Inherit tree of all widget")
-;; 
-;; (defun widget-tree-build ()
-;;   (let (list seen ancestor tree-list)
-;;     (mapatoms (lambda (a)
-;;                 (and (get a 'widget-type)
-;;                      (push a list)))
-;;               obarray)
-;;     (setq list (remq 'default list))
-;;     (while list
-;;       (setq ancestor (nreverse (widget-tree-ancestor (car list))))
-;;       (setq parent 'default)
-;;       (dolist (type ancestor)
-;;         (unless (member type seen)
-;;           (setq alist (assoc parent tree-list)
-;;                 tree-list (delq alist tree-list)
-;;                 alist (cons parent (cons type (cdr alist)))
-;;                 tree-list (cons alist tree-list)
-;;                 list (delq type list))
-;;           (push type seen))
-;;         (setq parent type)))
-;;     (setq widget-tree-list tree-list)))
-;; 
-;; (defun widget-tree-browse (but &rest ignore)
-;;   (if (= (length (window-list)) 1)
-;;       (split-window))
-;;   (save-selected-window
-;;     (other-window 1)
-;;     (widget-browse (intern (widget-get but :tag)))))
-;; 
-;; (defun widget-tree-widget (type)
-;;   (let ((list (assoc type widget-tree-list)))
-;;     (if list
-;;         `(tree-widget
-;;           :node (push-button
-;;                  :tag ,(symbol-name type)
-;;                  :format "%[%t%]\n"
-;;                  :notify widget-tree-browse)
-;;           :dynargs widget-tree-expand)
-;;       `(push-button
-;;         :format "%[%t%]\n"
-;;         :tag ,(symbol-name type)
-;;         :notify widget-tree-browse))))
-;; 
-;; (defun widget-tree-expand (tree)
-;;   (or (widget-get tree :args)
-;;       (let ((type (intern (widget-get (tree-widget-node tree) :tag))))
-;;         (mapcar 'widget-tree-widget
-;;                 (cdr (assoc type widget-tree-list))))))
-;; 
-;; (defun widget-tree ()
-;;   (widget-insert
-;;    "This is a list of all defined widget. The tree-widget show the
-;; inherit relationship of the widget.\n\n")
-;; 
-;;   (widget-insert "  You can click the button to browse the widget.\n\n")
-;;   (unless widget-tree-list
-;;     (widget-tree-build))
-;;   (widget-apply-action
-;;    (widget-create (widget-tree-widget 'default)))
-;;   (if (require 'tree-mode nil t)
-;;       (tree-minor-mode t)
-;;     (widget-insert "\n\n")
-;;     (widget-insert "   I recommend you use ")
-;;     (widget-create 'url-link
-;;                    :button-prefix ""
-;;                    :button-suffix ""
-;;                    :format "%[tree-mode%]"
-;;                    :button-face 'info-xref
-;;                    "http://www.emacswiki.org/cgi-bin/wiki/tree-mode.el")
-;;     (widget-insert " to browse tree-widget.\n\n")))
-;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Partly adapted
-
-;; (defun widget-tree-ancestor (widget)
-;;   (let ((parent (car (get widget 'widget-type))))
-;;     (if parent
-;;         (cons widget (widget-tree-ancestor parent)))))
-
-;; (defvar widget-tree-list nil
-;;   "Inherit tree of all widget")
-
-;; (defun widget-tree-build ()
-;;   (let (list seen ancestor tree-list)
-;;     (mapatoms (lambda (a)
-;;                 (and (get a 'widget-type)
-;;                      (push a list)))
-;;               obarray)
-;;     (setq list (remq 'default list))
-;;     (while list
-;;       (setq ancestor (nreverse (widget-tree-ancestor (car list))))
-;;       (setq parent 'default)
-;;       (dolist (type ancestor)
-;;         (unless (member type seen)
-;;           (setq alist (assoc parent tree-list)
-;;                 tree-list (delq alist tree-list)
-;;                 alist (cons parent (cons type (cdr alist)))
-;;                 tree-list (cons alist tree-list)
-;;                 list (delq type list))
-;;           (push type seen))
-;;         (setq parent type)))
-;;     (setq widget-tree-list tree-list)))
-
-;; (defun widget-tree-browse (but &rest ignore)
-;;   (if (= (length (window-list)) 1)
-;;       (split-window))
-;;   (save-selected-window
-;;     (other-window 1)
-;;     (widget-browse (intern (widget-get but :tag)))))
-
-;; (defun widget-tree-widget (type cell)
-;;    (message (format "Cell %S" cell))
-;;    (let ((list (assoc type widget-tree-list)))
-;;       (if list
-;; 	 `(tree-widget
-;; 	     :node (push-button
-;; 		      :value ,cell
-;; 		      :oldtag ,(symbol-name type)
-;; 		      :tag ,(car cell)
-;; 		      :format "%[%t%]\n"
-;; 		      :notify widget-tree-browse)
-;; 	     :dynargs widget-tree-expand)
-;; 	 `(push-button
-;; 	     :value ,cell
-;; 	     :oldtag ,(symbol-name type)
-;; 	     :tag ,(car cell)
-;; 	     :format "%[%t%]\n"
-;; 	     :notify widget-tree-browse))))
-
-;; (defun widget-tree-expand (tree)
-;;   (or (widget-get tree :args)
-;;      (let ((type (intern (widget-get (tree-widget-node tree) :oldtag)))
-;; 	     (alist (cddr (widget-get (tree-widget-node tree) :value))))
-;; 	(message (format "Alist %S" alist)) ;; mapcar
-;; 	;; Was "mapcar".  Limited by the shorter of the two lists
-;;         (map 'list 'widget-tree-widget
-;; 	   (cdr (assoc type widget-tree-list))
-;; 	   alist))))
-
-;; (defun widget-tree ()
-;;   (widget-insert
-;;    "This is a list of all defined widget. The tree-widget show the
-;; inherit relationship of the widget.\n\n")
-
-;;   (widget-insert "  You can click the button to browse the widget.\n\n")
-;;   (unless widget-tree-list
-;;     (widget-tree-build))
-;;   (widget-apply-action
-;;      (widget-create (widget-tree-widget 'default
-;; 		       (cons "nono" firrtl-current-components))))
-;;   (if (require 'tree-mode nil t)
-;;       (tree-minor-mode t)
-;;     (widget-insert "\n\n")
-;;     (widget-insert "   I recommend you use ")
-;;     (widget-create 'url-link
-;;                    :button-prefix ""
-;;                    :button-suffix ""
-;;                    :format "%[tree-mode%]"
-;;                    :button-face 'info-xref
-;;                    "http://www.emacswiki.org/cgi-bin/wiki/tree-mode.el")
-;;     (widget-insert " to browse tree-widget.\n\n")))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; KINDA WORKING
-
-;; (defun widget-tree-widget (cell)
-;;    (message (format "Cell %S" cell))
-;;    (let ()
-;;       (if (eq (second cell) 'list)
-;; 	 `(tree-widget
-;; 	     :node (push-button
-;; 		      :value ,cell
-;; 		      :tag ,(car cell)
-;; 		      :format "%[%t%]\n"
-;; 		      :notify widget-tree-browse)
-;; 	     :dynargs widget-tree-expand)
-;; 	 `(const
-;; 	     :format "%v\n"
-;; 	     :value ,(cdr cell)
-;; 	     :value-create ,#'firrtl-dbg-insert-normal-component))))
-
-
-;; (defun widget-tree-expand (tree)
-;;   (or (widget-get tree :args)
-;;      (let (
-;; 	     (alist (cddr (widget-get (tree-widget-node tree) :value))))
-;; 	(message (format "Alist %S" alist)) ;; mapcar
-;; 	;; Was "mapcar".  Limited by the shorter of the two lists
-;;         (map 'list 'widget-tree-widget
-;; 	   alist))))
-
-;; (defun widget-tree ()
-;;   (widget-insert
-;;    "This is a list of all defined widget. The tree-widget show the
-;; inherit relationship of the widget.\n\n")
-
-;;   (widget-insert "  You can click the button to browse the widget.\n\n")
-;;   (widget-apply-action
-;;      (widget-create (widget-tree-widget
-;; 		       (cons "root" firrtl-current-components))))
-;;   (if (require 'tree-mode nil t)
-;;       (tree-minor-mode t)
-;;     (widget-insert "\n\n")
-;;     (widget-insert "   I recommend you use ")
-;;     (widget-create 'url-link
-;;                    :button-prefix ""
-;;                    :button-suffix ""
-;;                    :format "%[tree-mode%]"
-;;                    :button-face 'info-xref
-;;                    "http://www.emacswiki.org/cgi-bin/wiki/tree-mode.el")
-;;     (widget-insert " to browse tree-widget.\n\n")))
-
-
-
 ;;;_ , Requires
 
 (require 'cl)
@@ -261,7 +38,6 @@
    v
    valid-p)
 
-;; Add (:include firrtl-component) on each one after here.
 (defstruct (firrtl-component (:type list) :named)
    "The base of FIRRTL component info for widgets"
    full-name
@@ -282,8 +58,6 @@
 	      :named)
    "A wire")
 
-
-
 (defstruct (firrtl-input
 	      (:type list)
 	      (:include firrtl-component)
@@ -297,18 +71,6 @@
 	      (:include firrtl-component)
 	      :named)
    "An output wire")
-
-
-
-;; Not a good approach.  Widgets hold all of this data, and outside
-;; there we might as well spread it into variables.
-'
-(defstruct circuit-state
-   "A state of the circuit"
-   step
-   freshness-str
-   ;; Registers & memory live here too?
-   )
 
 ;; Local variables
 ;; MAKE ME LOCAL in the mode
@@ -332,12 +94,6 @@ Where 'leaf' is one of the node types.
 
 ")
 
-;; OBSOLETE
-(defstruct (firrtl-subtree-info (:type list))
-   ""
-   was-found ;; Bool
-   old-tag+tree
-   )
 
 (defun firrtl-write-to-component (tree subname-list proc data)
    "
@@ -476,7 +232,7 @@ PROC should both take and return an individual element"
       (freshness-str (match-string 2 str)))
    
 
-   ;;(make-circuit-state :step step :freshness-str freshness-str)
+
    )
 
 (setq split
@@ -565,11 +321,6 @@ PROC should both take and return an individual element"
 	 :v 0
 	 :valid-p nil))))
 
-;; https://www.emacswiki.org/emacs/widget-demo.el
-
-;;(define-widget 'component-widget 'default
-;;   "Widget to display a component")
-
 ;; For most components, non-editable.  Just displays it.
 
 ;; For input edit, use 'integer.  Also shows name etc.  Must figure
@@ -578,59 +329,16 @@ PROC should both take and return an individual element"
 ;; have a face for "You set this")
 ;;
 
-;; tree-mode seems very helpful for this.  :node will be the type of
-;; the leaf widgets (a choice)
-
 ;; Extras: 
 
 ;; Add buttons and shortcuts for the functionality (step&show, multistep, reset)
 ;; Just if it's input, insert a value modification widget.
 ;; Allow hex or bin values, and arbitrary user value conversions (enums)
-;; Darker face if it's invalid (:value-face)
-;; Rearrange the buffer - push some to the top?
-;; Add something to save a configuration (currently open/closed/value-format)
-;; Find an existing one (markers and a hash table to them?  Search the top widget?)
 ;; Another buffer and structure defining enum value conversions?
+;; Darker face if it's invalid (:value-face)
+;; Sort them first: alphabetical and input/output/other
+;; Add something to save a configuration (currently open/closed/value-format)
 
-;; (widget-insert "\n")
-;; (widget-insert (component-name comp1))
-;; (widget-insert "  ")
-;; (widget-insert (int-to-string (component-value-v (component-current comp1))))
-
-;; Displays a name, but our type is wrong
-'
-(widget-create 'push-button
-   :format "%[%t%]\n"
-   :tag (component-name comp1))
-'
-(widget-create 'const
-   :format "%t  "
-   :tag (component-name comp1))
-
-'
-(widget-create 'const
-   :format "%v  "
-   :value (component-name comp1))
-'
-(widget-create 'const
-   :format "%v\n"
-   :value (int-to-string (component-value-v (component-current comp1))))
-
-;; How to make a group of these?  Make the individuals and group them.
-'
-(apply 'widget-convert 'const 
-   (list
-      :format "%v  "
-      :value (component-name comp1)))
-
-'
-(apply 'widget-convert 'const 
-   (list
-      :format "%v\n"
-      :value comp1
-      :value-create 
-      #'(lambda ()
-	   (widget-insert "Whee!\n"))))
 
 ;; PLACEHOLDER
 (defun firrtl-punt-notify (but &rest ignore)
@@ -641,27 +349,12 @@ PROC should both take and return an individual element"
       
       ))
 
-;; WORKS after tree-widget is loaded, but gets stuck on a copier.
-;; What we want for the root.  firrtl-dbg-tree-browse will expand this.
-'
-(apply 'widget-convert
-   `(tree-widget
-       :node (push-button
-		:data ,firrtl-current-components
-		:tag "root"
-		:format "%[%t%]\n"
-		:notify firrtl-punt-notify)
-       :dynargs firrtl-dbg-tree-expand))
 
-
-;; There's also "register" and "io.input"
 (defun firrtl-dbg-insert-normal-component (wid)
    "Insert an ephemeral component"
    (let* 
       ((v (widget-get wid :value)))
-      ;; (message (format "Inserter %S" v))
 
-      ;; 
       (widget-insert (firrtl-ephemeral-name v))
       (widget-insert "  ")
       (widget-insert
@@ -670,98 +363,15 @@ PROC should both take and return an individual element"
 
 
 
-' 
-(apply 'widget-create 'const 
-   (list
-      :format "%v\n"
-      :value comp1
-      :value-create #'firrtl-dbg-insert-normal-component))
-
-;; Inserts widget into the buffer
-;; (widget-apply widget :create)
-
-;; NO
-;; (defun firrtl-dbg-tree-ancestor (widget)
-;;   (let ((parent (car (get widget 'widget-type))))
-;;     (if parent
-;;         (cons widget (firrtl-dbg-tree-ancestor parent)))))
-
-;; ;; NO
-;; (defvar firrtl-dbg-tree-list nil
-;;   "Inherit tree of all widget")
-
-
-
-;; ;; The root will be stored buffer-locally.  The respective nodes will
-;; ;; be stored as tree's inner nodes' data.
-;; (defun firrtl-dbg-tree-build ()
-;;    ;; Make a list of the things
-;;    '
-;;   (let (list seen ancestor tree-list)
-;;     (mapatoms (lambda (a)
-;;                 (and (get a 'widget-type)
-;;                      (push a list)))
-;;               obarray)
-;;     (setq list (remq 'default list))
-;;     (while list
-;;       (setq ancestor (nreverse (firrtl-dbg-tree-ancestor (car list))))
-;;       (setq parent 'default)
-;;       (dolist (type ancestor)
-;;         (unless (member type seen)
-;;           (setq alist (assoc parent tree-list)
-;;                 tree-list (delq alist tree-list)
-;;                 alist (cons parent (cons type (cdr alist)))
-;;                 tree-list (cons alist tree-list)
-;;                 list (delq type list))
-;;           (push type seen))
-;;         (setq parent type)))
-;;      (setq firrtl-dbg-tree-list tree-list))
-;;    ;; WRITE ME as proof of concept:
-
-;;    )
-
-;; (defun firrtl-dbg-tree-browse (but &rest ignore)
-;;   (if (= (length (window-list)) 1)
-;;       (split-window))
-;;   (save-selected-window
-;;     (other-window 1)
-;;     (widget-browse (intern (widget-get but :tag)))))
-
-
-;; Try applying this on comp-list.  But we must get it by name or name
-;; component.
-;; '
-;; (defun firrtl-dbg-tree-widget (type)
-;;    ;; firrtl-current-components
-;;    ;; (assoc name firrtl-dbg-tree-list)  WRONG, that's the root.
-;;    ;; So assoc it on a local copy?  Or find the whole name in the root?
-;;   (let ((list (assoc type firrtl-dbg-tree-list)))
-;;      (if list
-;; 	;; Unchanged
-;;         `(tree-widget
-;; 	    :node (push-button
-;; 		     ;; Add data: Data of the tree, including 'list
-;; 		     :tag ,(symbol-name type) ;; Should be a prefix or similar.
-;; 		     :format "%[%t%]\n"
-;; 		     :notify firrtl-dbg-tree-browse)
-;; 	    :dynargs firrtl-dbg-tree-expand)
-;;        (const
-;; 	  :format "%v\n"
-;; 	  :value ,type
-;; 	  :value-create #'firrtl-dbg-insert-normal-component))))
-;; '
-;; (defun firrtl-dbg-tree-expand (tree)
-;;    (or (widget-get tree :args)
-;;       ;; Earlier, store that ply of firrtl-current-components.
-;;       (let (
-;; 	      (alist (cdr (widget-get (tree-widget-node tree) :data)))
-;; 	      (type (intern (widget-get (tree-widget-node tree) :tag))))
-;; 	 ;;(insert data) ;; DEbug
-;; 	 (mapcar #'firrtl-dbg-tree-widget alist)))) 
+;; ' 
+;; (apply 'widget-create 'const 
+;;    (list
+;;       :format "%v\n"
+;;       :value comp1
+;;       :value-create #'firrtl-dbg-insert-normal-component))
 
 
 (defun firrtl-dbg-tree-widget (cell)
-   ;;(message (format "Cell %S" cell))
    (let ()
       (if (eq (second cell) 'list)
 	 `(tree-widget
@@ -769,8 +379,7 @@ PROC should both take and return an individual element"
 		      :value ,cell
 		      :tag ,(car cell)
 		      :format "%[%t%]\n"
-		      ;; Notify something else, actually.
-		      :notify widget-tree-browse)
+		      :notify firrtl-punt-notify)
 	     :dynargs firrtl-dbg-tree-expand)
 	 ;; This should depend on component type
 	 `(const
@@ -783,10 +392,7 @@ PROC should both take and return an individual element"
    (or (widget-get tree :args)
       (let (
 	      (alist (cddr (widget-get (tree-widget-node tree) :value))))
-	 ;;(message (format "Alist %S" alist))
-	 ;; Was "mapcar".
-	 (map 'list 'firrtl-dbg-tree-widget
-	    alist))))
+	 (mapcar #'firrtl-dbg-tree-widget alist))))
 
 (defun firrtl-dbg-tree ()
    (widget-insert "Preliminary:  FIRRTL debugger interface\n\n")
