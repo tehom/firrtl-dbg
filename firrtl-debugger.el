@@ -372,7 +372,7 @@ PROC should both take and return an individual element"
 
 ;;;_ * Local emacs vars.
 ;;;_  + Local variables:
-;;;_  + mode: allout
+;;;_  + mode: emacs-lisp
 ;;;_  + End:
 
 ;;;_ , End
