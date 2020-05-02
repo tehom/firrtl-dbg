@@ -202,15 +202,10 @@ PROC should both take and return an individual element"
 ;; Helper to set up current data to develop on
 (defun firrtl-write-to-current-components (comp)
    ""
-   (setq
-      firrtl-current-components
-      (firrtl-write-to-component firrtl-current-components
-	 (firrtl-split-component-name
-	    (firrtl-component-full-name comp))
-	 ;; No point keeping the old one.
-	 #'(lambda (v data)
-	      data)
-	 comp)))
+   (firrtl-mutate-current-components
+      (firrtl-component-full-name comp)
+      #'(lambda (v data) data)
+      comp))
 
 ;; Set up some current data to develop on
 '
