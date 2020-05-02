@@ -231,9 +231,9 @@ PROC should both take and return an individual element"
       ;; We need better info on this.  Only "FRESH" or "STALE"?
       (freshness-str (match-string 2 str)))
    
+   (setq firrtl-current-circuit-freshness-str freshness-str)
+   (setq firrtl-current-step step))
 
-
-   )
 
 (setq split
    (let* 
@@ -255,7 +255,7 @@ PROC should both take and return an individual element"
    split))
 
 ;; "clock= 0"
-'' (setq an-input " io_cellState=☠ 1☠")
+;;(setq an-input " io_cellState=☠ 1☠")
 
 
 (defun firrtl-dbg-parse-component (component-str)
@@ -289,37 +289,6 @@ PROC should both take and return an individual element"
 
 (setq comp-list
    (mapcar #'firrtl-dbg-parse-component split))
-
-
-(setq comp1
-(let* 
-   ((component-str " io_cellState=☠ 1☠")
-      ;; " io_cellState=☠ 1☠"
-      ;; "clock= 0"
-      (m (string-match
-	    "^ *\\([^=]+\\)=\\(☠?\\) *\\([0-9]+\\)\\(☠?\\)"
-	    component-str))
-      (valid-p (string-empty-p (match-string 2 component-str)))
-      (value (parse-integer (match-string 3 component-str)))
-      )
-   ;; 2 and 4 should match
-
-   ;; First try to find the component, then make it if not found.
-
-   ;; So let's return (name . component-value), then search component,
-   ;; then always return a component.  We must split up name before
-   ;; any of this happens.
-
-   (make-component
-      :name (match-string 1 component-str)
-      :current
-      (make-component-value
-	 :v value
-	 :valid-p valid-p)
-      :next
-      (make-component-value
-	 :v 0
-	 :valid-p nil))))
 
 ;; For most components, non-editable.  Just displays it.
 
@@ -359,17 +328,6 @@ PROC should both take and return an individual element"
       (widget-insert "  ")
       (widget-insert
 	 (int-to-string (component-value-v (firrtl-ephemeral-current v))))))
-
-
-
-
-;; ' 
-;; (apply 'widget-create 'const 
-;;    (list
-;;       :format "%v\n"
-;;       :value comp1
-;;       :value-create #'firrtl-dbg-insert-normal-component))
-
 
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
