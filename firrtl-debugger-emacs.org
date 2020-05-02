@@ -1,0 +1,103 @@
+* firrtl-debugger-emacs
+** Headers
+*** Purpose
+
+Record the design and development of a FIRRTL debugging interface for emacs
+
+*** History
+
+Begun Thu Apr 30 16:45:04 2020
+
+*** File marks
+#+SETUPFILE: ~/.emacs.d/org-setups/design.org
+*** Associated files
+
+** Design
+** Info
+** Issues
+** Progress
+** Communication
+** Notes
+*** First things to do
+
+ * [ ] Capture "show" output
+ * [X] Parse "show" output
+   * Registers
+   * [X] Circuit state
+ * [X] Decide [[id:9282c996-d57a-4556-b167-530cf50a11f5][Whether to start directly]]
+ * [ ] Startup
+   * Now it's just a comint launch
+
+*** Plan for general interaction
+
+The registers etc live in a widget tree.
+
+We can pin various ones high, other ones sort as they come out.  Or
+just open them.  Maybe some way to save that.
+
+New ones are just captured.
+
+The inputs can be written to manually or programmatically.  poke
+inputPortName value and mempoke should be done automatically.
+
+Some button gets us "step; show; "  We may not need peek, mempeek.
+
+We capture circuit info and display it in a different window.
+
+*** Whether to start directly
+    :PROPERTIES:
+    :ID:       9282c996-d57a-4556-b167-530cf50a11f5
+    :END:
+
+We could try to work thru sbt mode.  But that brings in all sorts of
+hair.
+
+Starting directly just works.
+
+ : sbt 'test:runMain gcd.GCDRepl'
+
+puts us into the REPL, which we can capture directly.
+
+Even comint mode seems too much.  Just capture into a buffer.
+
+*** Parsing "show" output
+
+ * CircuitState
+ * Inputs:
+ * Outputs:
+ * Registers      :
+ * FutureRegisters:
+   * Associated to registers
+ * Ephemera:
+ * Memories
+
+Each register display is of the form Name=Value, separated by ", "
+except the last.  Value can be bracketed by "☠".  Inside that, Value
+is preceded by whitespace.
+
+Name is dot-separated components.  Each component may be suffixed with
+_N indicating part of a vector.
+
+*** type
+
+We'd like to run "type regex" on each thing and associate that to its
+name.  But that may take a while.
+
+*** eval
+
+On a thing, to show trace of computation
+
+*** waitfor
+waitfor componentName value
+
+Possibly wrt a componentName we point at
+
+*** Other commands
+reset
+randomize
+poison
+timing
+Setting flags: {ordered-exec,allow-cycles,eval-all}
+
+And that's about it.  Other existing commands are pointless in this
+environment.
