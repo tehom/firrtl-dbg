@@ -235,61 +235,65 @@ PROC should both take and return an individual element"
    (setq firrtl-current-circuit-freshness-str freshness-str)
    (setq firrtl-current-step step))
 
+;; Prefix rxes
+;; "Inputs: *"
+;; "Outputs: *"
+;; "Registers *: *"
+;; "FutureRegisters: *"
+;; "Ephemera: *"
+;; "Memories" ;; This one may be different.  None written yet.
+
+(defun firrtl-dbg-split-input-line (input-str prefix-rx)
+   ""
+   (let* 
+      (
+	 (m (string-match prefix-rx input-str))
+	 (end (match-end 0))
+	 (input-str (substring input-str end)))
+      (split-string input-str ",")))
+
+'
+(setq ephems
+   (firrtl-dbg-split-input-line (sixth spl) "Ephemera: *"))
 
 (setq split
    (let* 
-   ((input-str (second spl))
-      ;; "Inputs: *"
-      ;; "Outputs: *"
-      ;; "Registers *: *"
-      ;; "FutureRegisters: *"
-      ;; "Ephemera: *"
-      ;; "Memories" ;; This one may be different.  None written yet.
-      (m (string-match "Inputs: *" input-str))
-      (end (match-end 0))
-      (input-str (substring input-str end))
-      (split (split-string input-str ","))
-      )
-
-   ;; Use the list
-   (first split)
-   split))
-
-;; "clock= 0"
-;;(setq an-input " io_cellState=☠ 1☠")
+      ((input-str (second spl))
+	 ;; "Inputs: *"
+	 ;; "Outputs: *"
+	 ;; "Registers *: *"
+	 ;; "FutureRegisters: *"
+	 ;; "Ephemera: *"
+	 ;; "Memories" ;; This one may be different.  None written yet.
+	 (m (string-match "Inputs: *" input-str))
+	 (end (match-end 0))
+	 (input-str (substring input-str end))
+	 (split (split-string input-str ",")))
+      
+      split))
 
 
-(defun firrtl-dbg-parse-component (component-str)
-   "Return type here is not settled"
+(defun firrtl-dbg-act-on-component-str (component-str proc)
+   "PROC should take three parms: name, value, and is-valid"
    (let* 
       (
 	 (m (string-match
 	       "^ *\\([^=]+\\)=\\(☠?\\) *\\([0-9]+\\)\\(☠?\\)"
 	       component-str))
+	 (full-name (match-string 1 component-str))
 	 (valid-p (string-empty-p (match-string 2 component-str)))
-	 (value (parse-integer (match-string 3 component-str)))
-	 )
-      ;; 2 and 4 should match
+	 (value (parse-integer (match-string 3 component-str))))
+      
+      ;; 2 and 4 should be the same
+      (assert (string-equal
+		 (match-string 2 component-str)
+		 (match-string 4 component-str) ))
 
-      ;; First try to find the component, then make it if not found.
+      (funcall proc
+	 full-name value valid-p)))
 
-      ;; So let's return (name . component-value), then search component,
-      ;; then always return a component.  We must split up name before
-      ;; any of this happens.
-
-      (make-firrtl-component
-	 :full-name (match-string 1 component-str)
-	 :current
-	 (make-component-value
-	    :v value
-	    :valid-p valid-p)
-	 :next
-	 (make-component-value
-	    :v 0
-	    :valid-p nil))))
 '
-(setq comp-list
-   (mapcar #'firrtl-dbg-parse-component split))
+(firrtl-dbg-act-on-component-str (second split) #'list)
 
 ;; For most components, non-editable.  Just displays it.
 
