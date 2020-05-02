@@ -71,6 +71,12 @@
 	      :named)
    "An output wire")
 
+(defface firrtl-dbg-face-invalid '((t :background "gray"))
+   "The face for poisoned values")
+
+;; WRITE ME:  Faces for normal values, just-changed values, etc
+
+
 ;; Local variables
 ;; MAKE ME LOCAL in the mode
 
