@@ -526,12 +526,11 @@ applied up until that column."
 	       nil
 	       'firrtl-dbg-face-invalid)))
       
-      (widget-insert (firrtl-input-full-name v))
+      (firrtl-dbg-insert-fields
+	 (list
+	    (list (firrtl-input-full-name v) nil firrtl-dbg-value-column)
+	    (list val-string val-face firrtl-dbg-value-end-column)))))
 
-      (firrtl-dbg-pad-to-column firrtl-dbg-value-column nil)
-
-      (firrtl-dbg-insert-w-face val-string val-face)
-      (firrtl-dbg-pad-to-column firrtl-dbg-value-end-column val-face)))
 
 (defun firrtl-dbg-insert-output-component (wid)
    "Insert an output component"
@@ -546,12 +545,11 @@ applied up until that column."
 	       nil
 	       'firrtl-dbg-face-invalid)))
       
-      (widget-insert (firrtl-output-full-name v))
+      (firrtl-dbg-insert-fields
+	 (list
+	    (list (firrtl-output-full-name v) nil firrtl-dbg-value-column)
+	    (list val-string val-face firrtl-dbg-value-end-column)))))
 
-      (firrtl-dbg-pad-to-column firrtl-dbg-value-column nil)
-
-      (firrtl-dbg-insert-w-face val-string val-face)
-      (firrtl-dbg-pad-to-column firrtl-dbg-value-end-column val-face)))
 
 
 (defun firrtl-dbg-tree-widget (cell)
