@@ -119,14 +119,15 @@ DATA is the data to store, usually a symbol"
    ;; hasn't presented a problem yet.  Or just indicate listness with
    ;; t or nil.
    (let* 
-      (  (tree (or tree '(list)))
+      (  (tree (or tree '(t)))
 	 (subtree-info-list '())
-	 ;; A list* of tag, 'list, and current alist being explored
+	 ;; A list* of tag, t, and current alist being explored, or
+	 ;; (tag nil . data)
 	 (current-tag+tree (cons nil tree)))
 
       ;; Drill down to the component that we want.
       (dolist (subname subname-list)
-	 (if (eq (cadr current-tag+tree) 'list)
+	 (if (second current-tag+tree)
 	    ;; What we're exploring is an alist
 	    (let* 
 	       (  (alist (cddr current-tag+tree))
@@ -138,7 +139,7 @@ DATA is the data to store, usually a symbol"
 			(cons
 			   (list*
 			      (car current-tag+tree)
-			      'list
+			      t
 			      (delete found alist))
 			   subtree-info-list))
 		     (setq current-tag+tree found))
@@ -148,7 +149,7 @@ DATA is the data to store, usually a symbol"
 			(cons
 			   current-tag+tree
 			   subtree-info-list))
-		     (setq current-tag+tree (cons subname '(list))))))
+		     (setq current-tag+tree (list subname t)))))
 
 	    ;; What we're exploring is a structure.  Demote it to the
 	    ;; next level and make a list.
@@ -157,13 +158,13 @@ DATA is the data to store, usually a symbol"
 		  (cons
 		     (list*
 			(car current-tag+tree)
-			'list
+			t
 			;; One sub-element, same as old except with an
 			;; empty subname
 			(list
 			   (cons "" (cdr current-tag+tree))))
 		     subtree-info-list))
-	       (setq current-tag+tree (cons subname '(list))))))
+	       (setq current-tag+tree (list subname t)))))
 
       ;; If current-tag+tree points at a true list, drill once more
       ;; with a blank subname.  Note we might get a blank list because
@@ -176,13 +177,13 @@ DATA is the data to store, usually a symbol"
       ;; blank subname.
       (when
 	 (and
-	    (eq (cadr current-tag+tree) 'list)
+	    (second current-tag+tree)
 	    (not (null (cddr current-tag+tree))))
 	 (setq subtree-info-list
 	    (cons
 	       current-tag+tree
 	       subtree-info-list))
-	 (setq current-tag+tree (cons "" '(unbuilt))))
+	 (setq current-tag+tree (list "" nil)))
       
       ;; Now current-tag+tree points at the leaf that corresponds to
       ;; subname-list
@@ -412,7 +413,7 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
-      (if (eq (second cell) 'list)
+      (if (second cell)
 	 `(tree-widget
 	     :node (push-button
 		      :value ,(cddr cell)
