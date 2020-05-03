@@ -464,7 +464,7 @@ DATA is the data to store, usually a symbol"
 (let* 
    ((next-pos
        (next-single-char-property-change (point) 'button (current-buffer))))
-   (when next-pos
+   (when (and next-pos (not (equal next-pos (point-max))))
       (goto-char next-pos)
       (let* 
 	 ((maybe-widget (get-char-property next-pos 'button)))
@@ -473,13 +473,41 @@ DATA is the data to store, usually a symbol"
 	       ((widget (widget-get maybe-widget :node)))
 	       (when (widget-get widget :value)
 		  ;; This forces a redraw
-		  (widget-value-set widget (widget-value widget))))))))
+		  (widget-value-set widget (widget-value widget))))))
+      'ok))
 
 
 
 ;; Find respective sym.  That's :node then :value, if that's a sym.
 ;; Then check timestamp, maybe do nothing.
 ;; Then redraw the node widget
+(defun firrtl-dbg-redraw-widgets ()
+   ""
+   
+   (let
+      ((done nil)
+	 (pos (point-min)))
+      (goto-char (point-min))
+      (while (not done)
+	 (let* 
+	    ((next-pos
+		(next-single-char-property-change
+		   pos 'button (current-buffer))))
+	    (if (and next-pos (not (equal next-pos (point-max))))
+	       (progn
+		  (setq pos next-pos)
+		  (goto-char next-pos)
+		  (let* 
+		     ((maybe-widget (get-char-property next-pos 'button)))
+		     (when maybe-widget
+			(let* 
+			   ((widget (widget-get maybe-widget :node)))
+			   (when (widget-get widget :value)
+			      ;; This forces a redraw
+			      (widget-value-set widget
+				 (widget-value widget)))))))
+	       (setq done t))))))
+
 
 
 ;; Dev help for changing values behind widgets' back
@@ -487,7 +515,7 @@ DATA is the data to store, usually a symbol"
 (symbol-value (intern "_GEN_3" firrtl-dbg-obarray))
 
 '
-(set (intern "_GEN_3" firrtl-dbg-obarray) '(firrtl-ephemeral "_GEN_3" (333 t)))
+(set (intern "_GEN_3" firrtl-dbg-obarray) '(firrtl-ephemeral "_GEN_3" (444 t)))
 
 ;;;_. Footers
 ;;;_ , Provides
