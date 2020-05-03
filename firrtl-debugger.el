@@ -109,11 +109,11 @@ Where 'leaf' is one of the node types.
 ")
 
 
-(defun firrtl-write-to-component (tree subname-list proc data)
+(defun firrtl-write-to-component (tree subname-list data)
    "
 TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
 
-PROC should both take and return an individual element"
+DATA is the data to store, usually a symbol, never 'list'"
    (let* 
       (  (tree (or tree '(list)))
 	 (subtree-info-list '())
@@ -201,26 +201,18 @@ PROC should both take and return an individual element"
 
 '
 (firrtl-write-to-component '() '("a" "b")
-   #'(lambda (old data)
-	(cons data nil))
    'my-data)
 
 '
 (firrtl-write-to-component '(list ("a" list ("b" my-data))) '("a" "b")
-   #'(lambda (old data)
-	(cons data nil))
     'new-data)
 
 '
 (firrtl-write-to-component '(list ("a" list ("b" my-data))) '("a" "c")
-   #'(lambda (old data)
-	(cons data nil))
     'new-data)
 
 '
 (firrtl-write-to-component '(list ("a" list ("b" my-data))) '("d" "b")
-   #'(lambda (old data)
-	(cons data nil))
     'new-data)
 
 
@@ -230,13 +222,12 @@ PROC should both take and return an individual element"
 '
 (firrtl-split-component-name "io_a.b")
 
-(defun firrtl-mutate-current-components (full-name proc data)
+(defun firrtl-mutate-current-components (full-name data)
    ""
    (setq
       firrtl-current-components
       (firrtl-write-to-component firrtl-current-components
 	 (firrtl-split-component-name full-name)
-	 proc
 	 data)))
 
 
@@ -249,11 +240,8 @@ PROC should both take and return an individual element"
 	     :full-name full-name))
 	 (sym (intern full-name firrtl-dbg-obarray)))
       (set sym data)
-      (firrtl-mutate-current-components full-name
-	 ;; For now, no point keeping the old one.
-	 #'(lambda (dummy v) (list v))
-	 sym)
-      ))
+      (firrtl-mutate-current-components full-name sym)))
+
 
 
 
@@ -262,7 +250,6 @@ PROC should both take and return an individual element"
    ""
    (firrtl-mutate-current-components
       (firrtl-component-full-name comp)
-      #'(lambda (v data) data)
       comp))
 
 ;; Set up some current data to develop on
