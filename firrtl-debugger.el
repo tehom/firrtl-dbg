@@ -460,13 +460,24 @@ DATA is the data to store, usually a symbol"
 (defconst firrtl-dbg-value-column 15
    "Column that values should print at" )
 
+(defconst firrtl-dbg-value-end-column 25
+   "Column that values should end at" )
+
 (defun firrtl-dbg-pad-to-column (column face)
    ""
    
    (let*
-      ((space (propertize val-string 'face face) ))
+      ((space (propertize " " 'face face) ))
       (while (< (current-column) column)
 	 (widget-insert space))))
+
+(defun firrtl-dbg-insert-w-face (str face)
+   ""
+   
+   (let*
+      ((str (if face (propertize str 'face face) str)))
+
+      (widget-insert str)))
 
 
 (defun firrtl-dbg-insert-ephemeral-component (wid)
@@ -476,20 +487,19 @@ DATA is the data to store, usually a symbol"
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym))
 	 (val (firrtl-ephemeral-current v))
-	 (val-string (number-to-string (component-value-v val))))
+	 (val-string (number-to-string (component-value-v val)))
+	 (val-face
+	    (if (component-value-valid-p val)
+	       nil
+	       'firrtl-dbg-face-invalid)))
       
-
       (widget-insert (firrtl-ephemeral-full-name v))
 
       (firrtl-dbg-pad-to-column firrtl-dbg-value-column nil)
 
-      (case (component-value-valid-p val)
-	 ((t) )
-	 ((nil)
-	    (setq val-string
-	       (propertize val-string 'face 'firrtl-dbg-face-invalid))))
-      
-      (widget-insert val-string)))
+      (firrtl-dbg-insert-w-face val-string val-face)
+      (firrtl-dbg-pad-to-column firrtl-dbg-value-end-column val-face)))
+
 
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
