@@ -456,7 +456,16 @@ PROC should both take and return an individual element"
       (tree-minor-mode t)
       (widget-insert "\n\n")))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Updating widgets due to new "show"
 
+
+;; `widget-browse-at' gives us current widgets.  It looks at text
+;; properties.  The one of interest is `button' because every
+;; component's widget has a button.  
+
+;; So we could just look at all the text properties and update the
+;; relevant widgets.  Buffer-last ones first, to be efficient.  Can use next-single-property-change or next-property-change
 
 ;;;_. Footers
 ;;;_ , Provides
