@@ -463,10 +463,6 @@ DATA is the data to store, usually a symbol"
    "Insert an ephemeral component"
    (let* 
       (
-	 ;; (v0 (widget-get wid :value))
-	 ;; (full-name (firrtl-ephemeral-full-name v0))
-	 ;; ;; Later we'll have this directly as :value
-	 ;; (sym (intern full-name firrtl-dbg-obarray))
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym))
 	 (val (firrtl-ephemeral-current v))
