@@ -81,8 +81,10 @@
 ;; Local variables
 ;; MAKE ME LOCAL in the mode
 
+(defconst firrtl-dbg-obarray-default-size 257 "" )
+
 (defvar firrtl-dbg-obarray
-   (make-vector 257 nil)
+   (make-vector firrtl-dbg-obarray-default-size nil)
    "Obarray that holds the data about FIRRTL components" )
 
 
@@ -339,7 +341,7 @@ PROC should both take and return an individual element"
 	       component-str))
 	 (full-name (match-string 1 component-str))
 	 (valid-p (string-empty-p (match-string 2 component-str)))
-	 (value (parse-integer (match-string 3 component-str))))
+	 (value (string-to-number (match-string 3 component-str))))
       
       ;; 2 and 4 should be the same
       (assert (string-equal
@@ -397,7 +399,11 @@ PROC should both take and return an individual element"
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
    (let* 
-      ((v (widget-get wid :value))
+      ((v0 (widget-get wid :value))
+	 (full-name (firrtl-ephemeral-full-name v0))
+	 ;; Later we'll have this directly as :value
+	 (sym (intern full-name firrtl-dbg-obarray))
+	 (v (symbol-value sym))
 	 (val (firrtl-ephemeral-current v))
 	 (val-string (number-to-string (component-value-v val))))
       
