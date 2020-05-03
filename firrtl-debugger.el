@@ -291,7 +291,21 @@ DATA is the data to store, usually a symbol"
       
       (firrtl-mutate-current-components full-name sym)))
 
+(defun firrtl-dbg-set-register-current (full-name value valid-p)
+   ""
+   
+   (let*
+      ()
+      
+      ))
 
+(defun firrtl-dbg-set-register-next (full-name value valid-p)
+   ""
+   
+   (let*
+      ()
+      
+      ))
 
 (defstruct (firrtl-dbg-state-strings (:type list))
    "Structuring the post-split strings"
