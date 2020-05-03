@@ -241,12 +241,21 @@ PROC should both take and return an individual element"
 
 (defun firrtl-dbg-add-ephemeral (full-name value valid-p)
    ""
-   (firrtl-mutate-current-components full-name
-      ;; For now, no point keeping the old one.
-      #'(lambda (dummy data) data)
-      (make-firrtl-ephemeral
-	 :current (make-component-value :v value :valid-p valid-p)
-	 :full-name full-name)))
+   (let* 
+      ((data
+	  (make-firrtl-ephemeral
+	     :current (make-component-value :v value :valid-p valid-p)
+	     :full-name full-name))
+	 (sym (intern full-name firrtl-dbg-obarray)))
+      (set sym data)
+      ;; COMING: We'll change this to store `sym', after we can print
+      ;; from lookup in firrtl-dbg-obarray
+      (firrtl-mutate-current-components full-name
+	 ;; For now, no point keeping the old one.
+	 #'(lambda (dummy v) v)
+	 data)
+      ))
+
 
 
 ;; Helper to set up current data to develop on
