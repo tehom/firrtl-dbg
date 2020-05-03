@@ -555,18 +555,14 @@ applied up until that column."
    (let* 
       (
 	 (sym (widget-get wid :value))
-	 (v (symbol-value sym))
-	 (val (firrtl-output-current v))
-	 (val-string (number-to-string (component-value-v val)))
-	 (val-face
-	    (if (component-value-valid-p val)
-	       nil
-	       'firrtl-dbg-face-invalid)))
+	 (v (symbol-value sym)))
       
       (firrtl-dbg-insert-fields
 	 (list
 	    (list (firrtl-output-full-name v) nil firrtl-dbg-value-column)
-	    (list val-string val-face firrtl-dbg-value-end-column)))))
+	    (firrtl-dbg-field-fmt
+	       (firrtl-output-current v)
+	       firrtl-dbg-value-end-column)))))
 
 (defun firrtl-dbg-insert-register-component (wid)
    "Insert a register component"
