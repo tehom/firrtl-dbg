@@ -448,35 +448,8 @@ DATA is the data to store, usually a symbol"
 ;; Updating widgets due to new "show"
 
 
-;; `widget-browse-at' gives us current widgets.  It looks at text
-;; properties.  The one of interest is `button' because every
-;; component's widget has a button.  
-;; (get-char-property pos 'button)
-
-;; So we could just look at all the text properties and update the
-;; relevant widgets.
-
-'(next-single-char-property-change (point) 'button (current-buffer))
-
-;; This works to update one, and advances the spot.  But it redraws
-;; every node and doesn't check for leafness.
-'
-(let* 
-   ((next-pos
-       (next-single-char-property-change (point) 'button (current-buffer))))
-   (when (and next-pos (not (equal next-pos (point-max))))
-      (goto-char next-pos)
-      (let* 
-	 ((maybe-widget (get-char-property next-pos 'button)))
-	 (when maybe-widget
-	    (let* 
-	       ((widget (widget-get maybe-widget :node)))
-	       (when (widget-get widget :value)
-		  ;; This forces a redraw
-		  (widget-value-set widget (widget-value widget))))))
-      'ok))
-
-
+;; Look at the text properties to find the relevant widgets.  Update
+;; them.
 
 ;; Find respective sym.  That's :node then :value, if that's a sym.
 ;; Then check timestamp, maybe do nothing.
@@ -487,19 +460,22 @@ DATA is the data to store, usually a symbol"
    (let
       ((done nil)
 	 (pos (point-min)))
-      (goto-char (point-min))
+
       (while (not done)
 	 (let* 
 	    ((next-pos
 		(next-single-char-property-change
-		   pos 'button (current-buffer))))
-	    (if (and next-pos (not (equal next-pos (point-max))))
+		   pos 'button (current-buffer)))
+	       (advanced
+		  (and next-pos (not (equal next-pos (point-max))))))
+	    (if advanced
 	       (progn
 		  (setq pos next-pos)
-		  (goto-char next-pos)
 		  (let* 
 		     ((maybe-widget (get-char-property next-pos 'button)))
 		     (when maybe-widget
+			;; WRITE ME: Check whether it's a leaf.  Check
+			;; its timestamp to see whether we need to
 			(let* 
 			   ((widget (widget-get maybe-widget :node)))
 			   (when (widget-get widget :value)
