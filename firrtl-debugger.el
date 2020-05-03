@@ -399,10 +399,12 @@ PROC should both take and return an individual element"
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
    (let* 
-      ((v0 (widget-get wid :value))
-	 (full-name (firrtl-ephemeral-full-name v0))
-	 ;; Later we'll have this directly as :value
-	 (sym (intern full-name firrtl-dbg-obarray))
+      (
+	 ;; (v0 (widget-get wid :value))
+	 ;; (full-name (firrtl-ephemeral-full-name v0))
+	 ;; ;; Later we'll have this directly as :value
+	 ;; (sym (intern full-name firrtl-dbg-obarray))
+	 (sym (widget-get wid :value))
 	 (v (symbol-value sym))
 	 (val (firrtl-ephemeral-current v))
 	 (val-string (number-to-string (component-value-v val))))
@@ -432,11 +434,15 @@ PROC should both take and return an individual element"
 		      :format "%[%t%]\n"
 		      :notify firrtl-punt-notify)
 	     :dynargs firrtl-dbg-tree-expand)
-	 ;; This should depend on component type
-	 `(const
-	     :format "%v\n"
-	     :value ,(cdr cell)
-	     :value-create ,#'firrtl-dbg-insert-ephemeral-component))))
+	 ;; This will just store and retrive the full name symbol
+	 (let*
+	    (  (v0 (cdr cell))
+	       (full-name (firrtl-ephemeral-full-name v0))
+	       (sym (intern full-name firrtl-dbg-obarray)))
+	    `(const
+		:format "%v\n"
+		:value ,sym
+		:value-create ,#'firrtl-dbg-insert-ephemeral-component)))))
 
 
 (defun firrtl-dbg-tree-expand (tree)
