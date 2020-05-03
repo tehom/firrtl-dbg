@@ -321,23 +321,6 @@ PROC should both take and return an individual element"
 (setq ephems
    (firrtl-dbg-split-input-line (sixth spl) "Ephemera: *"))
 
-(setq split
-   (let* 
-      ((input-str (second spl))
-	 ;; "Inputs: *"
-	 ;; "Outputs: *"
-	 ;; "Registers *: *"
-	 ;; "FutureRegisters: *"
-	 ;; "Ephemera: *"
-	 ;; "Memories" ;; This one may be different.  None written yet.
-	 (m (string-match "Inputs: *" input-str))
-	 (end (match-end 0))
-	 (input-str (substring input-str end))
-	 (split (split-string input-str ",")))
-      
-      split))
-
-
 (defun firrtl-dbg-act-on-component-str (component-str proc)
    "PROC should take three parms: name, value, and is-valid"
    (let* 
