@@ -233,17 +233,20 @@ DATA is the data to store, usually a symbol"
 	 (firrtl-split-component-name full-name)
 	 data)))
 
-
-(defun firrtl-dbg-add-ephemeral (full-name value valid-p)
+(defun firrtl-dbg-add-component (full-name data)
    ""
    (let* 
-      ((data
-	  (make-firrtl-ephemeral
-	     :current (make-component-value :v value :valid-p valid-p)
-	     :full-name full-name))
+      (
 	 (sym (intern full-name firrtl-dbg-obarray)))
       (set sym data)
       (firrtl-mutate-current-components full-name sym)))
+
+(defun firrtl-dbg-add-ephemeral (full-name value valid-p)
+   ""
+   (firrtl-dbg-add-component full-name
+      (make-firrtl-ephemeral
+	 :current (make-component-value :v value :valid-p valid-p)
+	 :full-name full-name)))
 
 
 (defstruct (firrtl-dbg-state-strings (:type list))
@@ -273,16 +276,19 @@ DATA is the data to store, usually a symbol"
 (setq spl (split-string firrtl-state-string "\n"))
 ;; Gives a firrtl-dbg-state-strings
 
-
-(let* 
-   ((str (firrtl-dbg-state-strings-overview spl))
-      (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
-      (step (string-to-number (match-string 1 str)))
-      ;; We need better info on this.  Only "FRESH" or "STALE"?
-      (freshness-str (match-string 2 str)))
+(defun firrtl-dbg-read-overview (spl)
+   ""
+   (let* 
+      ((str (firrtl-dbg-state-strings-overview spl))
+	 (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
+	 (step (string-to-number (match-string 1 str)))
+	 ;; We need better info on this.  Only "FRESH" or "STALE"?
+	 (freshness-str (match-string 2 str)))
    
-   (setq firrtl-current-circuit-freshness-str freshness-str)
-   (setq firrtl-current-step step))
+      (setq firrtl-current-circuit-freshness-str freshness-str)
+      (setq firrtl-current-step step)))
+
+
 
 ;; Prefix rxes
 ;; "Inputs: *"
@@ -303,7 +309,8 @@ DATA is the data to store, usually a symbol"
 
 '
 (setq ephems
-   (firrtl-dbg-split-input-line (sixth spl) "Ephemera: *"))
+   (firrtl-dbg-split-input-line
+      (firrtl-dbg-state-strings-ephemera spl) "Ephemera: *"))
 
 (defun firrtl-dbg-act-on-component-str (component-str proc)
    "PROC should take three parms: name, value, and is-valid"
@@ -334,6 +341,32 @@ DATA is the data to store, usually a symbol"
    #'(lambda (v)
 	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
    ephems)
+
+'
+(let
+   ((spl (split-string firrtl-state-string "\n"))
+
+      )
+   
+   '(defstruct (firrtl-dbg-state-strings (:type list))
+       "Structuring the post-split strings"
+       overview
+       inputs
+       outputs
+       registers
+       future-registers
+       ephemera
+       memories)
+   
+   (firrtl-dbg-read-overview spl)
+
+   (mapcar
+      #'(lambda (v)
+	   (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
+      (firrtl-dbg-split-input-line
+	 (firrtl-dbg-state-strings-ephemera spl)
+	 "Ephemera: *"))
+   )
 
 
 ;; firrtl-current-components
