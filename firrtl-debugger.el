@@ -459,6 +459,16 @@ DATA is the data to store, usually a symbol"
 
 (defconst firrtl-dbg-value-column 15
    "Column that values should print at" )
+
+(defun firrtl-dbg-pad-to-column (column face)
+   ""
+   
+   (let*
+      ((space (propertize val-string 'face face) ))
+      (while (< (current-column) column)
+	 (widget-insert space))))
+
+
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
    (let* 
@@ -470,10 +480,8 @@ DATA is the data to store, usually a symbol"
       
 
       (widget-insert (firrtl-ephemeral-full-name v))
-      ;; `current-column' seems to take visual widget indentation into
-      ;; account, so no extra work is needed for this.
-      (while (< (current-column) firrtl-dbg-value-column)
-	 (widget-insert " "))
+
+      (firrtl-dbg-pad-to-column firrtl-dbg-value-column nil)
 
       (case (component-value-valid-p val)
 	 ((t) )
