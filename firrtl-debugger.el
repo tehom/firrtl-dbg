@@ -500,6 +500,19 @@ applied up until that column."
 	 (firrtl-dbg-pad-to-column end-col face))))
 
 
+(defun firrtl-dbg-field-fmt (cvalue end-col)
+   ""
+   (let* 
+      ((face
+	  (if (component-value-valid-p cvalue)
+	     nil
+	     'firrtl-dbg-face-invalid)))
+      
+      (list
+	 (number-to-string
+	    (component-value-v cvalue))
+	 face
+	 end-col)))
 
 
 (defun firrtl-dbg-insert-ephemeral-component (wid)
@@ -558,21 +571,6 @@ applied up until that column."
 	 (list
 	    (list (firrtl-output-full-name v) nil firrtl-dbg-value-column)
 	    (list val-string val-face firrtl-dbg-value-end-column)))))
-
-(defun firrtl-dbg-field-fmt (cvalue end-col)
-   ""
-   (let* 
-      ((face
-	  (if (component-value-valid-p cvalue)
-	     nil
-	     'firrtl-dbg-face-invalid)))
-      
-      (list
-	 (number-to-string
-	    (component-value-v cvalue))
-	 face
-	 end-col)))
-
 
 (defun firrtl-dbg-insert-register-component (wid)
    "Insert a register component"
