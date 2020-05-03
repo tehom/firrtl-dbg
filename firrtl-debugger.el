@@ -184,9 +184,9 @@ PROC should both take and return an individual element"
       ;; Now current-tag+tree points at the leaf that corresponds to
       ;; subname-list
 
-      ;; Alter the component.  This may erase a 'list tag
-      (setcdr current-tag+tree
-	 (funcall proc (cdr current-tag+tree) data))
+      ;; Put the data in place.  This works but data must not be the
+      ;; symbol 'list'
+      (setcdr current-tag+tree (list data))
 
       ;; Cons the subtrees back in.
       (dolist (old-tag+tree subtree-info-list)
