@@ -586,11 +586,8 @@ applied up until that column."
 	    (list (firrtl-register-full-name v) nil firrtl-dbg-value-column)
 	    (list val-string val-face firrtl-dbg-value-end-column)
 	    (list " -> " nil firrtl-dbg-next-value-begin-column)
-	    (list
-	       (number-to-string
-		  (component-value-v
-		     (firrtl-output-current v)))
-	       nil
+	    (firrtl-dbg-field-fmt
+	       (firrtl-output-current v)
 	       firrtl-dbg-next-value-end-column)))))
 
 
