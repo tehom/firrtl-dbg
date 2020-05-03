@@ -114,6 +114,9 @@ Where 'leaf' is one of the node types.
 TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
 
 DATA is the data to store, usually a symbol, never 'list'"
+
+   ;; We could make a dedicated symbol instead of `list', but it
+   ;; hasn't presented a problem yet.
    (let* 
       (  (tree (or tree '(list)))
 	 (subtree-info-list '())
