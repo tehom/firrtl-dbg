@@ -238,19 +238,59 @@ DATA is the data to store, usually a symbol"
    ""
    (let* 
       (
-	 (sym (intern-soft full-name firrtl-dbg-obarray)))
-      (if sym
+	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
+	 (sym (intern full-name firrtl-dbg-obarray)))
+      (if soft-sym
 	 ;; Later, we'll check equality and set a timestamp.
 	 (setf (firrtl-ephemeral-current
 		  (make-component-value :v value :valid-p valid-p)))
 	 ;; Since it doesn't exist, create it
 	 (set
-	    (intern full-name firrtl-dbg-obarray)
+	    sym
 	    (make-firrtl-ephemeral
 	       :current (make-component-value :v value :valid-p valid-p)
 	       :full-name full-name)))
       
       (firrtl-mutate-current-components full-name sym)))
+
+(defun firrtl-dbg-add-input (full-name value valid-p)
+   ""
+   (let* 
+      (
+	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
+	 (sym (intern full-name firrtl-dbg-obarray)))
+      (if soft-sym
+	 ;; Later, we'll check equality and set a timestamp.
+	 (setf (firrtl-input-current
+		  (make-component-value :v value :valid-p valid-p)))
+	 ;; Since it doesn't exist, create it
+	 (set
+	    (intern full-name firrtl-dbg-obarray)
+	    (make-firrtl-input
+	       :current (make-component-value :v value :valid-p valid-p)
+	       :full-name full-name)))
+      
+      (firrtl-mutate-current-components full-name sym)))
+
+(defun firrtl-dbg-add-output (full-name value valid-p)
+   ""
+   (let* 
+      (
+	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
+	 (sym (intern full-name firrtl-dbg-obarray)))
+      (if soft-sym
+	 ;; Later, we'll check equality and set a timestamp.
+	 (setf (firrtl-output-current
+		  (make-component-value :v value :valid-p valid-p)))
+	 ;; Since it doesn't exist, create it
+	 (set
+	    (intern full-name firrtl-dbg-obarray)
+	    (make-firrtl-output
+	       :current (make-component-value :v value :valid-p valid-p)
+	       :full-name full-name)))
+      
+      (firrtl-mutate-current-components full-name sym)))
+
 
 
 (defstruct (firrtl-dbg-state-strings (:type list))
@@ -366,6 +406,19 @@ DATA is the data to store, usually a symbol"
 
    (mapcar
       #'(lambda (v)
+	   (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-input))
+      (firrtl-dbg-split-input-line
+	 (firrtl-dbg-state-strings-inputs spl)
+	 "Inputs: *"))
+   (mapcar
+      #'(lambda (v)
+	   (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-output))
+      (firrtl-dbg-split-input-line
+	 (firrtl-dbg-state-strings-outputs spl)
+	 "Outputs: *"))
+
+   (mapcar
+      #'(lambda (v)
 	   (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
       (firrtl-dbg-split-input-line
 	 (firrtl-dbg-state-strings-ephemera spl)
@@ -445,11 +498,23 @@ DATA is the data to store, usually a symbol"
 		      :notify firrtl-punt-notify)
 	     :dynargs firrtl-dbg-tree-expand)
 	 (let*
-	    ((sym (cddr cell)))
+	    ((sym (cddr cell))
+	       (v (message (format "%S -> %S" sym (symbol-value sym))))
+	       (value-create-proc
+		  (etypecase (symbol-value sym)
+		     (firrtl-ephemeral
+			#'firrtl-dbg-insert-ephemeral-component)
+		     ;; PUNT
+		     (firrtl-input
+			nil)
+		     (firrtl-output nil)
+		     )
+		  )
+	       )
 	    `(const
 		:format "%v\n"
 		:value ,sym
-		:value-create ,#'firrtl-dbg-insert-ephemeral-component)))))
+		:value-create ,value-create-proc)))))
 
 
 (defun firrtl-dbg-tree-expand (tree)
