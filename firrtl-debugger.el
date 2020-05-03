@@ -113,7 +113,7 @@ Where 'leaf' is one of the node types.
    "
 TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
 
-DATA is the data to store, usually a symbol, never 'list'"
+DATA is the data to store, usually a symbol"
 
    ;; We could make a dedicated symbol instead of `list', but it
    ;; hasn't presented a problem yet.  Or just indicate listness with
@@ -187,9 +187,8 @@ DATA is the data to store, usually a symbol, never 'list'"
       ;; Now current-tag+tree points at the leaf that corresponds to
       ;; subname-list
 
-      ;; Put the data in place.  This works but data must not be the
-      ;; symbol 'list'
-      (setcdr current-tag+tree (list data))
+      ;; Put the data in place.
+      (setcdr current-tag+tree (cons nil data))
 
       ;; Cons the subtrees back in.
       (dolist (old-tag+tree subtree-info-list)
@@ -422,7 +421,7 @@ DATA is the data to store, usually a symbol, never 'list'"
 		      :notify firrtl-punt-notify)
 	     :dynargs firrtl-dbg-tree-expand)
 	 (let*
-	    ((sym (cadr cell)))
+	    ((sym (cddr cell)))
 	    `(const
 		:format "%v\n"
 		:value ,sym
