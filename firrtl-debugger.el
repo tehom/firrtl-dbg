@@ -254,8 +254,8 @@ PROC should both take and return an individual element"
       ;; from lookup in firrtl-dbg-obarray
       (firrtl-mutate-current-components full-name
 	 ;; For now, no point keeping the old one.
-	 #'(lambda (dummy v) v)
-	 data)
+	 #'(lambda (dummy v) (list v))
+	 sym)
       ))
 
 
@@ -434,11 +434,8 @@ PROC should both take and return an individual element"
 		      :format "%[%t%]\n"
 		      :notify firrtl-punt-notify)
 	     :dynargs firrtl-dbg-tree-expand)
-	 ;; This will just store and retrive the full name symbol
 	 (let*
-	    (  (v0 (cdr cell))
-	       (full-name (firrtl-ephemeral-full-name v0))
-	       (sym (intern full-name firrtl-dbg-obarray)))
+	    ((sym (cadr cell)))
 	    `(const
 		:format "%v\n"
 		:value ,sym
