@@ -429,7 +429,7 @@ PROC should both take and return an individual element"
       (if (eq (second cell) 'list)
 	 `(tree-widget
 	     :node (push-button
-		      :value ,cell
+		      :value ,(cddr cell)
 		      :tag ,(car cell)
 		      :format "%[%t%]\n"
 		      :notify firrtl-punt-notify)
@@ -444,8 +444,8 @@ PROC should both take and return an individual element"
 
 (defun firrtl-dbg-tree-expand (tree)
    (or (widget-get tree :args)
-      (let (
-	      (alist (cddr (widget-get (tree-widget-node tree) :value))))
+      (let
+	 ((alist (widget-get (tree-widget-node tree) :value)))
 	 (mapcar #'firrtl-dbg-tree-widget alist))))
 
 (defun firrtl-dbg-tree ()
