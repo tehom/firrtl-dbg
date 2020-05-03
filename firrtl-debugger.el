@@ -479,6 +479,19 @@ DATA is the data to store, usually a symbol"
 
       (widget-insert str)))
 
+(defun firrtl-dbg-insert-fields (field-list)
+   "FIELD-LIST is a list of ((text face end-col) ...)
+
+END-COL is the column to start the next field at.  Face is
+applied up until that column."
+   
+   (dolist (field field-list)
+      (destructuring-bind (text face end-col) field
+	 (firrtl-dbg-insert-w-face text face)
+	 (firrtl-dbg-pad-to-column end-col face))))
+
+
+
 
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
@@ -492,13 +505,12 @@ DATA is the data to store, usually a symbol"
 	    (if (component-value-valid-p val)
 	       nil
 	       'firrtl-dbg-face-invalid)))
-      
-      (widget-insert (firrtl-ephemeral-full-name v))
 
-      (firrtl-dbg-pad-to-column firrtl-dbg-value-column nil)
+      (firrtl-dbg-insert-fields
+	 (list
+	    (list (firrtl-ephemeral-full-name v) nil firrtl-dbg-value-column)
+	    (list val-string val-face firrtl-dbg-value-end-column)))))
 
-      (firrtl-dbg-insert-w-face val-string val-face)
-      (firrtl-dbg-pad-to-column firrtl-dbg-value-end-column val-face)))
 
 ;; TEMPORARY clone.  This will get an input field
 (defun firrtl-dbg-insert-input-component (wid)
