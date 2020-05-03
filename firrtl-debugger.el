@@ -116,7 +116,8 @@ TREE should be '(list subtree...) or '(tag values...) where tag is one of the co
 DATA is the data to store, usually a symbol, never 'list'"
 
    ;; We could make a dedicated symbol instead of `list', but it
-   ;; hasn't presented a problem yet.
+   ;; hasn't presented a problem yet.  Or just indicate listness with
+   ;; t or nil.
    (let* 
       (  (tree (or tree '(list)))
 	 (subtree-info-list '())
@@ -151,8 +152,7 @@ DATA is the data to store, usually a symbol, never 'list'"
 
 	    ;; What we're exploring is a structure.  Demote it to the
 	    ;; next level and make a list.
-	    (let* 
-	       ()
+	    (progn
 	       (setq subtree-info-list
 		  (cons
 		     (list*
