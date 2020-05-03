@@ -451,9 +451,43 @@ DATA is the data to store, usually a symbol"
 ;; `widget-browse-at' gives us current widgets.  It looks at text
 ;; properties.  The one of interest is `button' because every
 ;; component's widget has a button.  
+;; (get-char-property pos 'button)
 
 ;; So we could just look at all the text properties and update the
-;; relevant widgets.  Buffer-last ones first, to be efficient.  Can use next-single-property-change or next-property-change
+;; relevant widgets.
+
+'(next-single-char-property-change (point) 'button (current-buffer))
+
+;; This works to update one, and advances the spot.  But it redraws
+;; every node and doesn't check for leafness.
+'
+(let* 
+   ((next-pos
+       (next-single-char-property-change (point) 'button (current-buffer))))
+   (when next-pos
+      (goto-char next-pos)
+      (let* 
+	 ((maybe-widget (get-char-property next-pos 'button)))
+	 (when maybe-widget
+	    (let* 
+	       ((widget (widget-get maybe-widget :node)))
+	       (when (widget-get widget :value)
+		  ;; This forces a redraw
+		  (widget-value-set widget (widget-value widget))))))))
+
+
+
+;; Find respective sym.  That's :node then :value, if that's a sym.
+;; Then check timestamp, maybe do nothing.
+;; Then redraw the node widget
+
+
+;; Dev help for changing values behind widgets' back
+'
+(symbol-value (intern "_GEN_3" firrtl-dbg-obarray))
+
+'
+(set (intern "_GEN_3" firrtl-dbg-obarray) '(firrtl-ephemeral "_GEN_3" (333 t)))
 
 ;;;_. Footers
 ;;;_ , Provides
