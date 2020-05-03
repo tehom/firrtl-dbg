@@ -81,6 +81,12 @@
 ;; Local variables
 ;; MAKE ME LOCAL in the mode
 
+(defvar firrtl-dbg-obarray
+   (make-vector 257 nil)
+   "Obarray that holds the data about FIRRTL components" )
+
+
+
 (defvar firrtl-current-step
    0
    "The current step of the circuit" )
