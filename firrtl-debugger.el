@@ -246,31 +246,17 @@ DATA is the data to store, usually a symbol"
       (firrtl-mutate-current-components full-name sym)))
 
 
+(defstruct (firrtl-dbg-state-strings (:type list))
+   "Structuring the post-split strings"
+   overview
+   inputs
+   outputs
+   registers
+   future-registers
+   ephemera
+   memories)
 
 
-;; Helper to set up current data to develop on
-(defun firrtl-write-to-current-components (comp)
-   ""
-   (firrtl-mutate-current-components
-      (firrtl-component-full-name comp)
-      comp))
-
-;; Set up some current data to develop on
-'
-(progn
-    (firrtl-write-to-current-components
-       (make-firrtl-ephemeral
-	  :current (make-component-value :v 15)
-	  :full-name "a.b"))
-    (firrtl-write-to-current-components
-       (make-firrtl-ephemeral
-	  :current (make-component-value :v 14)
-	  :full-name "a.c")))
-
-;; BUG about structure accesses, but just because proper type
-;; management isn't ready yet.
-'
-(mapcar #'firrtl-write-to-current-components comp-list)
 
 
 ;; Setup:
@@ -285,11 +271,11 @@ DATA is the data to store, usually a symbol"
 (setq firrtl-state-string (substring-no-properties firrtl-state-string))
 
 (setq spl (split-string firrtl-state-string "\n"))
+;; Gives a firrtl-dbg-state-strings
 
-(setq circuit-state-str (car spl)) ;; "CircuitState 2 (FRESH)"
 
 (let* 
-   ((str circuit-state-str)
+   ((str (firrtl-dbg-state-strings-overview spl))
       (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
       (step (string-to-number (match-string 1 str)))
       ;; We need better info on this.  Only "FRESH" or "STALE"?
