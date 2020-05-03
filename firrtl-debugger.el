@@ -559,6 +559,15 @@ applied up until that column."
 	    (list (firrtl-output-full-name v) nil firrtl-dbg-value-column)
 	    (list val-string val-face firrtl-dbg-value-end-column)))))
 
+(defun firrtl-dbg-field-fmt (cvalue end-col)
+   ""
+
+   (list
+      (number-to-string
+	 (component-value-v cvalue))
+      nil
+      end-col))
+
 (defun firrtl-dbg-insert-register-component (wid)
    "Insert a register component"
    (let* 
