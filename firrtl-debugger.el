@@ -500,6 +500,47 @@ DATA is the data to store, usually a symbol"
       (firrtl-dbg-insert-w-face val-string val-face)
       (firrtl-dbg-pad-to-column firrtl-dbg-value-end-column val-face)))
 
+;; TEMPORARY clone.  This will get an input field
+(defun firrtl-dbg-insert-input-component (wid)
+   "Insert an input component"
+   (let* 
+      (
+	 (sym (widget-get wid :value))
+	 (v (symbol-value sym))
+	 (val (firrtl-input-current v))
+	 (val-string (number-to-string (component-value-v val)))
+	 (val-face
+	    (if (component-value-valid-p val)
+	       nil
+	       'firrtl-dbg-face-invalid)))
+      
+      (widget-insert (firrtl-input-full-name v))
+
+      (firrtl-dbg-pad-to-column firrtl-dbg-value-column nil)
+
+      (firrtl-dbg-insert-w-face val-string val-face)
+      (firrtl-dbg-pad-to-column firrtl-dbg-value-end-column val-face)))
+
+(defun firrtl-dbg-insert-output-component (wid)
+   "Insert an output component"
+   (let* 
+      (
+	 (sym (widget-get wid :value))
+	 (v (symbol-value sym))
+	 (val (firrtl-output-current v))
+	 (val-string (number-to-string (component-value-v val)))
+	 (val-face
+	    (if (component-value-valid-p val)
+	       nil
+	       'firrtl-dbg-face-invalid)))
+      
+      (widget-insert (firrtl-output-full-name v))
+
+      (firrtl-dbg-pad-to-column firrtl-dbg-value-column nil)
+
+      (firrtl-dbg-insert-w-face val-string val-face)
+      (firrtl-dbg-pad-to-column firrtl-dbg-value-end-column val-face)))
+
 
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
@@ -520,15 +561,16 @@ DATA is the data to store, usually a symbol"
 			#'firrtl-dbg-insert-ephemeral-component)
 		     ;; PUNT
 		     (firrtl-input
-			nil)
-		     (firrtl-output nil)
-		     )
-		  )
-	       )
+			#'firrtl-dbg-insert-input-component)
+		     (firrtl-output
+			#'firrtl-dbg-insert-output-component)
+		     )))
+	    
 	    `(const
 		:format "%v\n"
 		:value ,sym
 		:value-create ,value-create-proc)))))
+
 
 
 (defun firrtl-dbg-tree-expand (tree)
