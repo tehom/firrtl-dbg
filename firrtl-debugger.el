@@ -169,9 +169,8 @@ PROC should both take and return an individual element"
       ;; the subnames.
 
       ;; After this, current-tag+tree had better represent a non-list,
-      ;; because how could we have put more than one component into a
-      ;; blank subname?  (IMPROVE ME: maybe use an out-of-bounds
-      ;; object as sub-name and let widget button thing handle that)
+      ;; because we can't put more than one distinct component into a
+      ;; blank subname.
       (when
 	 (and
 	    (eq (cadr current-tag+tree) 'list)
@@ -250,8 +249,6 @@ PROC should both take and return an individual element"
 	     :full-name full-name))
 	 (sym (intern full-name firrtl-dbg-obarray)))
       (set sym data)
-      ;; COMING: We'll change this to store `sym', after we can print
-      ;; from lookup in firrtl-dbg-obarray
       (firrtl-mutate-current-components full-name
 	 ;; For now, no point keeping the old one.
 	 #'(lambda (dummy v) (list v))
