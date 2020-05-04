@@ -726,6 +726,10 @@ applied up until that column."
 (defconst firrtl-dbg-executable
    "sbt"
    "" )
+;; This has to be customizable, and may be set explicitly in the entry point.
+(defconst firrtl-dbg-working-directory
+   "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/"
+   "" )
 (defconst firrtl-dbg-repl-launch-string
    "test:runMain gcd.GCDRepl"
    "" )
@@ -733,38 +737,57 @@ applied up until that column."
    "firrtl-dbg-process"
    "" )
 (defconst firrtl-dbg-process-buffer-name
-   "*Firrtl debug process*"
+   "*Firrtl-dbg process*"
    "" )
 
 (defconst firrtl-dbg-tq-regexp
    "firrtl>> "
    "" )
 
+;; Process buffer and widget buffer are distinct
+(defvar firrtl-dbg-process-buffer
+   nil
+   "" )
+
+(defvar firrtl-dbg-process
+   nil
+   "" )
+
+'
+(setq firrtl-dbg-process-buffer
+   (generate-new-buffer firrtl-dbg-process-buffer-name))
+
+'
+(with-current-buffer firrtl-dbg-process-buffer
+   (setq default-directory firrtl-dbg-working-directory))
+
 ;; This didn't quite work.  Wrong directory?  Worked when
 ;; executed in that buffer.
 
 '
-(setq firrtl-dbg-process
-   (start-process
-      firrtl-dbg-process-name
-      firrtl-dbg-process-buffer-name
-      firrtl-dbg-executable
-      ;; Quoting this string with shell-quote-argument actually messes
-      ;; us up.
-      firrtl-dbg-repl-launch-string))
+(with-current-buffer firrtl-dbg-process-buffer
+   (setq firrtl-dbg-process
+      (start-process
+	 firrtl-dbg-process-name
+	 firrtl-dbg-process-buffer
+	 firrtl-dbg-executable
+	 ;; Quoting this string with shell-quote-argument actually messes
+	 ;; us up.
+	 firrtl-dbg-repl-launch-string)))
 
 
-;; 
+;; Wait for prompt; may be already there in buffer.
 '
 (setq firrtl-dbg-tq
    (tq-create firrtl-dbg-process))
 
-;; This works.  Comes back with the firrtl>> prompt at the end.
+;; This worked at first.  Comes back with the firrtl>> prompt at the end.
 '
 (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
    'ok
    #'(lambda (data str)
-	(message str)))
+	(message str)
+	(firrtl-dbg-build-data str)))
 
 ;; Use this at the end.
 '
