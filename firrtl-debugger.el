@@ -740,9 +740,6 @@ applied up until that column."
    "firrtl>> "
    "" )
 
-'
-(shell-quote-argument)
-
 ;; This didn't quite work.  Wrong directory?  Worked when
 ;; executed in that buffer.
 
@@ -752,10 +749,10 @@ applied up until that column."
       firrtl-dbg-process-name
       firrtl-dbg-process-buffer-name
       firrtl-dbg-executable
-      ;; Quoting this with shell-quote-argument actually messes us up.
-      ;; (shell-quote-argument firrtl-dbg-repl-launch-string)
-      firrtl-dbg-repl-launch-string
-      ))
+      ;; Quoting this string with shell-quote-argument actually messes
+      ;; us up.
+      firrtl-dbg-repl-launch-string))
+
 
 ;; 
 '
