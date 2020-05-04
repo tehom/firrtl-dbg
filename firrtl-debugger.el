@@ -646,7 +646,7 @@ applied up until that column."
 	 ((alist (widget-get (tree-widget-node tree) :value)))
 	 (mapcar #'firrtl-dbg-tree-widget alist))))
 
-(defun firrtl-dbg-tree ()
+(defun firrtl-dbg-create-widgets ()
    (widget-insert "Preliminary:  FIRRTL debugger interface\n\n")
    (widget-apply-action
       (widget-create (firrtl-dbg-tree-widget
