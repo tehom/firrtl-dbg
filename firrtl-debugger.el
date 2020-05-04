@@ -410,9 +410,16 @@ DATA is the data to store, usually a symbol"
    ""
 
    (let
-      ;; Skip one line
-      ((spl (cdr (split-string state-string "\n"))))
+      ((spl (split-string state-string "\n")))
 
+      ;; We do nothing with step data yet
+      (while (string-match "^step [0-9]+" (car spl))
+	 (setq spl (cdr spl)))
+
+      ;; Skip blank lines just before the data
+      (while (string-match "^[ \t]*$" (car spl))
+	 (setq spl (cdr spl)))
+      
       (firrtl-dbg-read-overview spl)
 
       (mapcar
