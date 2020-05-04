@@ -110,7 +110,7 @@ Format: Each node is either:
 ")
 
 
-(defun firrtl-write-to-component (tree subname-list data)
+(defun firrtl-dbg-add-to-subname-tree (tree subname-list data)
    "
 TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
 
@@ -204,19 +204,19 @@ DATA is the data to store, usually a symbol"
       (cdr current-tag+tree)))
 
 '
-(firrtl-write-to-component '() '("a" "b")
+(firrtl-dbg-add-to-subname-tree '() '("a" "b")
    'my-data)
 
 '
-(firrtl-write-to-component '(list ("a" list ("b" my-data))) '("a" "b")
+(firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "b")
     'new-data)
 
 '
-(firrtl-write-to-component '(list ("a" list ("b" my-data))) '("a" "c")
+(firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "c")
     'new-data)
 
 '
-(firrtl-write-to-component '(list ("a" list ("b" my-data))) '("d" "b")
+(firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("d" "b")
     'new-data)
 
 
@@ -230,7 +230,7 @@ DATA is the data to store, usually a symbol"
    ""
    (setq
       firrtl-dbg-subname-tree
-      (firrtl-write-to-component firrtl-dbg-subname-tree
+      (firrtl-dbg-add-to-subname-tree firrtl-dbg-subname-tree
 	 (firrtl-split-component-name full-name)
 	 data)))
 
