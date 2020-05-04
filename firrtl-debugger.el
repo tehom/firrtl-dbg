@@ -95,7 +95,7 @@
    0
    "The current step of the circuit" )
 
-(defvar firrtl-current-circuit-freshness-str
+(defvar firrtl-dbg-current-freshness
    "UNKNOWN"
    "The current freshness of the circuit, as a string" )
 
@@ -348,7 +348,7 @@ DATA is the data to store, usually a symbol"
 	 ;; We need better info on this.  Only "FRESH" or "STALE"?
 	 (freshness-str (match-string 2 str)))
    
-      (setq firrtl-current-circuit-freshness-str freshness-str)
+      (setq firrtl-dbg-current-freshness freshness-str)
       (setq firrtl-dbg-current-step step)))
 
 
