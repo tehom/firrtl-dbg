@@ -226,7 +226,7 @@ DATA is the data to store, usually a symbol"
 '
 (firrtl-dbg-split-component-name "io_a.b")
 
-(defun firrtl-mutate-current-components (full-name data)
+(defun firrtl-dbg-mutate-subname-tree (full-name data)
    ""
    (setq
       firrtl-dbg-subname-tree
@@ -245,7 +245,7 @@ DATA is the data to store, usually a symbol"
 	 ;; Since it doesn't exist, create it
 	 (set sym (funcall proc-create)))
       
-      (firrtl-mutate-current-components full-name sym)))
+      (firrtl-dbg-mutate-subname-tree full-name sym)))
 
 
 (defun firrtl-dbg-add-ephemeral (full-name value valid-p)
