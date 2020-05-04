@@ -87,7 +87,9 @@
    (make-vector firrtl-dbg-obarray-default-size nil)
    "Obarray that holds the data about FIRRTL components" )
 
-
+(defvar firrtl-dbg-have-built-subname-tree
+   nil
+   "True if we have already built the subname tree" )
 
 (defvar firrtl-current-step
    0
@@ -702,6 +704,63 @@ applied up until that column."
 
 '
 (set (intern "_GEN_3" firrtl-dbg-obarray) '(firrtl-ephemeral "_GEN_3" (444 t)))
+
+
+;; Make a dedicated buffer.
+;; Provide customizations for directory (of buffer) and repl main name.
+;; sbt 'test:runMain gcd.GCDRepl'
+;; And prompt, default = "firrtl>> "
+;; And process name, and buffer name.
+
+(defconst firrtl-dbg-executable
+   "sbt"
+   "" )
+(defconst firrtl-dbg-repl-launch-string
+   "test:runMain gcd.GCDRepl"
+   "" )
+(defconst firrtl-dbg-process-name
+   "firrtl-dbg-process"
+   "" )
+(defconst firrtl-dbg-process-buffer-name
+   "*Firrtl debug process*"
+   "" )
+
+(defconst firrtl-dbg-tq-regexp
+   "firrtl>> "
+   "" )
+
+'
+(shell-quote-argument)
+
+;; This didn't quite work.  Wrong directory?  Worked when
+;; executed in that buffer.
+
+'
+(setq firrtl-dbg-process
+   (start-process
+      firrtl-dbg-process-name
+      firrtl-dbg-process-buffer-name
+      firrtl-dbg-executable
+      ;; Quoting this with shell-quote-argument actually messes us up.
+      ;; (shell-quote-argument firrtl-dbg-repl-launch-string)
+      firrtl-dbg-repl-launch-string
+      ))
+
+;; 
+'
+(setq firrtl-dbg-tq
+   (tq-create firrtl-dbg-process))
+
+;; This works.  Comes back with the firrtl>> prompt at the end.
+'
+(tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
+   'ok
+   #'(lambda (data str)
+	(message str)))
+
+;; Use this at the end.
+'
+(tq-close firrtl-dbg-tq)
 
 ;;;_. Footers
 ;;;_ , Provides
