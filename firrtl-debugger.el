@@ -286,19 +286,30 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-set-register-current (full-name value valid-p)
    ""
-   
-   (let*
-      ()
-      
-      ))
+
+   (firrtl-dbg-add-object full-name
+      ;; Later, we'll check equality and set a timestamp.
+      #'(lambda (object)
+	   (setf (firrtl-register-current object)
+	      (make-component-value :v value :valid-p valid-p)))
+      #'(lambda ()
+	   (make-firrtl-register
+	      :current (make-component-value :v value :valid-p valid-p)
+	      :full-name full-name))))
 
 (defun firrtl-dbg-set-register-next (full-name value valid-p)
    ""
    
-   (let*
-      ()
-      
-      ))
+   (firrtl-dbg-add-object full-name
+      ;; Later, we'll check equality and set a timestamp.
+      #'(lambda (object)
+	   (setf (firrtl-register-next object)
+	      (make-component-value :v value :valid-p valid-p)))
+      #'(lambda ()
+	   (make-firrtl-register
+	      :next (make-component-value :v value :valid-p valid-p)
+	      :full-name full-name))))
+
 
 (defstruct (firrtl-dbg-state-strings (:type list))
    "Structuring the post-split strings"
@@ -426,11 +437,27 @@ DATA is the data to store, usually a symbol"
 
    (mapcar
       #'(lambda (v)
+	   (firrtl-dbg-act-on-component-str v
+	      #'firrtl-dbg-set-register-current))
+      (firrtl-dbg-split-input-line
+	 (firrtl-dbg-state-strings-registers spl)
+	 "Registers *: *"))
+
+   (mapcar
+      #'(lambda (v)
+	   (firrtl-dbg-act-on-component-str v
+	      #'firrtl-dbg-set-register-next))
+      (firrtl-dbg-split-input-line
+	 (firrtl-dbg-state-strings-future-registers spl)
+	 "FutureRegisters: *"))
+
+   (mapcar
+      #'(lambda (v)
 	   (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
       (firrtl-dbg-split-input-line
 	 (firrtl-dbg-state-strings-ephemera spl)
-	 "Ephemera: *"))
-   )
+	 "Ephemera: *")))
+
 
 
 ;; firrtl-current-components
