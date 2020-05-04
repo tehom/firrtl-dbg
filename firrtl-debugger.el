@@ -639,12 +639,12 @@ applied up until that column."
 		  (etypecase (symbol-value sym)
 		     (firrtl-ephemeral
 			#'firrtl-dbg-insert-ephemeral-component)
-		     ;; PUNT
 		     (firrtl-input
 			#'firrtl-dbg-insert-input-component)
 		     (firrtl-output
 			#'firrtl-dbg-insert-output-component)
-		     )))
+		     (firrtl-register
+			#'firrtl-dbg-insert-register-component))))
 	    
 	    `(const
 		:format "%v\n"
