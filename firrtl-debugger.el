@@ -37,7 +37,7 @@
    v
    valid-p)
 
-(defstruct (firrtl-component (:type list) :named)
+(defstruct (firrtl-dbg-component (:type list) :named)
    "The base of FIRRTL component info for widgets"
    full-name
    current ;; A firrtl-dbg-value
@@ -45,7 +45,7 @@
 
 (defstruct (firrtl-register
 	      (:type list)
-	      (:include firrtl-component)
+	      (:include firrtl-dbg-component)
 	      :named)
    "A register"
    next ;; A firrtl-dbg-value
@@ -53,13 +53,13 @@
 
 (defstruct (firrtl-ephemeral
 	      (:type list)
-	      (:include firrtl-component)
+	      (:include firrtl-dbg-component)
 	      :named)
    "A wire")
 
 (defstruct (firrtl-input
 	      (:type list)
-	      (:include firrtl-component)
+	      (:include firrtl-dbg-component)
 	      :named)
    "An input wire"
    user-input)
@@ -67,7 +67,7 @@
 
 (defstruct (firrtl-output
 	      (:type list)
-	      (:include firrtl-component)
+	      (:include firrtl-dbg-component)
 	      :named)
    "An output wire")
 
