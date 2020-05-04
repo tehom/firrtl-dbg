@@ -104,9 +104,8 @@
    "The component-tree of the circuit.
 
 Format: Each node is either:
-(subname-string 'list list-of-nodes)
-(subname-string leaf . data)
-Where 'leaf' is one of the node types.
+  (subname-string t list-of-nodes)
+  (subname-string nil . sym)
 
 ")
 
