@@ -51,7 +51,7 @@
    next ;; A firrtl-dbg-value
    )
 
-(defstruct (firrtl-ephemeral
+(defstruct (firrtl-dbg-ephemeral
 	      (:type list)
 	      (:include firrtl-dbg-component)
 	      :named)
@@ -253,10 +253,10 @@ DATA is the data to store, usually a symbol"
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
-	   (setf (firrtl-ephemeral-current object)
+	   (setf (firrtl-dbg-ephemeral-current object)
 	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
-	   (make-firrtl-ephemeral
+	   (make-firrtl-dbg-ephemeral
 	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
@@ -549,9 +549,9 @@ applied up until that column."
 
       (firrtl-dbg-insert-fields
 	 (list
-	    (list (firrtl-ephemeral-full-name v) nil firrtl-dbg-value-column)
+	    (list (firrtl-dbg-ephemeral-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
-	       (firrtl-ephemeral-current v)
+	       (firrtl-dbg-ephemeral-current v)
 	       firrtl-dbg-value-end-column)))))
 
 
@@ -624,7 +624,7 @@ applied up until that column."
 	       (v (message (format "%S -> %S" sym (symbol-value sym))))
 	       (value-create-proc
 		  (etypecase (symbol-value sym)
-		     (firrtl-ephemeral
+		     (firrtl-dbg-ephemeral
 			#'firrtl-dbg-insert-ephemeral-component)
 		     (firrtl-input
 			#'firrtl-dbg-insert-input-component)
@@ -698,7 +698,7 @@ applied up until that column."
 (symbol-value (intern "_GEN_3" firrtl-dbg-obarray))
 
 '
-(set (intern "_GEN_3" firrtl-dbg-obarray) '(firrtl-ephemeral "_GEN_3" (444 t)))
+(set (intern "_GEN_3" firrtl-dbg-obarray) '(firrtl-dbg-ephemeral "_GEN_3" (444 t)))
 
 
 ;; Make a dedicated buffer.
