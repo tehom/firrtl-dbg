@@ -32,7 +32,7 @@
 ;;;_. Body
 
 ;; Maybe valid-p can take a n/a value as well.  Maybe add a timestamp.
-(defstruct (component-value (:type list))
+(defstruct (firrtl-dbg-value (:type list))
    ""
    v
    valid-p)
@@ -40,7 +40,7 @@
 (defstruct (firrtl-component (:type list) :named)
    "The base of FIRRTL component info for widgets"
    full-name
-   current ;; A component-value
+   current ;; A firrtl-dbg-value
    )
 
 (defstruct (firrtl-register
@@ -48,7 +48,7 @@
 	      (:include firrtl-component)
 	      :named)
    "A register"
-   next ;; A component-value
+   next ;; A firrtl-dbg-value
    )
 
 (defstruct (firrtl-ephemeral
@@ -254,10 +254,10 @@ DATA is the data to store, usually a symbol"
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-ephemeral-current object)
-	      (make-component-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
 	   (make-firrtl-ephemeral
-	       :current (make-component-value :v value :valid-p valid-p)
+	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
 (defun firrtl-dbg-add-input (full-name value valid-p)
@@ -266,10 +266,10 @@ DATA is the data to store, usually a symbol"
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-input-current object)
-	      (make-component-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
 	   (make-firrtl-input
-	       :current (make-component-value :v value :valid-p valid-p)
+	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
 
@@ -279,10 +279,10 @@ DATA is the data to store, usually a symbol"
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-output-current object)
-	      (make-component-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
 	   (make-firrtl-output
-	       :current (make-component-value :v value :valid-p valid-p)
+	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
 (defun firrtl-dbg-set-register-current (full-name value valid-p)
@@ -292,10 +292,10 @@ DATA is the data to store, usually a symbol"
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-register-current object)
-	      (make-component-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
 	   (make-firrtl-register
-	      :current (make-component-value :v value :valid-p valid-p)
+	      :current (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
 (defun firrtl-dbg-set-register-next (full-name value valid-p)
@@ -305,10 +305,10 @@ DATA is the data to store, usually a symbol"
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-register-next object)
-	      (make-component-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
 	   (make-firrtl-register
-	      :next (make-component-value :v value :valid-p valid-p)
+	      :next (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
 
@@ -529,13 +529,13 @@ applied up until that column."
    ""
    (let* 
       ((face
-	  (if (component-value-valid-p cvalue)
+	  (if (firrtl-dbg-value-valid-p cvalue)
 	     nil
 	     'firrtl-dbg-face-invalid)))
       
       (list
 	 (number-to-string
-	    (component-value-v cvalue))
+	    (firrtl-dbg-value-v cvalue))
 	 face
 	 end-col)))
 
@@ -563,9 +563,9 @@ applied up until that column."
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym))
 	 (val (firrtl-input-current v))
-	 (val-string (number-to-string (component-value-v val)))
+	 (val-string (number-to-string (firrtl-dbg-value-v val)))
 	 (val-face
-	    (if (component-value-valid-p val)
+	    (if (firrtl-dbg-value-valid-p val)
 	       nil
 	       'firrtl-dbg-face-invalid)))
       
