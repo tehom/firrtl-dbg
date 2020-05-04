@@ -99,7 +99,7 @@
    "UNKNOWN"
    "The current freshness of the circuit, as a string" )
 
-(defvar firrtl-current-components
+(defvar firrtl-dbg-subname-tree
    '()
    "The component-tree of the circuit.
 
@@ -229,8 +229,8 @@ DATA is the data to store, usually a symbol"
 (defun firrtl-mutate-current-components (full-name data)
    ""
    (setq
-      firrtl-current-components
-      (firrtl-write-to-component firrtl-current-components
+      firrtl-dbg-subname-tree
+      (firrtl-write-to-component firrtl-dbg-subname-tree
 	 (firrtl-split-component-name full-name)
 	 data)))
 
@@ -451,7 +451,7 @@ DATA is the data to store, usually a symbol"
 
 
 
-;; firrtl-current-components
+;; firrtl-dbg-subname-tree
 
 
 ;; For most components, non-editable.  Just displays it.
@@ -650,7 +650,7 @@ applied up until that column."
    (widget-insert "Preliminary:  FIRRTL debugger interface\n\n")
    (widget-apply-action
       (widget-create (firrtl-dbg-tree-widget
-			(cons "root" firrtl-current-components))))
+			(cons "root" firrtl-dbg-subname-tree))))
    (if (require 'tree-mode nil t)
       (tree-minor-mode t)
       (widget-insert "\n\n")))
