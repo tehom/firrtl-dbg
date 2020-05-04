@@ -408,9 +408,10 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-build-data (state-string)
    ""
-   
+
    (let
-      ((spl (split-string state-string "\n")))
+      ;; Skip one line
+      ((spl (cdr (split-string state-string "\n"))))
 
       (firrtl-dbg-read-overview spl)
 
