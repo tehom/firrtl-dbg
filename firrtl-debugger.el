@@ -404,6 +404,8 @@ DATA is the data to store, usually a symbol"
 	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
    ephems)
 
+;; After the first time, only part of this is needed.  We don't need
+;; to re-add it to the tree, nor sort the tree (when we do that)
 '
 (let
    ((spl (split-string firrtl-state-string "\n")))
