@@ -240,9 +240,9 @@ DATA is the data to store, usually a symbol"
 	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
 	 (sym (or soft-sym (intern full-name firrtl-dbg-obarray))))
       (if soft-sym
-	 (proc-mutate (symbol-value sym))
+	 (funcall proc-mutate (symbol-value sym))
 	 ;; Since it doesn't exist, create it
-	 (set sym (proc-create)))
+	 (set sym (funcall proc-create)))
       
       (firrtl-mutate-current-components full-name sym)))
 
@@ -261,41 +261,28 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-add-input (full-name value valid-p)
    ""
-   (let* 
-      (
-	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
-	 (sym (intern full-name firrtl-dbg-obarray)))
-      (if soft-sym
-	 ;; Later, we'll check equality and set a timestamp.
-	 (setf (firrtl-input-current
-		  (make-component-value :v value :valid-p valid-p)))
-	 ;; Since it doesn't exist, create it
-	 (set
-	    (intern full-name firrtl-dbg-obarray)
-	    (make-firrtl-input
+   (firrtl-dbg-add-object full-name
+      ;; Later, we'll check equality and set a timestamp.
+      #'(lambda (object)
+	   (setf (firrtl-input-current object)
+	      (make-component-value :v value :valid-p valid-p)))
+      #'(lambda ()
+	   (make-firrtl-input
 	       :current (make-component-value :v value :valid-p valid-p)
-	       :full-name full-name)))
-      
-      (firrtl-mutate-current-components full-name sym)))
+	      :full-name full-name))))
+
 
 (defun firrtl-dbg-add-output (full-name value valid-p)
    ""
-   (let* 
-      (
-	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
-	 (sym (intern full-name firrtl-dbg-obarray)))
-      (if soft-sym
-	 ;; Later, we'll check equality and set a timestamp.
-	 (setf (firrtl-output-current
-		  (make-component-value :v value :valid-p valid-p)))
-	 ;; Since it doesn't exist, create it
-	 (set
-	    (intern full-name firrtl-dbg-obarray)
-	    (make-firrtl-output
+   (firrtl-dbg-add-object full-name
+      ;; Later, we'll check equality and set a timestamp.
+      #'(lambda (object)
+	   (setf (firrtl-output-current object)
+	      (make-component-value :v value :valid-p valid-p)))
+      #'(lambda ()
+	   (make-firrtl-output
 	       :current (make-component-value :v value :valid-p valid-p)
-	       :full-name full-name)))
-      
-      (firrtl-mutate-current-components full-name sym)))
+	      :full-name full-name))))
 
 (defun firrtl-dbg-set-register-current (full-name value valid-p)
    ""
