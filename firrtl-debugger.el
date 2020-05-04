@@ -474,7 +474,7 @@ DATA is the data to store, usually a symbol"
 
 
 ;; PLACEHOLDER
-(defun firrtl-punt-notify (but &rest ignore)
+(defun firrtl-dbg-punt-notify (but &rest ignore)
    ""
    
    (let*
@@ -617,7 +617,7 @@ applied up until that column."
 		      :value ,(cddr cell)
 		      :tag ,(car cell)
 		      :format "%[%t%]\n"
-		      :notify firrtl-punt-notify)
+		      :notify firrtl-dbg-punt-notify)
 	     :dynargs firrtl-dbg-tree-expand)
 	 (let*
 	    ((sym (cddr cell))
