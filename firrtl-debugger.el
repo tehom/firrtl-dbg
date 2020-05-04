@@ -245,7 +245,8 @@ DATA is the data to store, usually a symbol"
 	 ;; Since it doesn't exist, create it
 	 (set sym (funcall proc-create)))
       
-      (firrtl-dbg-mutate-subname-tree full-name sym)))
+      (when (not firrtl-dbg-have-built-subname-tree)
+	 (firrtl-dbg-mutate-subname-tree full-name sym))))
 
 
 (defun firrtl-dbg-add-ephemeral (full-name value valid-p)
