@@ -454,10 +454,15 @@ DATA is the data to store, usually a symbol"
 
    (setq firrtl-dbg-have-built-subname-tree t))
 
+(defun firrtl-dbg-clear ()
+   ""
+   
+   (interactive)
+   (setq firrtl-dbg-have-built-subname-tree nil)
+   (setq firrtl-dbg-subname-tree '())
+   (setq firrtl-dbg-obarray
+      (make-vector firrtl-dbg-obarray-default-size nil)))
 
-
-
-;; firrtl-dbg-subname-tree
 
 
 ;; For most components, non-editable.  Just displays it.
