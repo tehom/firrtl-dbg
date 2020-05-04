@@ -31,7 +31,7 @@
 (require 'tree-widget)
 ;;;_. Body
 
-;; Maybe valid-p can take a n/a value as well
+;; Maybe valid-p can take a n/a value as well.  Maybe add a timestamp.
 (defstruct (component-value (:type list))
    ""
    v
@@ -658,16 +658,12 @@ applied up until that column."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
 
-
-;; Look at the text properties to find the relevant widgets.  Update
-;; them.
-
-;; Find respective sym.  That's :node then :value, if that's a sym.
-;; Then check timestamp, maybe do nothing.
-;; Then redraw the node widget
 (defun firrtl-dbg-redraw-widgets ()
    ""
-   
+
+   ;; Look at the text properties to find the relevant widgets.
+   ;; Update them.
+
    (let
       ((done nil)
 	 (pos (point-min)))
