@@ -395,67 +395,72 @@ DATA is the data to store, usually a symbol"
       (funcall proc
 	 full-name value valid-p)))
 
-'
-(firrtl-dbg-act-on-component-str (second split) #'list)
-'
-(firrtl-dbg-act-on-component-str (third ephems)
-   #'firrtl-dbg-add-ephemeral)
-'
-(mapcar
-   #'(lambda (v)
-	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
-   ephems)
+;; '
+;; (firrtl-dbg-act-on-component-str (second split) #'list)
+;; '
+;; (firrtl-dbg-act-on-component-str (third ephems)
+;;    #'firrtl-dbg-add-ephemeral)
+;; '
+;; (mapcar
+;;    #'(lambda (v)
+;; 	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
+;;    ephems)
 
-'
-(let
-   ((spl (split-string firrtl-state-string "\n")))
+(defun firrtl-dbg-build-data (state-string)
+   ""
+   
+   (let
+      ((spl (split-string state-string "\n")))
 
-   (firrtl-dbg-read-overview spl)
+      (firrtl-dbg-read-overview spl)
 
-   (mapcar
-      #'(lambda (v)
-	   (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-input))
-      (firrtl-dbg-split-input-line
-	 (firrtl-dbg-state-strings-inputs spl)
-	 "Inputs: *"))
-   (mapcar
-      #'(lambda (v)
-	   (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-output))
-      (firrtl-dbg-split-input-line
-	 (firrtl-dbg-state-strings-outputs spl)
-	 "Outputs: *"))
+      (mapcar
+	 #'(lambda (v)
+	      (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-input))
+	 (firrtl-dbg-split-input-line
+	    (firrtl-dbg-state-strings-inputs spl)
+	    "Inputs: *"))
+      (mapcar
+	 #'(lambda (v)
+	      (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-output))
+	 (firrtl-dbg-split-input-line
+	    (firrtl-dbg-state-strings-outputs spl)
+	    "Outputs: *"))
 
-   (mapcar
-      #'(lambda (v)
-	   (firrtl-dbg-act-on-component-str v
-	      #'firrtl-dbg-set-register-current))
-      (firrtl-dbg-split-input-line
-	 (firrtl-dbg-state-strings-registers spl)
-	 "Registers *: *"))
+      (mapcar
+	 #'(lambda (v)
+	      (firrtl-dbg-act-on-component-str v
+		 #'firrtl-dbg-set-register-current))
+	 (firrtl-dbg-split-input-line
+	    (firrtl-dbg-state-strings-registers spl)
+	    "Registers *: *"))
 
-   (mapcar
-      #'(lambda (v)
-	   (firrtl-dbg-act-on-component-str v
-	      #'firrtl-dbg-set-register-next))
-      (firrtl-dbg-split-input-line
-	 (firrtl-dbg-state-strings-future-registers spl)
-	 "FutureRegisters: *"))
+      (mapcar
+	 #'(lambda (v)
+	      (firrtl-dbg-act-on-component-str v
+		 #'firrtl-dbg-set-register-next))
+	 (firrtl-dbg-split-input-line
+	    (firrtl-dbg-state-strings-future-registers spl)
+	    "FutureRegisters: *"))
 
-   (mapcar
-      #'(lambda (v)
-	   (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
-      (firrtl-dbg-split-input-line
-	 (firrtl-dbg-state-strings-ephemera spl)
-	 "Ephemera: *"))
+      (mapcar
+	 #'(lambda (v)
+	      (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
+	 (firrtl-dbg-split-input-line
+	    (firrtl-dbg-state-strings-ephemera spl)
+	    "Ephemera: *"))
 
-   (when (not firrtl-dbg-have-built-subname-tree)
-      ;; LATER: Sort the newly built subname tree
-      )
+      (when (not firrtl-dbg-have-built-subname-tree)
+	 ;; LATER: Sort the newly built subname tree
+	 )
 
-   (setq firrtl-dbg-have-built-subname-tree t))
+      (setq firrtl-dbg-have-built-subname-tree t)))
+
+;; Demo
+;; '(firrtl-dbg-build-data firrtl-state-string)
 
 (defun firrtl-dbg-clear ()
-   ""
+   "Clear all the values; ready to start again"
    
    (interactive)
    (setq firrtl-dbg-have-built-subname-tree nil)
