@@ -65,7 +65,7 @@
    user-input)
 
 
-(defstruct (firrtl-output
+(defstruct (firrtl-dbg-output
 	      (:type list)
 	      (:include firrtl-dbg-component)
 	      :named)
@@ -278,10 +278,10 @@ DATA is the data to store, usually a symbol"
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
-	   (setf (firrtl-output-current object)
+	   (setf (firrtl-dbg-output-current object)
 	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
-	   (make-firrtl-output
+	   (make-firrtl-dbg-output
 	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
@@ -584,9 +584,9 @@ applied up until that column."
       
       (firrtl-dbg-insert-fields
 	 (list
-	    (list (firrtl-output-full-name v) nil firrtl-dbg-value-column)
+	    (list (firrtl-dbg-output-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
-	       (firrtl-output-current v)
+	       (firrtl-dbg-output-current v)
 	       firrtl-dbg-value-end-column)))))
 
 (defun firrtl-dbg-insert-register-component (wid)
@@ -628,7 +628,7 @@ applied up until that column."
 			#'firrtl-dbg-insert-ephemeral-component)
 		     (firrtl-dbg-input
 			#'firrtl-dbg-insert-input-component)
-		     (firrtl-output
+		     (firrtl-dbg-output
 			#'firrtl-dbg-insert-output-component)
 		     (firrtl-dbg-register
 			#'firrtl-dbg-insert-register-component))))
