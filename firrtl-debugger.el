@@ -746,7 +746,7 @@ applied up until that column."
    "" )
 
 (defconst firrtl-dbg-tq-regexp
-   "firrtl>> "
+   ".*firrtl>> "
    "" )
 
 ;; Process buffer and widget buffer are distinct
@@ -815,6 +815,17 @@ applied up until that column."
    #'(lambda (data str)
 	(message str)
 	(firrtl-dbg-build-data str)))
+
+;; Working an example from the docs.  Works now.
+'
+(tq-enqueue firrtl-dbg-tq
+   "poke io_value1 4;poke io_value2 4;poke io_loadingValues 1;show\n"
+   firrtl-dbg-tq-regexp
+   'ok
+   #'(lambda (data str)
+	(with-current-buffer firrtl-dbg-widgets-buffer
+	   (firrtl-dbg-build-data str)
+	   (firrtl-dbg-redraw-widgets))))
 
 ;; Use this at the end.
 '
