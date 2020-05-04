@@ -91,7 +91,7 @@
    nil
    "True if we have already built the subname tree" )
 
-(defvar firrtl-current-step
+(defvar firrtl-dbg-current-step
    0
    "The current step of the circuit" )
 
@@ -349,7 +349,7 @@ DATA is the data to store, usually a symbol"
 	 (freshness-str (match-string 2 str)))
    
       (setq firrtl-current-circuit-freshness-str freshness-str)
-      (setq firrtl-current-step step)))
+      (setq firrtl-dbg-current-step step)))
 
 
 
