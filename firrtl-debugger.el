@@ -233,6 +233,19 @@ DATA is the data to store, usually a symbol"
 	 (firrtl-split-component-name full-name)
 	 data)))
 
+(defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
+   ""
+   (let* 
+      (
+	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
+	 (sym (or soft-sym (intern full-name firrtl-dbg-obarray))))
+      (if soft-sym
+	 (proc-mutate (symbol-value sym))
+	 ;; Since it doesn't exist, create it
+	 (set sym (proc-create)))
+      
+      (firrtl-mutate-current-components full-name sym)))
+
 
 (defun firrtl-dbg-add-ephemeral (full-name value valid-p)
    ""
