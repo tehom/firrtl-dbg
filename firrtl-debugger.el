@@ -830,9 +830,43 @@ applied up until that column."
    firrtl-dbg-tq-regexp
    'ok
    #'(lambda (data str)
+	(pop-to-buffer firrtl-dbg-widgets-buffer)
+	(message str)
 	(with-current-buffer firrtl-dbg-widgets-buffer
 	   (firrtl-dbg-build-data str)
 	   (firrtl-dbg-redraw-widgets))))
+
+;; This has an extra line due to "step", so it's like
+;; "step 1 in 0.0106136"
+'
+(tq-enqueue firrtl-dbg-tq
+   "step ; show\n"
+   firrtl-dbg-tq-regexp
+   'ok
+   #'(lambda (data str)
+	(pop-to-buffer firrtl-dbg-widgets-buffer)
+	(message str)
+	(with-current-buffer firrtl-dbg-widgets-buffer
+	   (firrtl-dbg-build-data str)
+	   (firrtl-dbg-redraw-widgets))))
+
+;; "poke io_loadingValues 0 ; step ; show"
+;; "poke io_loadingValues 0;step;show\n"
+;; Doesn't work or doesn't redraw
+'
+(tq-enqueue firrtl-dbg-tq
+   "poke io_loadingValues 0;step;show\n"
+   firrtl-dbg-tq-regexp
+   'ok
+   #'(lambda (data str)
+	(pop-to-buffer firrtl-dbg-widgets-buffer)
+	(message str)
+	(with-current-buffer firrtl-dbg-widgets-buffer
+	   (firrtl-dbg-build-data str)
+	   (firrtl-dbg-redraw-widgets))))
+
+'
+(symbol-value (intern "io_loadingValues" firrtl-dbg-obarray))
 
 ;; Use this at the end.
 '
