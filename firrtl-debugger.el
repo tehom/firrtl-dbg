@@ -57,7 +57,7 @@
 	      :named)
    "A wire")
 
-(defstruct (firrtl-input
+(defstruct (firrtl-dbg-input
 	      (:type list)
 	      (:include firrtl-dbg-component)
 	      :named)
@@ -265,10 +265,10 @@ DATA is the data to store, usually a symbol"
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
-	   (setf (firrtl-input-current object)
+	   (setf (firrtl-dbg-input-current object)
 	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
-	   (make-firrtl-input
+	   (make-firrtl-dbg-input
 	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
@@ -562,7 +562,7 @@ applied up until that column."
       (
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym))
-	 (val (firrtl-input-current v))
+	 (val (firrtl-dbg-input-current v))
 	 (val-string (number-to-string (firrtl-dbg-value-v val)))
 	 (val-face
 	    (if (firrtl-dbg-value-valid-p val)
@@ -571,7 +571,7 @@ applied up until that column."
       
       (firrtl-dbg-insert-fields
 	 (list
-	    (list (firrtl-input-full-name v) nil firrtl-dbg-value-column)
+	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
 	    (list val-string val-face firrtl-dbg-value-end-column)))))
 
 
@@ -626,7 +626,7 @@ applied up until that column."
 		  (etypecase (symbol-value sym)
 		     (firrtl-dbg-ephemeral
 			#'firrtl-dbg-insert-ephemeral-component)
-		     (firrtl-input
+		     (firrtl-dbg-input
 			#'firrtl-dbg-insert-input-component)
 		     (firrtl-output
 			#'firrtl-dbg-insert-output-component)
