@@ -249,22 +249,15 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-add-ephemeral (full-name value valid-p)
    ""
-   (let* 
-      (
-	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
-	 (sym (intern full-name firrtl-dbg-obarray)))
-      (if soft-sym
-	 ;; Later, we'll check equality and set a timestamp.
-	 (setf (firrtl-ephemeral-current
-		  (make-component-value :v value :valid-p valid-p)))
-	 ;; Since it doesn't exist, create it
-	 (set
-	    sym
-	    (make-firrtl-ephemeral
+   (firrtl-dbg-add-object full-name
+      ;; Later, we'll check equality and set a timestamp.
+      #'(lambda (object)
+	   (setf (firrtl-ephemeral-current object)
+	      (make-component-value :v value :valid-p valid-p)))
+      #'(lambda ()
+	   (make-firrtl-ephemeral
 	       :current (make-component-value :v value :valid-p valid-p)
-	       :full-name full-name)))
-      
-      (firrtl-mutate-current-components full-name sym)))
+	      :full-name full-name))))
 
 (defun firrtl-dbg-add-input (full-name value valid-p)
    ""
