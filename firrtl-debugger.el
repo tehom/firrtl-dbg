@@ -43,7 +43,7 @@
    current ;; A firrtl-dbg-value
    )
 
-(defstruct (firrtl-register
+(defstruct (firrtl-dbg-register
 	      (:type list)
 	      (:include firrtl-dbg-component)
 	      :named)
@@ -291,10 +291,10 @@ DATA is the data to store, usually a symbol"
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
-	   (setf (firrtl-register-current object)
+	   (setf (firrtl-dbg-register-current object)
 	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
-	   (make-firrtl-register
+	   (make-firrtl-dbg-register
 	      :current (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
@@ -304,10 +304,10 @@ DATA is the data to store, usually a symbol"
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
-	   (setf (firrtl-register-next object)
+	   (setf (firrtl-dbg-register-next object)
 	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
       #'(lambda ()
-	   (make-firrtl-register
+	   (make-firrtl-dbg-register
 	      :next (make-firrtl-dbg-value :v value :valid-p valid-p)
 	      :full-name full-name))))
 
@@ -598,13 +598,13 @@ applied up until that column."
       
       (firrtl-dbg-insert-fields
 	 (list
-	    (list (firrtl-register-full-name v) nil firrtl-dbg-value-column)
+	    (list (firrtl-dbg-register-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
-	       (firrtl-register-current v)
+	       (firrtl-dbg-register-current v)
 	       firrtl-dbg-value-end-column)
 	    (list " -> " nil firrtl-dbg-next-value-begin-column)
 	    (firrtl-dbg-field-fmt
-	       (firrtl-register-current v)
+	       (firrtl-dbg-register-current v)
 	       firrtl-dbg-next-value-end-column)))))
 
 
@@ -630,7 +630,7 @@ applied up until that column."
 			#'firrtl-dbg-insert-input-component)
 		     (firrtl-output
 			#'firrtl-dbg-insert-output-component)
-		     (firrtl-register
+		     (firrtl-dbg-register
 			#'firrtl-dbg-insert-register-component))))
 	    
 	    `(const
