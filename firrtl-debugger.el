@@ -220,18 +220,18 @@ DATA is the data to store, usually a symbol"
     'new-data)
 
 
-(defun firrtl-split-component-name (str)
+(defun firrtl-dbg-split-component-name (str)
    ""
    (split-string str "[._]+"))
 '
-(firrtl-split-component-name "io_a.b")
+(firrtl-dbg-split-component-name "io_a.b")
 
 (defun firrtl-mutate-current-components (full-name data)
    ""
    (setq
       firrtl-dbg-subname-tree
       (firrtl-dbg-add-to-subname-tree firrtl-dbg-subname-tree
-	 (firrtl-split-component-name full-name)
+	 (firrtl-dbg-split-component-name full-name)
 	 data)))
 
 (defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
