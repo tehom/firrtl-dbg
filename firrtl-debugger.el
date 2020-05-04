@@ -741,6 +741,10 @@ applied up until that column."
    "*Firrtl-dbg process*"
    "" )
 
+(defconst firrtl-dbg-widgets-buffer-name
+   "*Firrtl-dbg circuit state*"
+   "" )
+
 (defconst firrtl-dbg-tq-regexp
    "firrtl>> "
    "" )
@@ -750,9 +754,31 @@ applied up until that column."
    nil
    "" )
 
+(defvar firrtl-dbg-widgets-buffer
+   nil
+   "" )
+
 (defvar firrtl-dbg-process
    nil
    "" )
+
+;;;;;;;;;;;;;;;;;;;;
+;; Dev of widgets buffer overall
+'
+(setq firrtl-dbg-widgets-buffer
+   (generate-new-buffer firrtl-dbg-widgets-buffer-name))
+
+;; And pop-to-buffer
+'
+(with-current-buffer firrtl-dbg-widgets-buffer
+   (firrtl-dbg-create-widgets))
+
+;; For the updates
+'
+(with-current-buffer firrtl-dbg-widgets-buffer
+   (firrtl-dbg-redraw-widgets))
+
+;;;;;;;;;;;;;;;;;;;;
 
 '
 (setq firrtl-dbg-process-buffer
