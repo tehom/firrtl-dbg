@@ -662,6 +662,18 @@ applied up until that column."
 		:value ,sym
 		:value-create ,value-create-proc)))))
 
+'
+(widget-create
+   `(group
+       :inline t
+       :value ("my-sym" 15)
+       (const
+	  :format "%v  "
+	  )
+       (integer
+	  :tag "Set to")))
+
+
 
 
 (defun firrtl-dbg-tree-expand (tree)
