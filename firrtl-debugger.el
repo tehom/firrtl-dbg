@@ -646,7 +646,6 @@ applied up until that column."
 	     :dynargs firrtl-dbg-tree-expand)
 	 (let*
 	    ((sym (cddr cell))
-	       (v (message (format "%S -> %S" sym (symbol-value sym))))
 	       (value-create-proc
 		  (etypecase (symbol-value sym)
 		     (firrtl-dbg-ephemeral
