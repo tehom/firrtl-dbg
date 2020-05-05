@@ -881,8 +881,6 @@ applied up until that column."
 	   (firrtl-dbg-build-data str)
 	   (firrtl-dbg-redraw-widgets))))
 
-;; This has an extra line due to "step", so it's like
-;; "step 1 in 0.0106136"
 '
 (tq-enqueue firrtl-dbg-tq
    "step ; show\n"
