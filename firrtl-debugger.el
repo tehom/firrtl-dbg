@@ -656,11 +656,33 @@ applied up until that column."
 			#'firrtl-dbg-insert-output-component)
 		     (firrtl-dbg-register
 			#'firrtl-dbg-insert-register-component))))
-	    
-	    `(const
-		:format "%v\n"
-		:value ,sym
-		:value-create ,value-create-proc)))))
+
+	    (etypecase (symbol-value sym)
+	       (firrtl-dbg-ephemeral
+		  `(const
+		      :format "%v\n"
+		      :value ,sym
+		      :value-create ,#'firrtl-dbg-insert-ephemeral-component))
+	       (firrtl-dbg-input
+		  `(group
+		      (const
+			 :format "%v"
+			 :value ,sym
+			 :value-create ,#'firrtl-dbg-insert-input-component)
+		      ;; FIX ME:  This doesn't make it editable.
+		      (integer
+			 :tag " => ")))
+	       (firrtl-dbg-output
+		  `(const
+		      :format "%v\n"
+		      :value ,sym
+		      :value-create ,#'firrtl-dbg-insert-output-component))
+	       (firrtl-dbg-register
+		  `(const
+		      :format "%v\n"
+		      :value ,sym
+		      :value-create
+		      ,#'firrtl-dbg-insert-register-component)))))))
 
 '
 (widget-create
