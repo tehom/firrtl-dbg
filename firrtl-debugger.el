@@ -645,17 +645,7 @@ applied up until that column."
 		      :notify firrtl-dbg-punt-notify)
 	     :dynargs firrtl-dbg-tree-expand)
 	 (let*
-	    ((sym (cddr cell))
-	       (value-create-proc
-		  (etypecase (symbol-value sym)
-		     (firrtl-dbg-ephemeral
-			#'firrtl-dbg-insert-ephemeral-component)
-		     (firrtl-dbg-input
-			#'firrtl-dbg-insert-input-component)
-		     (firrtl-dbg-output
-			#'firrtl-dbg-insert-output-component)
-		     (firrtl-dbg-register
-			#'firrtl-dbg-insert-register-component))))
+	    ((sym (cddr cell)))
 
 	    (etypecase (symbol-value sym)
 	       (firrtl-dbg-ephemeral
