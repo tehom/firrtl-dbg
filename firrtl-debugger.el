@@ -662,8 +662,19 @@ applied up until that column."
 		      (integer
 			 :action ,
 			 #'(lambda (widget &optional event)
-			      (message  "Called for %S, Event = %S"
-				 widget event))
+			      (let* 
+				 ((text (widget-field-value-get widget)))
+				 ;; We'd also like "choice" for enums.
+				 ;; And binary, and distinguish signedness
+				 (if (string-match "^-?[0-9]+$" text)
+				    (progn
+				       (message "An integer: %S" text)
+
+				       )
+				    (progn
+				       (message "Not an integer: %S" text)
+				       (widget-field-value-set widget "0")
+				       ))))
 			 :tag " => ")))
 	       (firrtl-dbg-output
 		  `(const
@@ -688,7 +699,10 @@ applied up until that column."
    (widget-apply-action
       (widget-create (firrtl-dbg-tree-widget
 			(cons "root" firrtl-dbg-subname-tree))))
-   (widget-setup)
+   ;; widget-setup is not sufficient.  Unexpanded entries don't become
+   ;; editable.  They do get put into widget-field-new tho.  Mostly
+   ;; setup calls widget-specify-field and zaps markers
+   (widget-setup) 
    (if (require 'tree-mode nil t)
       (tree-minor-mode t)
       (widget-insert "\n\n")))
