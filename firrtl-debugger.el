@@ -525,7 +525,8 @@ DATA is the data to store, usually a symbol"
    ""
    
    (let*
-      ((space (propertize " " 'face face) ))
+      ((space (propertize " " 'face face)))
+      (widget-insert space) ;; Force at least one space
       (while (< (current-column) column)
 	 (widget-insert space))))
 
