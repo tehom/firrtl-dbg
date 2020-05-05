@@ -592,12 +592,31 @@ applied up until that column."
 	 (val-face
 	    (if (firrtl-dbg-value-valid-p val)
 	       nil
-	       'firrtl-dbg-face-invalid)))
+	       'firrtl-dbg-face-invalid))
+	 from to
+	 )
       
       (firrtl-dbg-insert-fields
 	 (list
 	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
-	    (list val-string val-face firrtl-dbg-value-end-column)))))
+	    (list val-string val-face firrtl-dbg-value-end-column)))
+      (setq from (point))
+
+      ;; Make a field semi-manually.
+      (widget-create-child-and-convert
+	 wid 'integer
+	 :tag " ABC ")
+
+      ;; widget-field-value-create ?  Does some stuff for us like
+      ;; setting widget-field-new, but we want to handle that
+      ;; manually.  And we need to call widget-field-value-delete when
+      ;; we fold it.
+      ;;(widget-insert "abcdefgh")
+      ;; 2 so that rear-stickiness doesn't make later printing inherit
+      ;; this.
+      ;;(setq to (- (point) 2))
+      ;;(widget-specify-field wid from to)
+      ))
 
 
 (defun firrtl-dbg-insert-output-component (wid)
@@ -660,21 +679,7 @@ applied up until that column."
 			 :value ,sym
 			 :value-create ,#'firrtl-dbg-insert-input-component)
 		      (integer
-			 :action ,
-			 #'(lambda (widget &optional event)
-			      (let* 
-				 ((text (widget-field-value-get widget)))
-				 ;; We'd also like "choice" for enums.
-				 ;; And binary, and distinguish signedness
-				 (if (string-match "^-?[0-9]+$" text)
-				    (progn
-				       (message "An integer: %S" text)
-
-				       )
-				    (progn
-				       (message "Not an integer: %S" text)
-				       (widget-field-value-set widget "0")
-				       ))))
+			 :action ,#'firrtl-dbg-signed-integer-action
 			 :tag " => ")))
 	       (firrtl-dbg-output
 		  `(const
@@ -744,7 +749,46 @@ applied up until that column."
 	       (setq done t))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;
+(defun firrtl-dbg-signed-integer-action (widget &optional event)
+   ""
+   (let* 
+      ((text (widget-field-value-get widget)))
+      ;; We'd also like "choice" for enums.
+      ;; And binary, and distinguish signedness
+      (if (string-match "^-?[0-9]+$" text)
+	 (let*
+	    (
+	       ;; This is messed up, and awkward anyways.  This gets
+	       ;; group, and we're interested in the original one's
+	       ;; sibling
+	       ;; (parent (widget-get widget :parent))
+	       ;; (sym (widget-get parent :value))
+	       ;; (v (symbol-value sym))
+	       ;; (component-name (firrtl-dbg-input-full-name v))
+	       ;; PUNT
+	       (component-name "it")
+	       (msg (concat "poke " component-name " " text)))
+	    ;; Check it for fitting the bit width.  The FIRRTL REPL
+	    ;; will accept huge numbers as text.
+	    (message "Let's say %S" msg)
+	    ;; Optimistic and risks error messages
+	    '(tq-enqueue firrtl-dbg-tq
+		msg
+		firrtl-dbg-tq-regexp
+		'ok
+		;; Not clear that we need much of this.
+		#'(lambda (data str)
+		     (pop-to-buffer firrtl-dbg-widgets-buffer)
+		     (message str)
+		     (with-current-buffer firrtl-dbg-widgets-buffer
+			(firrtl-dbg-build-data str)
+			(firrtl-dbg-redraw-widgets))))
+	    )
+	 (progn
+	    (message "Not an integer: %S" text)
+	    (widget-field-value-set widget "0")
+	    ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
