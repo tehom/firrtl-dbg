@@ -743,14 +743,8 @@ applied up until that column."
 				 (widget-value widget)))))))
 	       (setq done t))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;; Dev help for changing values behind widgets' back
-'
-(symbol-value (intern "_GEN_3" firrtl-dbg-obarray))
-
-'
-(set (intern "_GEN_3" firrtl-dbg-obarray) '(firrtl-dbg-ephemeral "_GEN_3" (444 t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
