@@ -758,6 +758,17 @@ applied up until that column."
 '
 (set (intern "_GEN_3" firrtl-dbg-obarray) '(firrtl-dbg-ephemeral "_GEN_3" (444 t)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; make-hash-table :test 'eq
+;; Callback, add (sym new-val) to hash table.  (puthash)
+;; Then use all of them (maphash)
+
+;; Construct a string for each, concat the strings plus "step" and
+;; "show", separated by ";"
+
+;; Then clrhash, next time start fresh.
+
 
 ;; Make a dedicated buffer.
 ;; Provide customizations for directory (of buffer) and repl main name.
@@ -884,9 +895,7 @@ applied up until that column."
 	   (firrtl-dbg-build-data str)
 	   (firrtl-dbg-redraw-widgets))))
 
-;; "poke io_loadingValues 0 ; step ; show"
-;; "poke io_loadingValues 0;step;show\n"
-;; Doesn't work or doesn't redraw
+
 '
 (tq-enqueue firrtl-dbg-tq
    "poke io_loadingValues 0;step;show\n"
