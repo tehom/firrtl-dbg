@@ -93,7 +93,6 @@ On a thing, to show trace of computation
 waitfor componentName value
 
 Possibly wrt a componentName we point at
-
 *** Other commands
 show lofirrtl (We'd just capture it into a buffer)
 show input (This would require way more parsing)
@@ -108,3 +107,48 @@ load fileName (Loads a whole new file.  We'd better reset)
 
 And that's about it.  Other existing commands are pointless in this
 environment.
+
+*** About type
+
+Some sample outputs
+ : type _T_5 0.U<1>
+ : type x 2.PU<4>
+ : type _GEN_3 17368.PU<16>
+ : type clock 0.U<1>
+ : type reset 0.U<1>
+ : type io_loadingValues 1.PU<1>
+ : type io_outputValid 0.U<1>
+
+Does "PU" indicate an explicitly created component, while "U" is
+automatically made?  No, io_outputValid seems explicitly made but has
+"U"
+
+At some point we'll have to change the error message regex
+
+**** Error
+Sorry now settable ports matched regex _GEN_1
+
+*** About poke
+
+We can poke to any component, even registers.  But the pokes into
+arbitrary locations don't persist after stepping.  Basically if the
+state is "FRESH", all pokes other than to inputs are gone.
+
+**** Components disappear
+
+Some components disappeared after I poked an ephemeral value.  But not
+due to the poke.  I reloaded the file, did nothing but step it, and
+the same ephemeral components disappeared.
+
+Reloading worked
+ : load /home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/test_run_dir/gcd.GCDRepl900447983/GCD.fir
+
+**** An error from too-wide poke
+
+Error: exception error: ConcreteUInt(72, 4) bad width 4 needs 7 firrtl_interpreter.InterpreterException: error: ConcreteUInt(72, 4) bad width 4 needs 7
+**** An error from negative poke
+
+Error: exception error: ConcreteUInt(-1, 4) bad value -1 must be >= 0 firrtl_interpreter.InterpreterException: error: ConcreteUInt(-1, 4) bad value -1 must be >= 0
+**** An exception from peek to a gone component
+
+Error: exception Error: getValue(_GEN_0) returns value not found
