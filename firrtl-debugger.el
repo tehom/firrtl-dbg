@@ -659,8 +659,17 @@ applied up until that column."
 			 :format "%v"
 			 :value ,sym
 			 :value-create ,#'firrtl-dbg-insert-input-component)
-		      ;; FIX ME:  This doesn't make it editable.
+		      ;; FIX ME: This doesn't make it editable.
+		      ;; widget-field-list remains empty after this is
+		      ;; inserted.  Because tree-widget doesn't handle
+		      ;; editing its nodes?  So edit all of the inputs
+		      ;; in another buffer?  Re-include editing code?
+		      ;; Just call (widget-setup)? 
 		      (integer
+			 :action ,
+			 #'(lambda (widget &optional event)
+			      (message  "Called for %S, Event = %S"
+				 widget event))
 			 :tag " => ")))
 	       (firrtl-dbg-output
 		  `(const
@@ -699,6 +708,7 @@ applied up until that column."
    (widget-apply-action
       (widget-create (firrtl-dbg-tree-widget
 			(cons "root" firrtl-dbg-subname-tree))))
+   (widget-setup)
    (if (require 'tree-mode nil t)
       (tree-minor-mode t)
       (widget-insert "\n\n")))
