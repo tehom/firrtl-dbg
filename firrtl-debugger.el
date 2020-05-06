@@ -756,12 +756,56 @@ applied up until that column."
 
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
-   
-   (message "Editing it")
-   (let*
-      ()
-      
-      ))
+
+   (let* 
+      (  (sym (widget-get widget :value))
+	 (v (symbol-value sym))
+	 (component-name (firrtl-dbg-input-full-name v))
+	 ;; There is no new text to get, but we can get the old value from sym.
+	 ;;(text (widget-field-value-get widget))
+	 ;; 
+	 (text (read-number
+		  (format "New value for %s: " component-name)
+		  ))
+	 )
+      ;; And if we quit?  Return gracefully
+
+      ;; We'd also like "choice" for enums.
+      ;; And binary, and distinguish signedness
+      (if t ;; (string-match "^-?[0-9]+$" text)
+	 (let*
+	    (
+	       ;; This is messed up, and awkward anyways.  This gets
+	       ;; group, and we're interested in the original one's
+	       ;; sibling
+	       ;; (parent (widget-get widget :parent))
+	       ;; (sym (widget-get parent :value))
+	       ;; (v (symbol-value sym))
+	       ;; (component-name (firrtl-dbg-input-full-name v))
+	       ;; PUNT
+	       
+	       (msg (concat "poke " component-name " "
+		       (number-to-string text))))
+	    ;; Check it for fitting the bit width.  The FIRRTL REPL
+	    ;; will accept huge numbers as text.
+	    (message "Let's say %S" msg)
+	    ;; Optimistic and risks error messages
+	    '(tq-enqueue firrtl-dbg-tq
+		msg
+		firrtl-dbg-tq-regexp
+		'ok
+		;; Not clear that we need much of this.
+		#'(lambda (data str)
+		     (pop-to-buffer firrtl-dbg-widgets-buffer)
+		     (message str)
+		     (with-current-buffer firrtl-dbg-widgets-buffer
+			(firrtl-dbg-build-data str)
+			(firrtl-dbg-redraw-widgets))))
+	    )
+	 (progn
+	    (message "Not an integer: %S" text)
+	    (widget-field-value-set widget "0")
+	    ))))
 
 (defun firrtl-dbg-signed-integer-action (widget &optional event)
    ""
