@@ -790,6 +790,8 @@ applied up until that column."
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
 	 (component-name (firrtl-dbg-input-full-name component))
+	 ;; PUNT:  Component type
+	 (component-type t)
 	 (current (firrtl-dbg-input-current component))
 	 (new-val-text (firrtl-dbg-read-new-val-text component))
 	 (msg (concat "poke " component-name " " new-val-text "\n")))
