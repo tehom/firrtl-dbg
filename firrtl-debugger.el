@@ -602,11 +602,15 @@ applied up until that column."
 	    (list val-string val-face firrtl-dbg-value-end-column)))
       (setq from (point))
 
-      ;; Make a field semi-manually.
-      (widget-create-child-and-convert
+      ;; Make a field explicitly
+      '(widget-create-child-and-convert
 	 wid 'integer
 	 :tag " ABC ")
-
+      ;; Maybe do this semi-manually?
+      '(widget-setup)
+      ;; Problem: Re-folding doesn't eliminate this field, so we get
+      ;; overlapping fields.
+      
       ;; widget-field-value-create ?  Does some stuff for us like
       ;; setting widget-field-new, but we want to handle that
       ;; manually.  And we need to call widget-field-value-delete when
@@ -673,14 +677,16 @@ applied up until that column."
 		      :value ,sym
 		      :value-create ,#'firrtl-dbg-insert-ephemeral-component))
 	       (firrtl-dbg-input
-		  `(group
-		      (const
-			 :format "%v"
-			 :value ,sym
-			 :value-create ,#'firrtl-dbg-insert-input-component)
-		      (integer
-			 :action ,#'firrtl-dbg-signed-integer-action
-			 :tag " => ")))
+		  `(const
+		      :format "%v\n"
+		      :value ,sym
+		      :value-create ,#'firrtl-dbg-insert-input-component
+		      :notify
+		      (lambda (wid wid-again &optional event)
+			   (message "Yup")
+			   )
+		      )
+		  )
 	       (firrtl-dbg-output
 		  `(const
 		      :format "%v\n"
