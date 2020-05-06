@@ -767,8 +767,10 @@ applied up until that column."
 	 ;; (string-match "^-?[0-9]+$" text)
 	 (new-val (read-number
 		     (format "New value for %s: " component-name)
-		     ;; Only if non-poisoned
-		     (firrtl-dbg-value-v old-val))))
+		     (if
+			(firrtl-dbg-value-valid-p old-val)
+			(firrtl-dbg-value-v old-val)
+			nil))))
       
       ;; PUNT: Using type info, check new-val for bit width and
       ;; signedness.  Abort if new-val is not conformant.
@@ -789,7 +791,7 @@ applied up until that column."
 	 (component (symbol-value sym))
 	 (component-name (firrtl-dbg-input-full-name component))
 	 (new-val-text (firrtl-dbg-read-new-val-text component))
-	 (msg (concat "poke " component-name " " new-val-text)))
+	 (msg (concat "poke " component-name " " new-val-text "\n")))
       
       (message "Let's say %S" msg)
       ;; Optimistic and risks error messages, until we pre-filter inputs
