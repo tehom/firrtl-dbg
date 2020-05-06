@@ -36,6 +36,7 @@
 (defstruct (firrtl-dbg-value (:type list))
    ""
    v
+   ;; RENAME ME state
    valid-p)
 
 (defstruct (firrtl-dbg-component (:type list) :named)
@@ -590,49 +591,20 @@ applied up until that column."
 	       (firrtl-dbg-ephemeral-current v)
 	       firrtl-dbg-value-end-column)))))
 
-
-;; TEMPORARY clone.  This will get an input field
 (defun firrtl-dbg-insert-input-component (wid)
    "Insert an input component"
    (let* 
       (
 	 (sym (widget-get wid :value))
-	 (v (symbol-value sym))
-	 (val (firrtl-dbg-input-current v))
-	 (val-string (number-to-string (firrtl-dbg-value-v val)))
-	 (val-face
-	    (firrtl-dbg-get-face-by-validity
-	       (firrtl-dbg-value-valid-p cvalue)))
-	 ;; REMOVE ME
-	 from to
-	 )
-      
+	 (v (symbol-value sym)))
+
       (firrtl-dbg-insert-fields
 	 (list
 	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
-	    (list val-string val-face firrtl-dbg-value-end-column)))
-      ;; REMOVE ME
-      (setq from (point))
+	    (firrtl-dbg-field-fmt
+	       (firrtl-dbg-input-current v)
+	       firrtl-dbg-value-end-column)))))
 
-      ;; Make a field explicitly
-      '(widget-create-child-and-convert
-	 wid 'integer
-	 :tag " ABC ")
-      ;; Maybe do this semi-manually?
-      '(widget-setup)
-      ;; Problem: Re-folding doesn't eliminate this field, so we get
-      ;; overlapping fields.
-      
-      ;; widget-field-value-create ?  Does some stuff for us like
-      ;; setting widget-field-new, but we want to handle that
-      ;; manually.  And we need to call widget-field-value-delete when
-      ;; we fold it.
-      ;;(widget-insert "abcdefgh")
-      ;; 2 so that rear-stickiness doesn't make later printing inherit
-      ;; this.
-      ;;(setq to (- (point) 2))
-      ;;(widget-specify-field wid from to)
-      ))
 
 
 (defun firrtl-dbg-insert-output-component (wid)
