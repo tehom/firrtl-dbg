@@ -159,3 +159,13 @@ Approaches:
  * Lots more work
  * Let input's action do a dialog instead
 
+**** About it
+
+I had originally intended to just use more widgets for the
+interaction, but that doesn't work.  Specifically, it doesn't play
+well with the tree expansion widgets.  Widgets that are originally
+folded require manual setup, and that setup doesn't go away when they
+are re-folded.  So then you get overlapping fields, and that's a big
+problem.
+
+So I just resorted to an interaction dialog in the low bar.
