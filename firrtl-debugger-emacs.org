@@ -152,3 +152,10 @@ Error: exception error: ConcreteUInt(-1, 4) bad value -1 must be >= 0 firrtl_int
 **** An exception from peek to a gone component
 
 Error: exception Error: getValue(_GEN_0) returns value not found
+
+*** Tree widget doesn't co-operate with widgets
+
+Approaches:
+ * Lots more work
+ * Let input's action do a dialog instead
+
