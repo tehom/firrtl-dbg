@@ -682,11 +682,8 @@ applied up until that column."
 		      :value ,sym
 		      :value-create ,#'firrtl-dbg-insert-input-component
 		      :notify
-		      (lambda (wid wid-again &optional event)
-			   (message "Yup")
-			   )
-		      )
-		  )
+		      ,#'firrtl-dbg-do-integer-edit&poke))
+	       
 	       (firrtl-dbg-output
 		  `(const
 		      :format "%v\n"
@@ -756,6 +753,16 @@ applied up until that column."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+
+(defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
+   ""
+   
+   (message "Editing it")
+   (let*
+      ()
+      
+      ))
+
 (defun firrtl-dbg-signed-integer-action (widget &optional event)
    ""
    (let* 
