@@ -784,6 +784,18 @@ applied up until that column."
 
       (number-to-string new-val)))
 
+(defun firrtl-dbg-parse-response-maybe-complain (str)
+   ""
+   
+   (let*
+      (
+	 (legit-rx (concat " *" firrtl-dbg-tq-prompt-string))
+	 (start-legit (string-match legit-rx str)))
+      ;; Show any error that we get back
+      (when (or (null start-legit) (> start-legit 0))
+	 (message "%s" (substring str 0 start-legit)))))
+
+
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
 
@@ -799,12 +811,10 @@ applied up until that column."
       (tq-enqueue firrtl-dbg-tq
 	 msg
 	 firrtl-dbg-tq-regexp
-	 'ok
-	 ;; Not clear that we need much of this.
+	 nil
 	 #'(lambda (data str)
-	      ;; We do need error handling.  Show anything except
-	      ;; the firrtl prompt.
-	      (message str)))
+	      (firrtl-dbg-parse-response-maybe-complain str)))
+      
 
       ;; Set the component's value to that
       ;; IMPROVE ME:  Better to return both the text and the number.
@@ -857,8 +867,12 @@ applied up until that column."
    "*Firrtl-dbg circuit state*"
    "" )
 
+(defconst firrtl-dbg-tq-prompt-string
+   "firrtl>>"
+   "" )
+
 (defconst firrtl-dbg-tq-regexp
-   ".*firrtl>> "
+   (concat ".*" firrtl-dbg-tq-prompt-string " *")
    "" )
 
 ;; Process buffer and widget buffer are distinct
