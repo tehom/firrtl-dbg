@@ -973,6 +973,28 @@ applied up until that column."
 '
 (tq-close firrtl-dbg-tq)
 
+(defun firrtl-dbg-wait-for-prompt (process-buffer string num-seconds msg)
+   ""
+
+   (with-current-buffer process-buffer
+      (let* 
+	 ((num-seconds-waited 0)
+	    (found nil))
+	 
+	 (while (and (not found) (< num-seconds-waited num-seconds))
+	    (message msg)
+	    (sleep-for 1)
+	    (goto-char (point-min))
+	    (let* 
+	       ((found-now-p
+		   (search-forward string nil t)))
+	       (if found-now-p
+		  (setq found t)
+		  (incf num-seconds-waited))))
+
+	 (if found num-seconds-waited nil))))
+
+
 (defun firrtl-dbg-startup ()
    ""
 
@@ -998,24 +1020,17 @@ applied up until that column."
 	       firrtl-dbg-repl-launch-string)))
 
       (let* 
-	 ((num-seconds-waited 0)
-	    (found nil))
-	 
-
-	 (while (and (not found) (< num-seconds-waited 20))
-	    (message "Waiting for debugger process...")
-	    (sleep-for 1)
-	    (let* 
-	       ((found-now-p
-		   (search-forward firrtl-dbg-tq-prompt-string nil t)))
-	       (if found-now-p
-		  (setq found t)
-		  (incf num-seconds-waited))))
-
-	 (if found
+	 ((num-seconds-waited
+	     (firrtl-dbg-wait-for-prompt
+		firrtl-dbg-process-buffer
+		firrtl-dbg-tq-prompt-string
+		20
+		"Waiting for debugger process...")))
+	 (if num-seconds-waited
 	    (message "Have debugger process after %S seconds"
 	       num-seconds-waited)
 	    (error "Debugger process timed out")))
+
       
       (setq firrtl-dbg-tq
 	 (tq-create firrtl-dbg-process))
