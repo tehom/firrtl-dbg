@@ -793,61 +793,21 @@ applied up until that column."
       
       (message "Let's say %S" msg)
       ;; Optimistic and risks error messages, until we pre-filter inputs
-      '(tq-enqueue firrtl-dbg-tq
-	  msg
-	  firrtl-dbg-tq-regexp
-	  'ok
-	  ;; Not clear that we need much of this.
-	  #'(lambda (data str)
-	       (pop-to-buffer firrtl-dbg-widgets-buffer)
-	       (message str)
-	       (with-current-buffer firrtl-dbg-widgets-buffer
-		  (firrtl-dbg-build-data str)
-		  (firrtl-dbg-redraw-widgets))))
+      (tq-enqueue firrtl-dbg-tq
+	 msg
+	 firrtl-dbg-tq-regexp
+	 'ok
+	 ;; Not clear that we need much of this.
+	 #'(lambda (data str)
+	      (pop-to-buffer firrtl-dbg-widgets-buffer)
+	      (message str)
+	      (with-current-buffer firrtl-dbg-widgets-buffer
+		 (firrtl-dbg-build-data str)
+		 (firrtl-dbg-redraw-widgets))))
 
       ;; WRITE ME: Now set the component's value to that, and cause
       ;; the widget to be redrawn.
       ))
-
-(defun firrtl-dbg-signed-integer-action (widget &optional event)
-   ""
-   (let* 
-      ((text (widget-field-value-get widget)))
-      ;; We'd also like "choice" for enums.
-      ;; And binary, and distinguish signedness
-      (if (string-match "^-?[0-9]+$" text)
-	 (let*
-	    (
-	       ;; This is messed up, and awkward anyways.  This gets
-	       ;; group, and we're interested in the original one's
-	       ;; sibling
-	       ;; (parent (widget-get widget :parent))
-	       ;; (sym (widget-get parent :value))
-	       ;; (v (symbol-value sym))
-	       ;; (component-name (firrtl-dbg-input-full-name v))
-	       ;; PUNT
-	       (component-name "it")
-	       (msg (concat "poke " component-name " " text)))
-	    ;; Check it for fitting the bit width.  The FIRRTL REPL
-	    ;; will accept huge numbers as text.
-	    (message "Let's say %S" msg)
-	    ;; Optimistic and risks error messages
-	    '(tq-enqueue firrtl-dbg-tq
-		msg
-		firrtl-dbg-tq-regexp
-		'ok
-		;; Not clear that we need much of this.
-		#'(lambda (data str)
-		     (pop-to-buffer firrtl-dbg-widgets-buffer)
-		     (message str)
-		     (with-current-buffer firrtl-dbg-widgets-buffer
-			(firrtl-dbg-build-data str)
-			(firrtl-dbg-redraw-widgets))))
-	    )
-	 (progn
-	    (message "Not an integer: %S" text)
-	    (widget-field-value-set widget "0")
-	    ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
