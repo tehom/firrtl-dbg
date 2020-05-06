@@ -753,14 +753,11 @@ applied up until that column."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-
-(defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
+(defun firrtl-dbg-read-new-val-text (component)
    ""
-
-   (let* 
-      (  (sym (widget-get widget :value))
-	 (v (symbol-value sym))
-	 (component-name (firrtl-dbg-input-full-name v))
+   
+   (let*
+      (	 (component-name (firrtl-dbg-input-full-name v))
 	 (old-val (firrtl-dbg-input-current v))
 	 (old-val-string (number-to-string (firrtl-dbg-value-v old-val)))
 	 ;; User can quit, then this just pops back via error handling.
@@ -769,19 +766,30 @@ applied up until that column."
 	 ;; enums.  And binary, and hex, and distinguish signedness
 	 ;; (string-match "^-?[0-9]+$" text)
 	 (new-val (read-number
-		  (format "New value for %s: " component-name)
-		     old-val-string))
-	 ;; PUNT: Check new-val for bit width and signedness.  Abort
-	 ;; if new-val is not conformant.  Encap these two as a
-	 ;; getter, so it can vary over types.
+		     (format "New value for %s: " component-name)
+		     old-val-string)))
+      
+      ;; PUNT: Using type info, check new-val for bit width and
+      ;; signedness.  Abort if new-val is not conformant.
 
-	 ;; Check it for fitting the bit width.  The FIRRTL REPL will
-	 ;; accept huge numbers as text.
-	 (new-val-conforms-p t)
-	 (msg (concat "poke " component-name " "
-		       (number-to-string new-val)))
-	 )
+      ;; The FIRRTL REPL will accept huge numbers as text, but
+      ;; then complain if it's too wide.
 
+      (when nil
+	 (error "Not a number: %S" new-val))
+
+      (number-to-string new-val)))
+
+(defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
+   ""
+
+   (let* 
+      (  (sym (widget-get widget :value))
+	 (v (symbol-value sym))
+
+	 (new-val-text (firrtl-dbg-read-new-val-text v))
+	 (msg (concat "poke " component-name " " new-val-text)))
+      
       (message "Let's say %S" msg)
       ;; Optimistic and risks error messages
       '(tq-enqueue firrtl-dbg-tq
