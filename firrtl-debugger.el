@@ -973,6 +973,63 @@ applied up until that column."
 '
 (tq-close firrtl-dbg-tq)
 
+(defun firrtl-dbg-startup ()
+   ""
+
+   (setq firrtl-dbg-widgets-buffer
+      (generate-new-buffer firrtl-dbg-widgets-buffer-name))
+   
+   (with-current-buffer firrtl-dbg-widgets-buffer
+      (setq firrtl-dbg-process-buffer
+	 (generate-new-buffer firrtl-dbg-process-buffer-name))
+
+      (with-current-buffer firrtl-dbg-process-buffer
+	 (setq default-directory firrtl-dbg-working-directory))
+
+      (setq firrtl-dbg-process
+	 ;; Really just need with current directory
+	 (with-current-buffer firrtl-dbg-process-buffer
+	    (start-process
+	       firrtl-dbg-process-name
+	       firrtl-dbg-process-buffer
+	       firrtl-dbg-executable
+	       ;; Quoting this string with shell-quote-argument actually messes
+	       ;; us up.
+	       firrtl-dbg-repl-launch-string)))
+
+      (let* 
+	 ((num-seconds-waited 0)
+	    (found nil))
+	 
+
+	 (while (and (not found) (< num-seconds-waited 20))
+	    (message "Waiting for debugger process...")
+	    (sleep-for 1)
+	    (let* 
+	       ((found-now-p
+		   (search-forward firrtl-dbg-tq-prompt-string nil t)))
+	       (if found-now-p
+		  (setq found t)
+		  (incf num-seconds-waited))))
+
+	 (if found
+	    (message "Have debugger process after %S seconds"
+	       num-seconds-waited)
+	    (error "Debugger process timed out")))
+      
+      (setq firrtl-dbg-tq
+	 (tq-create firrtl-dbg-process))
+
+      (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
+	 'ok
+	 #'(lambda (data str)
+	      (message str)
+	      (firrtl-dbg-build-data str)
+	      (with-current-buffer firrtl-dbg-widgets-buffer
+		 (firrtl-dbg-create-widgets))))))
+
+
+
 ;;;_. Footers
 ;;;_ , Provides
 
