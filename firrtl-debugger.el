@@ -757,9 +757,9 @@ applied up until that column."
    ""
    
    (let*
-      (	 (component-name (firrtl-dbg-input-full-name v))
-	 (old-val (firrtl-dbg-input-current v))
-	 (old-val-string (number-to-string (firrtl-dbg-value-v old-val)))
+      (	 
+	 (old-val (firrtl-dbg-input-current component))
+
 	 ;; User can quit, then this just pops back via error handling.
 
 	 ;; This assumes signed decimal.  We'd also like "choice" for
@@ -767,7 +767,8 @@ applied up until that column."
 	 ;; (string-match "^-?[0-9]+$" text)
 	 (new-val (read-number
 		     (format "New value for %s: " component-name)
-		     old-val-string)))
+		     ;; Only if non-poisoned
+		     (firrtl-dbg-value-v old-val))))
       
       ;; PUNT: Using type info, check new-val for bit width and
       ;; signedness.  Abort if new-val is not conformant.
@@ -785,13 +786,13 @@ applied up until that column."
 
    (let* 
       (  (sym (widget-get widget :value))
-	 (v (symbol-value sym))
-
-	 (new-val-text (firrtl-dbg-read-new-val-text v))
+	 (component (symbol-value sym))
+	 (component-name (firrtl-dbg-input-full-name component))
+	 (new-val-text (firrtl-dbg-read-new-val-text component))
 	 (msg (concat "poke " component-name " " new-val-text)))
       
       (message "Let's say %S" msg)
-      ;; Optimistic and risks error messages
+      ;; Optimistic and risks error messages, until we pre-filter inputs
       '(tq-enqueue firrtl-dbg-tq
 	  msg
 	  firrtl-dbg-tq-regexp
@@ -802,7 +803,11 @@ applied up until that column."
 	       (message str)
 	       (with-current-buffer firrtl-dbg-widgets-buffer
 		  (firrtl-dbg-build-data str)
-		  (firrtl-dbg-redraw-widgets))))))
+		  (firrtl-dbg-redraw-widgets))))
+
+      ;; WRITE ME: Now set the component's value to that, and cause
+      ;; the widget to be redrawn.
+      ))
 
 (defun firrtl-dbg-signed-integer-action (widget &optional event)
    ""
