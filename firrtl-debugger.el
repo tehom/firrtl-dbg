@@ -753,7 +753,7 @@ applied up until that column."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun firrtl-dbg-read-new-val-text (component)
+(defun firrtl-dbg-read-new-val (component)
    ""
    
    (let*
@@ -803,7 +803,7 @@ applied up until that column."
 	 (component (symbol-value sym))
 	 (component-name (firrtl-dbg-input-full-name component))
 	 (current (firrtl-dbg-input-current component))
-	 (new-data (firrtl-dbg-read-new-val-text component))
+	 (new-data (firrtl-dbg-read-new-val component))
 	 (new-val (first new-data))
 	 (new-val-text (second new-data))
 	 (msg (concat "poke " component-name " " new-val-text "\n")))
