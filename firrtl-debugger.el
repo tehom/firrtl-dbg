@@ -802,15 +802,9 @@ applied up until that column."
 	 'ok
 	 ;; Not clear that we need much of this.
 	 #'(lambda (data str)
-	      ;; No, we are already here.
-	      (pop-to-buffer firrtl-dbg-widgets-buffer)
 	      ;; We do need error handling.  Show anything except
 	      ;; the firrtl prompt.
-	      (message str)
-	      (with-current-buffer firrtl-dbg-widgets-buffer
-		 ;; We only need to redraw the specific widget
-		 (firrtl-dbg-build-data str)
-		 (firrtl-dbg-redraw-widgets))))
+	      (message str)))
 
       ;; Set the component's value to that
       ;; IMPROVE ME:  Better to return both the text and the number.
