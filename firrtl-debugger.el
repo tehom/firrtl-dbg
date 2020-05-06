@@ -946,7 +946,6 @@ applied up until that column."
 (setq firrtl-dbg-tq
    (tq-create firrtl-dbg-process))
 
-;; This worked at first.  Comes back with the firrtl>> prompt at the end.
 '
 (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
    'ok
