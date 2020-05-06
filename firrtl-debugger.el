@@ -790,6 +790,7 @@ applied up until that column."
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
 	 (component-name (firrtl-dbg-input-full-name component))
+	 (current (firrtl-dbg-input-current component))
 	 (new-val-text (firrtl-dbg-read-new-val-text component))
 	 (msg (concat "poke " component-name " " new-val-text "\n")))
       
@@ -807,8 +808,16 @@ applied up until that column."
 		 (firrtl-dbg-build-data str)
 		 (firrtl-dbg-redraw-widgets))))
 
-      ;; WRITE ME: Now set the component's value to that, and cause
-      ;; the widget to be redrawn.
+      ;; Set the component's value to that
+      ;; IMPROVE ME:  Better to return both the text and the number.
+
+      (setf (firrtl-dbg-value-v current) (string-to-number new-val-text))
+      ;; IMPROVE ME: This should allow another value meaning "User has
+      ;; set this"
+      (setf (firrtl-dbg-value-valid-p current) t)
+
+      ;; Cause the widget to be redrawn.
+      (widget-value-set widget (widget-value widget))
       ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
