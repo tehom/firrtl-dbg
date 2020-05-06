@@ -783,17 +783,6 @@ applied up until that column."
 	 (error "Not a number: %S" new-val))
       (list new-val (number-to-string new-val))))
 
-(defun firrtl-dbg-parse-response-maybe-complain (str)
-   ""
-   
-   (let*
-      (
-	 (legit-rx (concat " *" firrtl-dbg-tq-prompt-string))
-	 (start-legit (string-match legit-rx str)))
-      ;; Show any error that we get back
-      (when (or (null start-legit) (> start-legit 0))
-	 (message "%s" (substring str 0 start-legit)))))
-
 
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
@@ -887,6 +876,18 @@ applied up until that column."
 (defvar firrtl-dbg-process
    nil
    "" )
+
+(defun firrtl-dbg-parse-response-maybe-complain (str)
+   ""
+   
+   (let*
+      (
+	 (legit-rx (concat " *" firrtl-dbg-tq-prompt-string))
+	 (start-legit (string-match legit-rx str)))
+      ;; Show any error that we get back
+      (when (or (null start-legit) (> start-legit 0))
+	 (message "%s" (substring str 0 start-legit)))))
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Dev of widgets buffer overall
