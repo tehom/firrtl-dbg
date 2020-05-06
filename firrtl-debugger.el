@@ -759,6 +759,7 @@ applied up until that column."
    (let*
       (	 
 	 (old-val (firrtl-dbg-input-current component))
+	 (component-name (firrtl-dbg-input-full-name component))
 
 	 ;; User can quit, then this just pops back via error handling.
 
