@@ -794,8 +794,7 @@ applied up until that column."
 	 (new-val-text (firrtl-dbg-read-new-val-text component))
 	 (msg (concat "poke " component-name " " new-val-text "\n")))
       
-      (message "Let's say %S" msg)
-      ;; Optimistic and risks error messages, until we pre-filter inputs
+      ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
       (tq-enqueue firrtl-dbg-tq
 	 msg
 	 firrtl-dbg-tq-regexp
