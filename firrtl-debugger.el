@@ -32,6 +32,7 @@
 ;;;_. Body
 
 ;; Maybe valid-p can take a n/a value as well.  Maybe add a timestamp.
+;; '(ok poison set-by-user-now set-by-user-earlier)
 (defstruct (firrtl-dbg-value (:type list))
    ""
    v
@@ -385,6 +386,11 @@ DATA is the data to store, usually a symbol"
 	       component-str))
 	 (full-name (match-string 1 component-str))
 	 (valid-p (string-empty-p (match-string 2 component-str)))
+	 (validity
+	    (if
+	       (string-empty-p (match-string 2 component-str))
+	       'ok
+	       'poisoned))
 	 (value (string-to-number (match-string 3 component-str))))
       
       ;; 2 and 4 should be the same
@@ -549,15 +555,20 @@ applied up until that column."
 	 (firrtl-dbg-insert-w-face text face)
 	 (firrtl-dbg-pad-to-column end-col face))))
 
+(defun firrtl-dbg-get-face-by-validity (validity)
+   ""
+   
+   (case validity
+      (poisoned 'firrtl-dbg-face-invalid)
+      (t nil)))
 
 (defun firrtl-dbg-field-fmt (cvalue end-col)
    ""
    (let* 
       ((face
-	  (if (firrtl-dbg-value-valid-p cvalue)
-	     nil
-	     'firrtl-dbg-face-invalid)))
-      
+	  (firrtl-dbg-get-face-by-validity
+	     (firrtl-dbg-value-valid-p cvalue))))
+
       (list
 	 (number-to-string
 	    (firrtl-dbg-value-v cvalue))
@@ -590,9 +601,9 @@ applied up until that column."
 	 (val (firrtl-dbg-input-current v))
 	 (val-string (number-to-string (firrtl-dbg-value-v val)))
 	 (val-face
-	    (if (firrtl-dbg-value-valid-p val)
-	       nil
-	       'firrtl-dbg-face-invalid))
+	    (firrtl-dbg-get-face-by-validity
+	       (firrtl-dbg-value-valid-p cvalue)))
+	 ;; REMOVE ME
 	 from to
 	 )
       
@@ -600,6 +611,7 @@ applied up until that column."
 	 (list
 	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
 	    (list val-string val-face firrtl-dbg-value-end-column)))
+      ;; REMOVE ME
       (setq from (point))
 
       ;; Make a field explicitly
@@ -766,12 +778,16 @@ applied up until that column."
 	 ;; This assumes signed decimal.  We'd also like "choice" for
 	 ;; enums.  And binary, and hex, and distinguish signedness
 	 ;; (string-match "^-?[0-9]+$" text)
-	 (new-val (read-number
-		     (format "New value for %s: " component-name)
-		     (if
+	 (new-val
+	    (read-number
+	       (format "New value for %s: " component-name)
+	       (if
+		  (not
+		     (eq
 			(firrtl-dbg-value-valid-p old-val)
-			(firrtl-dbg-value-v old-val)
-			nil))))
+			'poisoned))
+		  (firrtl-dbg-value-v old-val)
+		  nil))))
       
       ;; PUNT: Using type info, check new-val for bit width and
       ;; signedness.  Abort if new-val is not conformant.
@@ -809,9 +825,7 @@ applied up until that column."
       ;; Set the component's value to that
       (setf (firrtl-dbg-value-v current) new-val)
 
-      ;; IMPROVE ME: This should allow another value meaning "User has
-      ;; set this"
-      (setf (firrtl-dbg-value-valid-p current) t)
+      (setf (firrtl-dbg-value-valid-p current) 'set-by-user-now)
 
       ;; Cause the widget to be redrawn.
       (widget-value-set widget (widget-value widget))))
