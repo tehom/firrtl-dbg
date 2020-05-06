@@ -781,8 +781,7 @@ applied up until that column."
 
       (when nil
 	 (error "Not a number: %S" new-val))
-
-      (number-to-string new-val)))
+      (list new-val (number-to-string new-val))))
 
 (defun firrtl-dbg-parse-response-maybe-complain (str)
    ""
@@ -804,7 +803,9 @@ applied up until that column."
 	 (component (symbol-value sym))
 	 (component-name (firrtl-dbg-input-full-name component))
 	 (current (firrtl-dbg-input-current component))
-	 (new-val-text (firrtl-dbg-read-new-val-text component))
+	 (new-data (firrtl-dbg-read-new-val-text component))
+	 (new-val (first new-data))
+	 (new-val-text (second new-data))
 	 (msg (concat "poke " component-name " " new-val-text "\n")))
       
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
@@ -817,16 +818,15 @@ applied up until that column."
       
 
       ;; Set the component's value to that
-      ;; IMPROVE ME:  Better to return both the text and the number.
+      (setf (firrtl-dbg-value-v current) new-val)
 
-      (setf (firrtl-dbg-value-v current) (string-to-number new-val-text))
       ;; IMPROVE ME: This should allow another value meaning "User has
       ;; set this"
       (setf (firrtl-dbg-value-valid-p current) t)
 
       ;; Cause the widget to be redrawn.
-      (widget-value-set widget (widget-value widget))
-      ))
+      (widget-value-set widget (widget-value widget))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
