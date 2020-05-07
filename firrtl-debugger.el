@@ -41,6 +41,8 @@
    ;; first-seen just-changed stayed-same) Some of these aren't set
    ;; yet, and 'ok' will yield to the three new ones.
    state
+   ;; Moved into here
+   string-format
    ;; Not used yet
    last-time-changed)
 
@@ -48,7 +50,6 @@
    "The base of FIRRTL component info for widgets"
    full-name
    current ;; A firrtl-dbg-value
-   string-format
    )
 
 (defstruct (firrtl-dbg-register
@@ -137,7 +138,9 @@
       (when sym
 	 (let* 
 	    ((component (symbol-value sym)))
-	    (setf (firrtl-dbg-component-string-format component)
+	    (setf
+	       (firrtl-dbg-value-string-format
+		  (firrtl-dbg-component-current component))
 	       (second i))))))
 
 ;; Local variables
