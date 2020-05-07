@@ -862,22 +862,51 @@ applied up until that column."
       (	 
 	 (old-val (firrtl-dbg-input-current component))
 	 (component-name (firrtl-dbg-input-full-name component))
+	 (prompt (format "New value for %s: " component-name))
 
-	 ;; User can quit, then this just pops back via error handling.
+	 )
 
-	 ;; This assumes signed decimal.  We'd also like "choice" for
-	 ;; enums.  And binary, and hex, and distinguish signedness
-	 ;; (string-match "^-?[0-9]+$" text)
-	 (new-val
-	    (read-number
-	       (format "New value for %s: " component-name)
-	       (if
-		  (not
-		     (eq
-			(firrtl-dbg-value-state old-val)
-			'poisoned))
-		  (firrtl-dbg-value-v old-val)
-		  nil))))
+      ;; User can quit, then this just pops back via error handling.
+
+      ;; This assumes signed decimal.  We'd also like "choice" for
+      ;; enums.  And binary, and hex, and distinguish signedness
+      ;; (string-match "^-?[0-9]+$" text)
+
+      (case
+	 (firrtl-dbg-value-string-format old-val)
+	 ;; Treat as a boolean
+	 ((t)
+	    (let*
+	       (  (default-string
+		      ;; Reverse what was there, since there are only
+		      ;; two possibilities
+		     (if (firrtl-dbg-value-v old-val) "false" "true"))
+		  (new-string
+		     (completing-read
+			prompt
+			'("true" "false")
+			nil t
+			default-string)))
+	       (cond 
+		  ((string-equal new-string "true")
+		     (list t "1"))
+		  ((string-equal new-string "false")
+		     (list nil "0"))
+		  (otherwise (error "Not a boolean")))))
+	 
+	 (otherwise
+	    (let ((new-val
+		     (read-number
+			prompt
+			(if
+			   (not
+			      (eq
+				 (firrtl-dbg-value-state old-val)
+				 'poisoned))
+			   (firrtl-dbg-value-v old-val)
+			   nil))))
+	       (list new-val (number-to-string new-val)))))
+      
       
       ;; PUNT: Using type info, check new-val for bit width and
       ;; signedness.  Abort if new-val is not conformant.
@@ -885,9 +914,7 @@ applied up until that column."
       ;; The FIRRTL REPL will accept huge numbers as text, but
       ;; then complain if it's too wide.
 
-      (when nil
-	 (error "Not a number: %S" new-val))
-      (list new-val (number-to-string new-val))))
+      ))
 
 
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
