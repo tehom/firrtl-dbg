@@ -29,6 +29,7 @@
 (require 'cl)
 (require 'subr-x)
 (require 'tree-widget)
+(require 'tq)
 ;;;_. Body
 
 ;; Maybe add a timestamp.
@@ -548,7 +549,14 @@ DATA is the data to store, usually a symbol"
    (interactive)
    
    (firrtl-dbg-clear)
-   (tq-close firrtl-dbg-tq))
+   
+   (when firrtl-dbg-tq
+      (tq-close firrtl-dbg-tq))
+   (kill-buffer firrtl-dbg-process-buffer)
+   (setq firrtl-dbg-process-buffer nil)
+   (kill-buffer firrtl-dbg-widgets-buffer)
+   (setq firrtl-dbg-widgets-buffer nil))
+
 
 ;; For most components, non-editable.  Just displays it.
 
@@ -1086,7 +1094,7 @@ applied up until that column."
 
 (defun firrtl-dbg-startup ()
    ""
-
+   (interactive)
    (setq firrtl-dbg-widgets-buffer
       (generate-new-buffer firrtl-dbg-widgets-buffer-name))
    
