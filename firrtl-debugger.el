@@ -718,7 +718,6 @@ applied up until that column."
       firrtl-dbg-tq-regexp
       nil
       #'(lambda (data str)
-	   (firrtl-dbg-parse-response-maybe-complain str)
 	   (with-current-buffer firrtl-dbg-widgets-buffer
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-redraw-widgets)))))
