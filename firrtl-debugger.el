@@ -32,7 +32,7 @@
 ;;;_. Body
 
 ;; Maybe valid-p can take a n/a value as well.  Maybe add a timestamp.
-;; '(ok poison set-by-user-now set-by-user-earlier)
+;; '(ok poisoned set-by-user-now set-by-user-earlier)
 (defstruct (firrtl-dbg-value (:type list))
    ""
    v
@@ -74,10 +74,20 @@
    "An output wire")
 
 ;; Make this customizable
-(defface firrtl-dbg-face-invalid '((t :background "gray"))
+(defface firrtl-dbg-face-value-poison '((t :background "gray"))
    "The face for poisoned values")
 
-;; WRITE ME:  Faces for normal values, just-changed values, etc
+(defface firrtl-dbg-face-value-set-by-user-earlier
+   '((t :background "green"))
+   "The face for values set earlier")
+
+(defface firrtl-dbg-face-value-set-by-user-now
+   '((t :background "light blue"))
+   "The face for values set since the last step")
+
+(defface firrtl-dbg-face-value-default '()
+   "The face for normal values")
+
 
 
 ;; Local variables
@@ -566,7 +576,10 @@ applied up until that column."
    ""
    
    (case validity
-      (poisoned 'firrtl-dbg-face-invalid)
+      (poisoned 'firrtl-dbg-face-value-poison)
+      (set-by-user-now 'firrtl-dbg-face-value-set-by-user-now)
+      (set-by-user-earlier 'firrtl-dbg-face-value-set-by-user-earlier)
+      (ok 'firrtl-dbg-face-value-default)
       (t nil)))
 
 (defun firrtl-dbg-field-fmt (cvalue end-col)
