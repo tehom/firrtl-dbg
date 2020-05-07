@@ -649,11 +649,18 @@ applied up until that column."
    (let* 
       ((face
 	  (firrtl-dbg-get-face-by-validity
-	     (firrtl-dbg-value-state cvalue))))
-
+	     (firrtl-dbg-value-state cvalue)))
+	 (text
+	    (case
+	       (firrtl-dbg-value-string-format cvalue)
+	       ((t)
+		  (if (firrtl-dbg-value-v cvalue) "true" "false"))
+	       (otherwise
+		  (number-to-string
+		     (firrtl-dbg-value-v cvalue))))))
+      
       (list
-	 (number-to-string
-	    (firrtl-dbg-value-v cvalue))
+	 text
 	 face
 	 end-col)))
 
@@ -777,8 +784,11 @@ applied up until that column."
       :notify (lambda (&rest ignore)
 		 (firrtl-dbg-step-circuit))
       "Step")
-   ;; IMPROVE ME:  Add other buttons: Reset, Done, Poison, Randomize, etc
    
+
+   ;; IMPROVE ME:  Add other buttons: Reset, Done, Poison, Randomize, etc
+   (widget-insert "\n\n")
+
    (widget-apply-action
       (widget-create (firrtl-dbg-tree-widget
 			(cons "root" firrtl-dbg-subname-tree))))
