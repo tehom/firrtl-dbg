@@ -152,12 +152,11 @@ Error: exception error: ConcreteUInt(-1, 4) bad value -1 must be >= 0 firrtl_int
 **** An exception from peek to a gone component
 
 Error: exception Error: getValue(_GEN_0) returns value not found
-
 *** Tree widget doesn't co-operate with widgets
 
 Approaches:
  * Lots more work
- * Let input's action do a dialog instead
+ * CHOSEN Let input's action do a dialog instead
 
 **** About it
 
@@ -169,3 +168,35 @@ are re-folded.  So then you get overlapping fields, and that's a big
 problem.
 
 So I just resorted to an interaction dialog in the low bar.
+
+*** About enums
+
+This will likely be part of a larger customization about FIRRTL
+variables.  
+
+We'd customize:
+ * type (enum by name, hex, decimal, binary, boolean)
+ * sorting order
+ * whether trees start open or folded
+
+By default,
+ * io sorts earliest and starts open
+ * type includes boolean and hex
+ * reset is its own thing (invisible?)
+ * clock is its own thing (invisible?)
+
+But "type" applies to individual variables.  It could apply on
+patterns too.  But it's never going to apply to inner nodes, as the
+other things do.  And you typically wouldn't want to treat type and
+the other things together.
+
+Nice to have:
+ * Var customizer completes from variables the obarray knows about
+ * Store these customizations in the current directory.
+
+**** Development
+
+ * [ ] Build and use any converter (say hex or binary with string-to-number)
+ * [ ] Make a var customizer
+ * [ ] Apply those customizations to a sym value / to all in the obarray.
+ * [ ] Use those customizations to display
