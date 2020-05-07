@@ -654,7 +654,10 @@ applied up until that column."
 	    (case
 	       (firrtl-dbg-value-string-format cvalue)
 	       ((t)
-		  (if (firrtl-dbg-value-v cvalue) "true" "false"))
+		  (case (firrtl-dbg-value-v cvalue)
+		     (0 "false")
+		     (1 "true")
+		     (otherwise "wrong")))
 	       (otherwise
 		  (number-to-string
 		     (firrtl-dbg-value-v cvalue))))))
