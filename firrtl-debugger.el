@@ -76,22 +76,54 @@
 	      :named)
    "An output wire")
 
-;; Make this customizable
+(defgroup firrtl-dbg nil "Customizations for Firrtl-dbg")
+
 (defface firrtl-dbg-face-value-poison '((t :background "gray"))
-   "The face for poisoned values")
+   "The face for poisoned values"
+   :group 'firrtl-dbg)
 
 (defface firrtl-dbg-face-value-set-by-user-earlier
    '((t (:foreground "forest green")))
-   "The face for values set earlier")
+   "The face for values set earlier"
+   :group 'firrtl-dbg)
 
 (defface firrtl-dbg-face-value-set-by-user-now
    '((t (:background "LightCyan1")))
-   "The face for values set since the last step")
+   "The face for values set since the last step"
+   :group 'firrtl-dbg)
 
 (defface firrtl-dbg-face-value-default '()
-   "The face for normal values")
+   "The face for normal values"
+   :group 'firrtl-dbg)
+
+;; These should be buffer-local and saved in the working directory
+(defcustom firrtl-dbg-custom-enums
+   '()
+   "Customization for enumerated values"
+   ;; The first string is the name of the enum.  The repeated strings
+   ;; are the enumerated values.  We don't try to support jumps.
+   :type '(repeat
+	     (group string
+		(repeat string)))
+   :group 'firrtl-dbg)
 
 
+(defcustom firrtl-dbg-custom-variable-formats
+   '()
+   "Customization for variables that require special display formats"
+   ;; The string refers to the symbol name in FIRRTL.  It would be
+   ;; nice to be able to complete it from the obarray, which only
+   ;; works when a circuit is loaded.  Nice to have: let it
+   ;; alternatively be a regexp
+   
+   ;; The sexp would refer to a display format?  By base?  For now,
+   ;; just t or nil, t meaning to show it as a boolean.  Later,
+   ;; optionally an enum, a boolean, or displayed by base.
+   :type '(repeat
+	     (group string boolean))
+   
+   :group 'firrtl-dbg
+   )
 
 ;; Local variables
 ;; MAKE ME LOCAL in the mode
