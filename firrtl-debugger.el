@@ -936,19 +936,25 @@ applied up until that column."
       (tq-enqueue firrtl-dbg-tq
 	 msg
 	 firrtl-dbg-tq-regexp
-	 nil
+	 (list current widget new-val firrtl-dbg-widgets-buffer)
 	 #'(lambda (data str)
-	      (firrtl-dbg-parse-response-maybe-complain str)))
-      
+	      (let* 
+		 ((had-problem
+		     (firrtl-dbg-parse-response-maybe-complain str))
+		    (current (first data))
+		    (widget (second data))
+		    (new-val (third data))
+		    (widgets-buffer (fourth data)))
 
-      ;; Set the component's value to that.  FIX ME: Only if the value
-      ;; was accepted.
-      (setf (firrtl-dbg-value-v current) new-val)
+		 (unless had-problem
+		    ;; Set the component's value to that.
+		    (setf (firrtl-dbg-value-v current) new-val)
 
-      (setf (firrtl-dbg-value-state current) 'set-by-user-now)
+		    (setf (firrtl-dbg-value-state current) 'set-by-user-now)
+		    (with-current-buffer widgets-buffer
+		       (widget-value-set widget (widget-value widget)))))))))
 
-      ;; Cause the widget to be redrawn.
-      (widget-value-set widget (widget-value widget))))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1012,7 +1018,7 @@ applied up until that column."
    "" )
 
 (defun firrtl-dbg-parse-response-maybe-complain (str)
-   ""
+   "Return non-nil if str caused an error message"
    
    (let*
       (
@@ -1020,7 +1026,8 @@ applied up until that column."
 	 (start-legit (string-match legit-rx str)))
       ;; Show any error that we get back
       (when (or (null start-legit) (> start-legit 0))
-	 (message "%s" (substring str 0 start-legit)))))
+	 (message "%s" (substring str 0 start-legit))
+	 t)))
 
 
 ;;;;;;;;;;;;;;;;;;;;
