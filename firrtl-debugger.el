@@ -483,7 +483,13 @@ DATA is the data to store, usually a symbol"
    (setq firrtl-dbg-obarray
       (make-vector firrtl-dbg-obarray-default-size nil)))
 
-
+(defun firrtl-dbg-shutdown ()
+   ""
+   
+   (interactive)
+   
+   (firrtl-dbg-clear)
+   (tq-close firrtl-dbg-tq))
 
 ;; For most components, non-editable.  Just displays it.
 
@@ -970,6 +976,7 @@ applied up until that column."
 (symbol-value (intern "io_loadingValues" firrtl-dbg-obarray))
 
 ;; Use this at the end.
+;; IMPROVE ME:  Have a second close-down routine for the process.
 '
 (tq-close firrtl-dbg-tq)
 
