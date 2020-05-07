@@ -78,11 +78,11 @@
    "The face for poisoned values")
 
 (defface firrtl-dbg-face-value-set-by-user-earlier
-   '((t :background "green"))
+   '((t (:foreground "forest green")))
    "The face for values set earlier")
 
 (defface firrtl-dbg-face-value-set-by-user-now
-   '((t :background "light blue"))
+   '((t (:background "LightCyan1")))
    "The face for values set since the last step")
 
 (defface firrtl-dbg-face-value-default '()
