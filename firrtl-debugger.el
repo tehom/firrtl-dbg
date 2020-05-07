@@ -555,9 +555,11 @@ DATA is the data to store, usually a symbol"
    
    (when firrtl-dbg-tq
       (tq-close firrtl-dbg-tq))
-   (kill-buffer firrtl-dbg-process-buffer)
+   (when firrtl-dbg-process-buffer
+      (kill-buffer firrtl-dbg-process-buffer))
    (setq firrtl-dbg-process-buffer nil)
-   (kill-buffer firrtl-dbg-widgets-buffer)
+   (when firrtl-dbg-widgets-buffer
+      (kill-buffer firrtl-dbg-widgets-buffer))
    (setq firrtl-dbg-widgets-buffer nil))
 
 
@@ -676,7 +678,10 @@ applied up until that column."
       (
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym)))
-
+      ;; if
+      ;; (eq (firrtl-dbg-component-string-format v) t)
+      ;; Print as a boolean
+      ;; But what's the right way to get this info to the printer?
       (firrtl-dbg-insert-fields
 	 (list
 	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
