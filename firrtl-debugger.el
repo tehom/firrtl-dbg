@@ -883,7 +883,7 @@ applied up until that column."
 		     (case (- 1 (firrtl-dbg-value-v old-val))
 			(0 "false")
 			(1 "true")
-			(otherwise "wrong")))
+			(otherwise nil)))
 		  (new-string
 		     (completing-read
 			prompt
