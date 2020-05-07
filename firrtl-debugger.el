@@ -43,6 +43,7 @@
    "The base of FIRRTL component info for widgets"
    full-name
    current ;; A firrtl-dbg-value
+   string-format
    )
 
 (defstruct (firrtl-dbg-register
