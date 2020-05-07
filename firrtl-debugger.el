@@ -879,8 +879,11 @@ applied up until that column."
 	    (let*
 	       (  (default-string
 		      ;; Reverse what was there, since there are only
-		      ;; two possibilities
-		     (if (firrtl-dbg-value-v old-val) "false" "true"))
+		     ;; two possibilities
+		     (case (- 1 (firrtl-dbg-value-v old-val))
+			(0 "false")
+			(1 "true")
+			(otherwise "wrong")))
 		  (new-string
 		     (completing-read
 			prompt
@@ -889,9 +892,9 @@ applied up until that column."
 			default-string)))
 	       (cond 
 		  ((string-equal new-string "true")
-		     (list t "1"))
+		     (list 1 "1"))
 		  ((string-equal new-string "false")
-		     (list nil "0"))
+		     (list 0 "0"))
 		  (otherwise (error "Not a boolean")))))
 	 
 	 (otherwise
