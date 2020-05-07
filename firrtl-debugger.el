@@ -36,7 +36,9 @@
 (defstruct (firrtl-dbg-value (:type list))
    ""
    v
-   ;; One of (ok poisoned set-by-user-now set-by-user-earlier)
+   ;; One of (ok poisoned set-by-user-now set-by-user-earlier
+   ;; first-seen just-changed stayed-same) Some of these aren't set
+   ;; yet, and 'ok' will yield to the three new ones.
    state)
 
 (defstruct (firrtl-dbg-component (:type list) :named)
@@ -733,6 +735,10 @@ applied up until that column."
       nil
       #'(lambda (data str)
 	   (with-current-buffer firrtl-dbg-widgets-buffer
+	      ;; IMPROVE ME: At some point change all states of
+	      ;; set-by-user-now to set-by-user-earlier.  For
+	      ;; non-inputs, figure out whether it changed since last
+	      ;; time.
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-redraw-widgets)))))
 
