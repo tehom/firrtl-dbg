@@ -697,17 +697,13 @@ applied up until that column."
 
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		 (message "This would step and show"))
+		 (firrtl-dbg-step-circuit))
       "Step")
+   ;; IMPROVE ME:  Add other buttons: Reset, Done, Poison, Randomize, etc
    
    (widget-apply-action
       (widget-create (firrtl-dbg-tree-widget
 			(cons "root" firrtl-dbg-subname-tree))))
-   ;; widget-setup is not sufficient.  Unexpanded entries don't become
-   ;; editable.  They do get put into widget-field-new tho.  Mostly
-   ;; setup calls widget-specify-field and zaps markers.
-   ;; Not used any more.
-   ;; (widget-setup) 
    (if (require 'tree-mode nil t)
       (tree-minor-mode t)
       (widget-insert "\n\n"))
