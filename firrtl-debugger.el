@@ -31,13 +31,13 @@
 (require 'tree-widget)
 ;;;_. Body
 
-;; Maybe valid-p can take a n/a value as well.  Maybe add a timestamp.
-;; '(ok poisoned set-by-user-now set-by-user-earlier)
+;; Maybe add a timestamp.
+;; 
 (defstruct (firrtl-dbg-value (:type list))
    ""
    v
-   ;; RENAME ME state
-   valid-p)
+   ;; One of (ok poisoned set-by-user-now set-by-user-earlier)
+   state)
 
 (defstruct (firrtl-dbg-component (:type list) :named)
    "The base of FIRRTL component info for widgets"
@@ -262,67 +262,67 @@ DATA is the data to store, usually a symbol"
 	 (firrtl-dbg-mutate-subname-tree full-name sym))))
 
 
-(defun firrtl-dbg-add-ephemeral (full-name value valid-p)
+(defun firrtl-dbg-add-ephemeral (full-name value state)
    ""
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-dbg-ephemeral-current object)
-	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :state state)))
       #'(lambda ()
 	   (make-firrtl-dbg-ephemeral
-	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
+	       :current (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
 
-(defun firrtl-dbg-add-input (full-name value valid-p)
+(defun firrtl-dbg-add-input (full-name value state)
    ""
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-dbg-input-current object)
-	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :state state)))
       #'(lambda ()
 	   (make-firrtl-dbg-input
-	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
+	       :current (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
 
 
-(defun firrtl-dbg-add-output (full-name value valid-p)
+(defun firrtl-dbg-add-output (full-name value state)
    ""
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-dbg-output-current object)
-	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :state state)))
       #'(lambda ()
 	   (make-firrtl-dbg-output
-	       :current (make-firrtl-dbg-value :v value :valid-p valid-p)
+	       :current (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
 
-(defun firrtl-dbg-set-register-current (full-name value valid-p)
+(defun firrtl-dbg-set-register-current (full-name value state)
    ""
 
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-dbg-register-current object)
-	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :state state)))
       #'(lambda ()
 	   (make-firrtl-dbg-register
-	      :current (make-firrtl-dbg-value :v value :valid-p valid-p)
+	      :current (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
 
-(defun firrtl-dbg-set-register-next (full-name value valid-p)
+(defun firrtl-dbg-set-register-next (full-name value state)
    ""
    
    (firrtl-dbg-add-object full-name
       ;; Later, we'll check equality and set a timestamp.
       #'(lambda (object)
 	   (setf (firrtl-dbg-register-next object)
-	      (make-firrtl-dbg-value :v value :valid-p valid-p)))
+	      (make-firrtl-dbg-value :v value :state state)))
       #'(lambda ()
 	   (make-firrtl-dbg-register
-	      :next (make-firrtl-dbg-value :v value :valid-p valid-p)
+	      :next (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
 
 
@@ -398,7 +398,7 @@ DATA is the data to store, usually a symbol"
 	       component-str))
 	 (full-name (match-string 1 component-str))
 	 (valid-p (string-empty-p (match-string 2 component-str)))
-	 (validity
+	 (state
 	    (if
 	       (string-empty-p (match-string 2 component-str))
 	       'ok
@@ -411,7 +411,7 @@ DATA is the data to store, usually a symbol"
 		 (match-string 4 component-str) ))
 
       (funcall proc
-	 full-name value valid-p)))
+	 full-name value state)))
 
 ;; '
 ;; (firrtl-dbg-act-on-component-str (second split) #'list)
@@ -588,7 +588,7 @@ applied up until that column."
    (let* 
       ((face
 	  (firrtl-dbg-get-face-by-validity
-	     (firrtl-dbg-value-valid-p cvalue))))
+	     (firrtl-dbg-value-state cvalue))))
 
       (list
 	 (number-to-string
@@ -793,7 +793,7 @@ applied up until that column."
 	       (if
 		  (not
 		     (eq
-			(firrtl-dbg-value-valid-p old-val)
+			(firrtl-dbg-value-state old-val)
 			'poisoned))
 		  (firrtl-dbg-value-v old-val)
 		  nil))))
@@ -834,7 +834,7 @@ applied up until that column."
       ;; Set the component's value to that
       (setf (firrtl-dbg-value-v current) new-val)
 
-      (setf (firrtl-dbg-value-valid-p current) 'set-by-user-now)
+      (setf (firrtl-dbg-value-state current) 'set-by-user-now)
 
       ;; Cause the widget to be redrawn.
       (widget-value-set widget (widget-value widget))))
