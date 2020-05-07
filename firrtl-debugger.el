@@ -39,7 +39,9 @@
    ;; One of (ok poisoned set-by-user-now set-by-user-earlier
    ;; first-seen just-changed stayed-same) Some of these aren't set
    ;; yet, and 'ok' will yield to the three new ones.
-   state)
+   state
+   ;; Not used yet
+   last-time-changed)
 
 (defstruct (firrtl-dbg-component (:type list) :named)
    "The base of FIRRTL component info for widgets"
