@@ -693,17 +693,39 @@ applied up until that column."
 	 (mapcar #'firrtl-dbg-tree-widget alist))))
 
 (defun firrtl-dbg-create-widgets ()
-   (widget-insert "Preliminary:  FIRRTL debugger interface\n\n")
+   (widget-insert "FIRRTL debugger interface\n\n")
+
+   (widget-create 'push-button
+      :notify (lambda (&rest ignore)
+		 (message "This would step and show"))
+      "Step")
+   
    (widget-apply-action
       (widget-create (firrtl-dbg-tree-widget
 			(cons "root" firrtl-dbg-subname-tree))))
    ;; widget-setup is not sufficient.  Unexpanded entries don't become
    ;; editable.  They do get put into widget-field-new tho.  Mostly
-   ;; setup calls widget-specify-field and zaps markers
-   (widget-setup) 
+   ;; setup calls widget-specify-field and zaps markers.
+   ;; Not used any more.
+   ;; (widget-setup) 
    (if (require 'tree-mode nil t)
       (tree-minor-mode t)
-      (widget-insert "\n\n")))
+      (widget-insert "\n\n"))
+   (use-local-map widget-keymap))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun firrtl-dbg-step-circuit ()
+   "Step the circuit"
+
+   (tq-enqueue firrtl-dbg-tq
+      "step ; show\n"
+      firrtl-dbg-tq-regexp
+      nil
+      #'(lambda (data str)
+	   (firrtl-dbg-parse-response-maybe-complain str)
+	   (with-current-buffer firrtl-dbg-widgets-buffer
+	      (firrtl-dbg-build-data str)
+	      (firrtl-dbg-redraw-widgets)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
@@ -976,7 +998,6 @@ applied up until that column."
 (symbol-value (intern "io_loadingValues" firrtl-dbg-obarray))
 
 ;; Use this at the end.
-;; IMPROVE ME:  Have a second close-down routine for the process.
 '
 (tq-close firrtl-dbg-tq)
 
