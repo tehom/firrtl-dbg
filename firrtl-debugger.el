@@ -127,6 +127,18 @@
    :group 'firrtl-dbg
    )
 
+'
+(dolist (i firrtl-dbg-custom-variable-formats)
+   (let* 
+      (  (full-name (first i))
+	 (sym (intern-soft full-name firrtl-dbg-obarray)))
+      
+      (when sym
+	 (let* 
+	    ((component (symbol-value sym)))
+	    (setf (firrtl-dbg-component-string-format component)
+	       (second i))))))
+
 ;; Local variables
 ;; MAKE ME LOCAL in the mode
 
