@@ -854,17 +854,51 @@ applied up until that column."
 	       (setq done t))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun firrtl-dbg-read-new-val (component)
+(defun firrtl-dbg-read-new-boolean-val (prompt old-val)
+   "Return it as list of (number text)"
+
+   (let*
+      (  (default-string
+	    ;; Reverse what was there, since there are only
+	    ;; two possibilities
+	    (case (- 1 (firrtl-dbg-value-v old-val))
+	       (0 "false")
+	       (1 "true")
+	       (otherwise nil)))
+	 (new-string
+	    (completing-read
+	       prompt
+	       '("true" "false")
+	       nil t
+	       default-string)))
+      (cond 
+	 ((string-equal new-string "true")
+	    (list 1 "1"))
+	 ((string-equal new-string "false")
+	    (list 0 "0"))
+	 (otherwise (error "Not a boolean")))))
+
+(defun firrtl-dbg-read-new-decimal-val (prompt old-val)
+   ""
+   ;; PUNT: Using type info, check new-val for bit width and
+   ;; signedness.  Abort if new-val is not conformant.
+   (let ((new-val
+	    (read-number
+	       prompt
+	       (if
+		  (not
+		     (eq
+			(firrtl-dbg-value-state old-val)
+			'poisoned))
+		  (firrtl-dbg-value-v old-val)
+		  nil))))
+      (list new-val (number-to-string new-val))))
+
+(defun firrtl-dbg-read-new-val (prompt old-val)
    ""
    
    (let*
-      (	 
-	 (old-val (firrtl-dbg-input-current component))
-	 (component-name (firrtl-dbg-input-full-name component))
-	 (prompt (format "New value for %s: " component-name))
-
-	 )
+      ()
 
       ;; User can quit, then this just pops back via error handling.
 
@@ -876,48 +910,11 @@ applied up until that column."
 	 (firrtl-dbg-value-string-format old-val)
 	 ;; Treat as a boolean
 	 ((t)
-	    (let*
-	       (  (default-string
-		      ;; Reverse what was there, since there are only
-		     ;; two possibilities
-		     (case (- 1 (firrtl-dbg-value-v old-val))
-			(0 "false")
-			(1 "true")
-			(otherwise nil)))
-		  (new-string
-		     (completing-read
-			prompt
-			'("true" "false")
-			nil t
-			default-string)))
-	       (cond 
-		  ((string-equal new-string "true")
-		     (list 1 "1"))
-		  ((string-equal new-string "false")
-		     (list 0 "0"))
-		  (otherwise (error "Not a boolean")))))
+	    (firrtl-dbg-read-new-boolean-val prompt old-val))
 	 
 	 (otherwise
-	    (let ((new-val
-		     (read-number
-			prompt
-			(if
-			   (not
-			      (eq
-				 (firrtl-dbg-value-state old-val)
-				 'poisoned))
-			   (firrtl-dbg-value-v old-val)
-			   nil))))
-	       (list new-val (number-to-string new-val)))))
-      
-      
-      ;; PUNT: Using type info, check new-val for bit width and
-      ;; signedness.  Abort if new-val is not conformant.
+	    (firrtl-dbg-read-new-decimal-val prompt old-val)))))
 
-      ;; The FIRRTL REPL will accept huge numbers as text, but
-      ;; then complain if it's too wide.
-
-      ))
 
 
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
@@ -928,7 +925,9 @@ applied up until that column."
 	 (component (symbol-value sym))
 	 (component-name (firrtl-dbg-input-full-name component))
 	 (current (firrtl-dbg-input-current component))
-	 (new-data (firrtl-dbg-read-new-val component))
+	 (new-data (firrtl-dbg-read-new-val
+		      (format "New value for %s: " component-name)
+		      current))
 	 (new-val (first new-data))
 	 (new-val-text (second new-data))
 	 (msg (concat "poke " component-name " " new-val-text "\n")))
@@ -942,7 +941,8 @@ applied up until that column."
 	      (firrtl-dbg-parse-response-maybe-complain str)))
       
 
-      ;; Set the component's value to that
+      ;; Set the component's value to that.  FIX ME: Only if the value
+      ;; was accepted.
       (setf (firrtl-dbg-value-v current) new-val)
 
       (setf (firrtl-dbg-value-state current) 'set-by-user-now)
