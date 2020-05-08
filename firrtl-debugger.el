@@ -102,7 +102,9 @@
 
 ;; These should be buffer-local and saved in the working directory
 (defcustom firrtl-dbg-custom-enums
-   '()
+   ;; TEMPORARY for dev
+   '(("operation" ("doNoOp" "doPulse")))
+   ;; '()
    "Customization for enumerated values"
    ;; The first string is the name of the enum.  The repeated strings
    ;; are the enumerated values.  We don't try to support jumps.
@@ -113,7 +115,9 @@
 
 
 (defcustom firrtl-dbg-custom-variable-formats
-   '()
+   ;; TEMPORARY for dev
+   '(("io_value1" (enum "operation")))
+   ;; '()
    "Customization for variables that require special display formats"
    ;; The string refers to the symbol name in FIRRTL.  It would be
    ;; nice to be able to complete it from the obarray, which only
@@ -635,6 +639,21 @@ applied up until that column."
       (ok 'firrtl-dbg-face-value-default)
       (t nil)))
 
+(defun firrtl-dbg-enum-string (fmt index)
+   ""
+   
+   (let*
+      (  (key (second fmt))
+	 (found (assoc key firrtl-dbg-custom-enums)))
+      (if found
+	 (let* 
+	    ((strings (second found)))
+	    (if (< index (length strings))
+	       (nth index strings)
+	       "[invalid]"))
+	 "[no such enum]")))
+
+
 (defun firrtl-dbg-field-fmt (cvalue end-col)
    ""
    (let* 
@@ -651,8 +670,7 @@ applied up until that column."
 		     (1 "true")
 		     (otherwise "[invalid]")))
 	       ((enum)
-		  ;; PUNT
-		  "An enum")
+		  (firrtl-dbg-enum-string fmt (firrtl-dbg-value-v cvalue)))
 	       
 	       (otherwise
 		  (number-to-string
@@ -783,7 +801,16 @@ applied up until that column."
       :notify (lambda (&rest ignore)
 		 (firrtl-dbg-step-circuit))
       "Step")
-   
+
+   (widget-insert "    ")
+
+   ;; Rebuild buffer
+   (widget-create 'push-button
+      :notify (lambda (&rest ignore)
+		 (with-current-buffer firrtl-dbg-widgets-buffer
+		    (erase-buffer)
+		    (firrtl-dbg-create-widgets)))
+      "Rebuild buffer")
 
    ;; IMPROVE ME:  Add other buttons: Reset, Done, Poison, Randomize, etc
    (widget-insert "\n\n")
