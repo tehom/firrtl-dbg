@@ -120,14 +120,24 @@
    ;; works when a circuit is loaded.  Nice to have: let it
    ;; alternatively be a regexp
    
-   ;; The sexp would refer to a display format?  By base?  For now,
-   ;; just t or nil, t meaning to show it as a boolean.  Later,
-   ;; optionally an enum, a boolean, or displayed by base.
    :type '(repeat
-	     (group string boolean))
+	     (group string
+		(choice
+		   (group
+		      (const decimal))
+		   (group
+		      (const boolean))
+		   (group
+		      (const hexadecimal))
+		   (group
+		      (const enum)
+		      (string))
+		   (group
+		      (const base)
+		      (integer)))))
    
-   :group 'firrtl-dbg
-   )
+   :group 'firrtl-dbg)
+
 
 '
 (dolist (i firrtl-dbg-custom-variable-formats)
@@ -650,9 +660,9 @@ applied up until that column."
       ((face
 	  (firrtl-dbg-get-face-by-validity
 	     (firrtl-dbg-value-state cvalue)))
+	 (fmt (firrtl-dbg-value-string-format cvalue))
 	 (text
-	    (case
-	       (firrtl-dbg-value-string-format cvalue)
+	    (case (first fmt)
 	       ((t)
 		  (case (firrtl-dbg-value-v cvalue)
 		     (0 "false")
@@ -661,7 +671,20 @@ applied up until that column."
 	       (otherwise
 		  (number-to-string
 		     (firrtl-dbg-value-v cvalue))))))
-      
+      ;; From the other thing
+      '(case
+	 (car fmt)
+	 ;; Treat as a boolean
+	 ((boolean)
+	    (firrtl-dbg-read-new-boolean-val prompt old-val))
+	 ((enum)
+	    ;; Look up the enum value in sym list
+	    (message "enum")
+	    (error "Not written yet"))
+	 
+	 
+	 (otherwise
+	    (firrtl-dbg-read-new-decimal-val prompt old-val)))
       (list
 	 text
 	 face
@@ -896,14 +919,21 @@ applied up until that column."
 
 (defun firrtl-dbg-read-new-val (prompt old-val)
    ""
-   (case
-      (firrtl-dbg-value-string-format old-val)
-      ;; Treat as a boolean
-      ((t)
-	 (firrtl-dbg-read-new-boolean-val prompt old-val))
+   (let
+      ((fmt (firrtl-dbg-value-string-format old-val)))
+      (case
+	 (car fmt)
+	 ;; Treat as a boolean
+	 ((boolean)
+	    (firrtl-dbg-read-new-boolean-val prompt old-val))
+	 ((enum)
+	    ;; Look up the enum value in sym list
+	    (message "enum")
+	    (error "Not written yet"))
 	 
-      (otherwise
-	 (firrtl-dbg-read-new-decimal-val prompt old-val))))
+	 
+	 (otherwise
+	    (firrtl-dbg-read-new-decimal-val prompt old-val)))))
 
 
 
