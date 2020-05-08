@@ -917,6 +917,53 @@ applied up until that column."
 		  nil))))
       (list new-val (number-to-string new-val))))
 
+(defun firrtl-dbg-find-index-in-list (key str-list)
+   "Return the index or nil"
+   
+   (let*
+      ((index 0))
+
+      (while (and
+		str-list
+		(not (equal key (car str-list))))
+	 (incf index)
+	 (setq str-list (cdr str-list)))
+      ;; Normally return the index that we got to.  If there's nothing
+      ;; left of str-list, we never found key so return nil.
+      (if str-list
+	 index
+	 nil)))
+
+;; Examples:
+;; (firrtl-dbg-find-index-in-list "b" '(("b")("a")))
+;; (firrtl-dbg-find-index-in-list "a" '(("b")("a")))
+
+(defun firrtl-dbg-read-new-enum-val (prompt fmt)
+   ""
+
+   (let*
+      (  (key (second fmt))
+	 (found (assoc key firrtl-dbg-custom-enums)))
+      (if found
+	 (let* 
+	    (  (strings (second found))
+	       (new-string
+		  (completing-read
+		     prompt
+		     strings
+		     nil t
+		     nil))
+	       
+	       (new-val
+		  (firrtl-dbg-find-index-in-list new-string strings)))
+	    
+	    (if new-val
+	       (list new-val new-string)
+	       (error "Lost the enum string %s" new-string)))
+	 
+	 (error "No such enum: %s" key))))
+
+
 (defun firrtl-dbg-read-new-val (prompt old-val)
    ""
    (let
@@ -927,10 +974,7 @@ applied up until that column."
 	 ((boolean)
 	    (firrtl-dbg-read-new-boolean-val prompt old-val))
 	 ((enum)
-	    ;; Look up the enum value in sym list
-	    (message "enum")
-	    (error "Not written yet"))
-	 
+	    (firrtl-dbg-read-new-enum-val prompt fmt))
 	 
 	 (otherwise
 	    (firrtl-dbg-read-new-decimal-val prompt old-val)))))
