@@ -1128,18 +1128,19 @@ applied up until that column."
    "How many seconds we have waited for the FIRRTL debugger")
 
 ;; Example:
-;; (firrtl-dbg-call-when-process-is-ready 'punt-process 4
+;; (firrtl-dbg-call-until-done-w/timeout 4
 ;;    #'(lambda (msg)
-;; 	(message msg))
+;; 	(message msg) nil)
    
 ;;    (list "Aloha!")
 ;;    #'(lambda (msg)
 ;; 	(message "For the last time: %s" msg))
 ;;    (list "Aloha!"))
 
-(defun firrtl-dbg-call-when-process-is-ready
-   (process num-seconds proc args &optional timed-out-proc timed-out-args)
-   ""
+(defun firrtl-dbg-call-until-done-w/timeout
+   (num-seconds proc args &optional timed-out-proc timed-out-args)
+   "
+PROC should return non-nil if it has finished its work"
 
    (setq firrtl-dbg-num-seconds-waited 0)
    (setq firrtl-dbg-timer
@@ -1151,9 +1152,10 @@ applied up until that column."
 		    (cancel-timer firrtl-dbg-timer)
 		    (when timed-out-proc
 		       (apply timed-out-proc timed-out-args)))
-		 (progn
-		    (incf firrtl-dbg-num-seconds-waited)
-		    (apply proc args))))
+		 (let
+		    ((done (apply proc args)))
+		    (if done (cancel-timer firrtl-dbg-timer)
+		       (incf firrtl-dbg-num-seconds-waited)))))
 	 num-seconds proc
 	 args
 	 timed-out-proc timed-out-args)))
@@ -1184,6 +1186,16 @@ applied up until that column."
 
 	 (if found num-seconds-waited nil))))
 
+;; Don't call this directly.  firrtl-dbg-startup calls it
+(defun firrtl-dbg-initial-load ()
+   ""
+   ;; Encap this?  This is just first-time show
+   (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
+      nil
+      #'(lambda (data str)
+	   (firrtl-dbg-build-data str)
+	   (with-current-buffer firrtl-dbg-widgets-buffer
+	      (firrtl-dbg-create-widgets)))))
 
 (defun firrtl-dbg-startup ()
    ""
@@ -1209,6 +1221,22 @@ applied up until that column."
 	       ;; us up.
 	       firrtl-dbg-repl-launch-string)))
 
+      (firrtl-dbg-call-until-done-w/timeout
+	 #'(lambda ()
+	      (when
+		 (firrtl-dbg-process-is-ready-p firrtl-dbg-process)
+		 (message "Debugger process is ready")
+		 (setq firrtl-dbg-tq
+		    (tq-create firrtl-dbg-process))
+		 (firrtl-dbg-initial-load)
+		 ;; Indicate that we have succeeded
+		 t))
+	 '()
+	 #'(lambda ()
+	      (message "Debugger process timed out"))
+	 '())
+      
+      '(progn
       (let* 
 	 ((num-seconds-waited
 	     (firrtl-dbg-wait-for-prompt
@@ -1231,7 +1259,7 @@ applied up until that column."
 	      (message str)
 	      (firrtl-dbg-build-data str)
 	      (with-current-buffer firrtl-dbg-widgets-buffer
-		 (firrtl-dbg-create-widgets))))))
+		 (firrtl-dbg-create-widgets)))))))
 
 
 
