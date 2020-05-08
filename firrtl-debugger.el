@@ -958,7 +958,7 @@ applied up until that column."
 		  (firrtl-dbg-find-index-in-list new-string strings)))
 	    
 	    (if new-val
-	       (list new-val new-string)
+	       (list new-val (number-to-string new-val))
 	       (error "Lost the enum string %s" new-string)))
 	 
 	 (error "No such enum: %s" key))))
