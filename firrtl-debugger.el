@@ -644,28 +644,20 @@ applied up until that column."
 	 (fmt (firrtl-dbg-value-string-format cvalue))
 	 (text
 	    (case (first fmt)
-	       ((t)
+	       ((boolean)
+		  ;; ENCAP ME
 		  (case (firrtl-dbg-value-v cvalue)
 		     (0 "false")
 		     (1 "true")
-		     (otherwise "wrong")))
+		     (otherwise "[invalid]")))
+	       ((enum)
+		  ;; PUNT
+		  "An enum")
+	       
 	       (otherwise
 		  (number-to-string
 		     (firrtl-dbg-value-v cvalue))))))
-      ;; From the other thing
-      '(case
-	 (car fmt)
-	 ;; Treat as a boolean
-	 ((boolean)
-	    (firrtl-dbg-read-new-boolean-val prompt old-val))
-	 ((enum)
-	    ;; Look up the enum value in sym list
-	    (message "enum")
-	    (error "Not written yet"))
-	 
-	 
-	 (otherwise
-	    (firrtl-dbg-read-new-decimal-val prompt old-val)))
+
       (list
 	 text
 	 face
