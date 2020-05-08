@@ -103,7 +103,7 @@
 ;; These should be buffer-local and saved in the working directory
 (defcustom firrtl-dbg-custom-enums
    ;; TEMPORARY for dev
-   '(("operation" ("doNoOp" "doPulse")))
+   '(("operation" ("doNoOp" "doPulse" "op2" "op3" "op4")))
    ;; '()
    "Customization for enumerated values"
    ;; The first string is the name of the enum.  The repeated strings
