@@ -993,8 +993,8 @@ applied up until that column."
 		      (format "New value for %s: " component-name)
 		      current))
 	 (new-val (first new-data))
-	 (new-val-text (second new-data))
-	 (msg (concat "poke " component-name " " new-val-text "\n")))
+	 (msg (concat "poke " component-name " "
+		 (number-to-string new-val) "\n")))
       
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
       (tq-enqueue firrtl-dbg-tq
