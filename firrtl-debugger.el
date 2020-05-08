@@ -884,6 +884,7 @@ applied up until that column."
       (  (default-string
 	    ;; Reverse what was there, since there are only
 	    ;; two possibilities
+	    ;; bool number to string
 	    (case (- 1 (firrtl-dbg-value-v old-val))
 	       (0 "false")
 	       (1 "true")
@@ -894,11 +895,12 @@ applied up until that column."
 	       '("true" "false")
 	       nil t
 	       default-string)))
+      ;; bool string to number
       (cond 
 	 ((string-equal new-string "true")
-	    (list 1 "1"))
+	    1)
 	 ((string-equal new-string "false")
-	    (list 0 "0"))
+	    0)
 	 (otherwise (error "Not a boolean")))))
 
 (defun firrtl-dbg-read-new-decimal-val (prompt old-val)
@@ -915,7 +917,7 @@ applied up until that column."
 			'poisoned))
 		  (firrtl-dbg-value-v old-val)
 		  nil))))
-      (list new-val (number-to-string new-val))))
+      new-val))
 
 (defun firrtl-dbg-find-index-in-list (key str-list)
    "Return the index or nil"
@@ -958,7 +960,7 @@ applied up until that column."
 		  (firrtl-dbg-find-index-in-list new-string strings)))
 	    
 	    (if new-val
-	       (list new-val (number-to-string new-val))
+	       new-val
 	       (error "Lost the enum string %s" new-string)))
 	 
 	 (error "No such enum: %s" key))))
@@ -989,10 +991,9 @@ applied up until that column."
 	 (component (symbol-value sym))
 	 (component-name (firrtl-dbg-input-full-name component))
 	 (current (firrtl-dbg-input-current component))
-	 (new-data (firrtl-dbg-read-new-val
-		      (format "New value for %s: " component-name)
-		      current))
-	 (new-val (first new-data))
+	 (new-val (firrtl-dbg-read-new-val
+		     (format "New value for %s: " component-name)
+		     current))
 	 (msg (concat "poke " component-name " "
 		 (number-to-string new-val) "\n")))
       
