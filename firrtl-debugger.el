@@ -157,6 +157,11 @@
 		  (firrtl-dbg-component-current component))
 	       (second i))))))
 
+;; This doesn't do anything good.
+'
+(custom-add-frequent-value 'firrtl-dbg-custom-variable-formats
+        '("reset" boolean))
+
 ;; Local variables
 ;; MAKE ME LOCAL in the mode
 

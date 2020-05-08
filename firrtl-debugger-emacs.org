@@ -216,4 +216,16 @@ Nice to have:
    * Really, to save these customizations.  That's basically cloning
      code in cus-edit, with a different means of finding the affected
      variables and a different target file.
+   * Or let each circuit be its own entry in a list of customizations.
+     But that makes all sorts of code parse that list.
+   * Or just save the values straight, and read them back straight.
+   * Yes, visit it in a buffer.  As p-sexps does.
+ * [ ] For customizations, add the values of a circuit's symbols to
+   the completions.
+   * custom-add-frequent-value doesn't help us
+   * Maybe instead a dialog launched by clicking on that symbol?
+   * We already have one, but maybe with \C-u launch a different one.
+   * Still want the option of using regular expressions to recognize
+     components.
+
 
