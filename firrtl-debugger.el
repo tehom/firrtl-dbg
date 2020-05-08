@@ -1222,6 +1222,7 @@ PROC should return non-nil if it has finished its work"
 	       firrtl-dbg-repl-launch-string)))
 
       (firrtl-dbg-call-until-done-w/timeout
+	 40
 	 #'(lambda ()
 	      (when
 		 (firrtl-dbg-process-is-ready-p firrtl-dbg-process)
