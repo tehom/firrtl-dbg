@@ -213,5 +213,7 @@ Nice to have:
  * [ ] Sort them first: alphabetical and input/output/other
    * And by user customization
  * [ ] Add something to save a configuration
-   * Really, to save these customizations
+   * Really, to save these customizations.  That's basically cloning
+     code in cus-edit, with a different means of finding the affected
+     variables and a different target file.
 

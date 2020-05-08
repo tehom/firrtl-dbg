@@ -1121,6 +1121,44 @@ applied up until that column."
 '
 (tq-close firrtl-dbg-tq)
 
+(defvar firrtl-dbg-timer nil
+   "Timer that checks whether the FIRRTL debugger has started yet")
+
+(defvar firrtl-dbg-num-seconds-waited nil
+   "How many seconds we have waited for the FIRRTL debugger")
+
+;; Example:
+;; (firrtl-dbg-call-when-process-is-ready 'punt-process 4
+;;    #'(lambda (msg)
+;; 	(message msg))
+   
+;;    (list "Aloha!")
+;;    #'(lambda (msg)
+;; 	(message "For the last time: %s" msg))
+;;    (list "Aloha!"))
+
+(defun firrtl-dbg-call-when-process-is-ready
+   (process num-seconds proc args &optional timed-out-proc timed-out-args)
+   ""
+
+   (setq firrtl-dbg-num-seconds-waited 0)
+   (setq firrtl-dbg-timer
+      (run-at-time t 1
+	 #'(lambda (num-seconds proc args timed-out-proc timed-out-args)
+	      ;; Manage timeout
+	      (if (> firrtl-dbg-num-seconds-waited num-seconds)
+		 (progn
+		    (cancel-timer firrtl-dbg-timer)
+		    (when timed-out-proc
+		       (apply timed-out-proc timed-out-args)))
+		 (progn
+		    (incf firrtl-dbg-num-seconds-waited)
+		    (apply proc args))))
+	 num-seconds proc
+	 args
+	 timed-out-proc timed-out-args)))
+
+
 (defun firrtl-dbg-wait-for-prompt (process-buffer string num-seconds msg)
    ""
 
