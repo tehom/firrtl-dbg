@@ -573,25 +573,6 @@ DATA is the data to store, usually a symbol"
    (setq firrtl-dbg-widgets-buffer nil))
 
 
-;; For most components, non-editable.  Just displays it.
-
-;; For input edit, use 'integer.  Also shows name etc.  Must figure
-;; out whether it has been changed.  But widgets let you add a
-;; callback, so just tell a registry that it has changed (Maybe also
-;; have a face for "You set this")
-;;
-
-;; Extras: 
-
-;; Add buttons and shortcuts for the functionality (step&show, multistep, reset)
-;; Just if it's input, insert a value modification widget.
-;; Allow hex or bin values, and arbitrary user value conversions (enums)
-;; Another buffer and structure defining enum value conversions?
-;; Darker face if it's invalid (:value-face)
-;; Sort them first: alphabetical and input/output/other
-;; Add something to save a configuration (currently open/closed/value-format)
-
-
 ;; PLACEHOLDER
 (defun firrtl-dbg-punt-notify (but &rest ignore)
    ""

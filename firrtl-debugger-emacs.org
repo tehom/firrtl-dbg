@@ -168,7 +168,6 @@ are re-folded.  So then you get overlapping fields, and that's a big
 problem.
 
 So I just resorted to an interaction dialog in the low bar.
-
 *** About enums
 
 This will likely be part of a larger customization about FIRRTL
@@ -200,3 +199,19 @@ Nice to have:
  * [ ] Make a var customizer
  * [ ] Apply those customizations to a sym value / to all in the obarray.
  * [ ] Use those customizations to display
+
+*** More things to do
+
+ * [X] Add buttons and shortcuts for the functionality (step&show, multistep, reset)
+   * Did just one, but the others are basically the same
+ * [X] Just if it's input, insert a value modification widget.
+   * This strategy won't work, but did it as interaction
+ * [ ] Allow hex or bin values, and arbitrary user value conversions (enums)
+ * [X] Another buffer and structure defining enum value conversions
+   * It's a customization.
+ * [X] Darker face if it's invalid (:value-face)
+ * [ ] Sort them first: alphabetical and input/output/other
+   * And by user customization
+ * [ ] Add something to save a configuration
+   * Really, to save these customizations
+
