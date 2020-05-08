@@ -896,24 +896,14 @@ applied up until that column."
 
 (defun firrtl-dbg-read-new-val (prompt old-val)
    ""
-   
-   (let*
-      ()
-
-      ;; User can quit, then this just pops back via error handling.
-
-      ;; This assumes signed decimal.  We'd also like "choice" for
-      ;; enums.  And binary, and hex, and distinguish signedness
-      ;; (string-match "^-?[0-9]+$" text)
-
-      (case
-	 (firrtl-dbg-value-string-format old-val)
-	 ;; Treat as a boolean
-	 ((t)
-	    (firrtl-dbg-read-new-boolean-val prompt old-val))
+   (case
+      (firrtl-dbg-value-string-format old-val)
+      ;; Treat as a boolean
+      ((t)
+	 (firrtl-dbg-read-new-boolean-val prompt old-val))
 	 
-	 (otherwise
-	    (firrtl-dbg-read-new-decimal-val prompt old-val)))))
+      (otherwise
+	 (firrtl-dbg-read-new-decimal-val prompt old-val))))
 
 
 
