@@ -189,7 +189,11 @@
 
 (defvar firrtl-dbg-obarray
    (make-vector firrtl-dbg-obarray-default-size nil)
-   "Obarray that holds the data about FIRRTL components" )
+   "Obarray that holds the current data of FIRRTL components" )
+
+(defvar firrtl-dbg-obarray-perm-props
+   (make-vector firrtl-dbg-obarray-default-size nil)
+   "Obarray that holds data about FIRRTL components that persists between sessions" )
 
 (defvar firrtl-dbg-have-built-subname-tree
    nil
@@ -868,15 +872,37 @@ applied up until that column."
 
 (defun firrtl-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
-   ;; IMPROVE ME:  Allow a regex instead.
    (let* 
       (
-	 (sym (widget-get wid :value))
-	 (v (symbol-value sym)))
-      ;; Get the name, set the interaction type.
+	 (sym (widget-get widget :value))
+	 (name (symbol-name sym))
+	 (perm-sym (intern name firrtl-dbg-obarray-perm-props)))
+      ;;(message "Spec: %S" (get perm-sym 'custom-type))
 
-      ;; 
-      ;; firrtl-dbg-custom-variable-formats
+      ;; Only if soft-intern fails.  Symbol needs a conformant value?
+      ;; (set perm-sym firrtl-dbg-component-perm-standard-value)
+
+      ;; Close but not quite right.  It still wants to evaluate 'decimal.
+      ;; Even though now we call 'custom-declare-variable' directly.
+      (custom-declare-variable perm-sym
+	  firrtl-dbg-component-perm-standard-value
+	  "The usual doc"
+	  :type firrtl-dbg-component-perm-spec
+	  )
+      (unless nil
+	 ;; (get perm-sym 'custom-type)
+	 (put perm-sym 'custom-type firrtl-dbg-component-perm-spec)
+	 (put perm-sym 'standard-value
+	    firrtl-dbg-component-perm-standard-value))
+      
+      (message "State is %S, sv = %S"
+	 (custom-variable-state perm-sym nil)
+	 (get perm-sym 'standard-value)
+	 )
+      
+      
+      (customize-option perm-sym)
+      ;; This will replace firrtl-dbg-custom-variable-formats
       ))
 
 (defun firrtl-dbg-do-alt-interaction (pos &optional event)
@@ -1367,32 +1393,8 @@ PROC should return non-nil if it has finished its work"
 	 '()
 	 #'(lambda ()
 	      (message "Debugger process timed out"))
-	 '())
-      
-      '(progn
-      (let* 
-	 ((num-seconds-waited
-	     (firrtl-dbg-wait-for-prompt
-		firrtl-dbg-process-buffer
-		firrtl-dbg-tq-prompt-string
-		20
-		"Waiting for debugger process...")))
-	 (if num-seconds-waited
-	    (message "Have debugger process after %S seconds"
-	       num-seconds-waited)
-	    (error "Debugger process timed out")))
+	 '())))
 
-      
-      (setq firrtl-dbg-tq
-	 (tq-create firrtl-dbg-process))
-
-      (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
-	 'ok
-	 #'(lambda (data str)
-	      (message str)
-	      (firrtl-dbg-build-data str)
-	      (with-current-buffer firrtl-dbg-widgets-buffer
-		 (firrtl-dbg-create-widgets)))))))
 
 
 
