@@ -256,8 +256,12 @@ Approaches:
    * Con: That's really really wrong for saving and restoring it.
  * LEANING_TOWARDS Also intern the same string in another obarray for
    its permanent properties
-   * It's only needed there if we have set permanent properties for
-     it.
+   * An entry is only needed there if we have set permanent properties
+     for it.
+   * Con: Doesn't let us do regexps.  But we were really after partial
+     component paths.
+     * Perhaps each perm symbol lets us get to all regexps or
+       paths-with-vars that applied to it.
 
 
 
