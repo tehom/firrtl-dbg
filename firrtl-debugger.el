@@ -1029,22 +1029,6 @@ applied up until that column."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; make-hash-table :test 'eq
-;; Callback, add (sym new-val) to hash table.  (puthash)
-;; Then use all of them (maphash)
-
-;; Construct a string for each, concat the strings plus "step" and
-;; "show", separated by ";"
-
-;; Then clrhash, next time start fresh.
-
-
-;; Make a dedicated buffer.
-;; Provide customizations for directory (of buffer) and repl main name.
-;; sbt 'test:runMain gcd.GCDRepl'
-;; And prompt, default = "firrtl>> "
-;; And process name, and buffer name.
-
 (defconst firrtl-dbg-executable
    "sbt"
    "" )
