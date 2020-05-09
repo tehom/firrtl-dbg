@@ -235,4 +235,30 @@ Nice to have:
    * Maybe another command in the keymap?  And when executed at that
      location, it launches this interaction.
 
+**** Design of editing a symbol's type
+
+This acts, but of course complains that this has no custom-type
+property.
+
+ : (customize-option (intern "io_value1" firrtl-dbg-obarray))
+
+Could give each symbol a custom-type.
+
+Also, customize wants to edit its value, which is generally wrong.  
+
+Approaches:
+ * Make customize edit its plist instead
+   * Con: Can't.
+ * Make customize edit its entry in firrtl-dbg-custom-variable-formats
+   * Con: Can't launch
+   * Con: Can't store
+ * Let that symbol's value contain both its current data and its spec.
+   * Con: That's really really wrong for saving and restoring it.
+ * LEANING_TOWARDS Also intern the same string in another obarray for
+   its permanent properties
+   * It's only needed there if we have set permanent properties for
+     it.
+
+
+
 
