@@ -826,7 +826,14 @@ applied up until that column."
    (if (require 'tree-mode nil t)
       (tree-minor-mode t)
       (widget-insert "\n\n"))
-   (use-local-map widget-keymap))
+   (use-local-map widget-keymap)
+   (local-set-key "\M-\r"
+      #'(lambda ()
+	   (interactive)
+	   ;; WRITE ME: Interactively change the customization of this
+	   ;; variable.
+	   (message "Do the interaction"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun firrtl-dbg-step-circuit ()
