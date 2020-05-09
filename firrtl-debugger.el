@@ -762,7 +762,8 @@ applied up until that column."
 		      :value ,(cddr cell)
 		      :tag ,(car cell)
 		      :format "%[%t%]\n"
-		      :notify firrtl-dbg-punt-notify)
+		      :notify firrtl-dbg-punt-notify
+		      :alt-action ,#'ignore)
 	     :dynargs firrtl-dbg-tree-expand)
 	 (let*
 	    ((sym (cddr cell)))
@@ -772,26 +773,34 @@ applied up until that column."
 		  `(const
 		      :format "%v\n"
 		      :value ,sym
-		      :value-create ,#'firrtl-dbg-insert-ephemeral-component))
+		      :value-create ,#'firrtl-dbg-insert-ephemeral-component
+		      :alt-action ,#'firrtl-dbg-edit-properties
+		      ))
 	       (firrtl-dbg-input
 		  `(const
 		      :format "%v\n"
 		      :value ,sym
 		      :value-create ,#'firrtl-dbg-insert-input-component
 		      :notify
-		      ,#'firrtl-dbg-do-integer-edit&poke))
+		      ,#'firrtl-dbg-do-integer-edit&poke
+		      :alt-action ,#'firrtl-dbg-edit-properties
+		      ))
 	       
 	       (firrtl-dbg-output
 		  `(const
 		      :format "%v\n"
 		      :value ,sym
-		      :value-create ,#'firrtl-dbg-insert-output-component))
+		      :value-create ,#'firrtl-dbg-insert-output-component
+		      :alt-action ,#'firrtl-dbg-edit-properties
+		      ))
 	       (firrtl-dbg-register
 		  `(const
 		      :format "%v\n"
 		      :value ,sym
 		      :value-create
-		      ,#'firrtl-dbg-insert-register-component)))))))
+		      ,#'firrtl-dbg-insert-register-component
+		      :alt-action ,#'firrtl-dbg-edit-properties
+		      )))))))
 
 (defun firrtl-dbg-tree-expand (tree)
    (or (widget-get tree :args)
@@ -832,19 +841,38 @@ applied up until that column."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun firrtl-dbg-edit-properties (widget &optional event)
+   ""
+   
+   (interactive)
+   (message "Edit your properties")
+   (let*
+      ()
+      
+      ))
+
 (defun firrtl-dbg-do-alt-interaction (pos &optional event)
    "Do the alternate widget interaction at pos"
    (interactive "@d")
 
    (let ((button (get-char-property pos 'button)))
       (if button
-	 (progn
-	    ;; Get the widget
+	 (let* 
+	    ;; "button" is the parent widget, but we need the node.
+	    ((widget (widget-get button :node)))
+	    ;; Do we have to check :active as widget-apply-action does?
+
+	    ;; IMPROVE ME: Check whether it has the property
+	    ;; :alt-action, skip if it doesn't.
+	    (widget-apply widget :alt-action event)
 	    ;; If it's an inner node, nothing to do yet (sort order?)
 
 	    ;; If it's a leaf, get the symbol, get the data, customize
 	    ;; it (interaction type, w/e)
+
+	    ;; TEMPORARY
 	    (message "Do the interaction"))
+	 
 	 ;; Otherwise do whatever we'd have done in the global map
 	 (let ((command (lookup-key widget-global-map (this-command-keys))))
 	    (when (commandp command)
