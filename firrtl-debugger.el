@@ -828,14 +828,29 @@ applied up until that column."
       (widget-insert "\n\n"))
    (use-local-map widget-keymap)
    (local-set-key "\M-\r"
-      #'(lambda ()
-	   (interactive)
-	   ;; WRITE ME: Interactively change the customization of this
-	   ;; variable.
-	   (message "Do the interaction"))))
+      #'firrtl-dbg-do-alt-interaction))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun firrtl-dbg-do-alt-interaction (pos &optional event)
+   "Do the alternate widget interaction at pos"
+   (interactive "@d")
+
+   (let ((button (get-char-property pos 'button)))
+      (if button
+	 (progn
+	    ;; Get the widget
+	    ;; If it's an inner node, nothing to do yet (sort order?)
+
+	    ;; If it's a leaf, get the symbol, get the data, customize
+	    ;; it (interaction type, w/e)
+	    (message "Do the interaction"))
+	 ;; Otherwise do whatever we'd have done in the global map
+	 (let ((command (lookup-key widget-global-map (this-command-keys))))
+	    (when (commandp command)
+	       (call-interactively command))))))
+
+
 (defun firrtl-dbg-step-circuit ()
    "Step the circuit"
 
