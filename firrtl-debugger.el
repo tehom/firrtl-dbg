@@ -876,14 +876,17 @@ applied up until that column."
       (
 	 (sym (widget-get widget :value))
 	 (name (symbol-name sym))
-	 (perm-sym (intern name firrtl-dbg-obarray-perm-props)))
+	 (perm-sym-soft
+	    (intern-soft name firrtl-dbg-obarray-perm-props))
+	 (perm-sym
+	    (or perm-sym-soft
+	       (intern name firrtl-dbg-obarray-perm-props))))
 
-      ;; Only if soft-intern fails.
-
-      (custom-declare-variable perm-sym
-	  (list 'quote firrtl-dbg-component-perm-standard-value)
-	  "The usual doc"
-	 :type firrtl-dbg-component-perm-spec)
+      (unless perm-sym-soft
+	 (custom-declare-variable perm-sym
+	    (list 'quote firrtl-dbg-component-perm-standard-value)
+	    "The usual doc"
+	    :type firrtl-dbg-component-perm-spec))
       
       (customize-option perm-sym)
       ;; WRITE ME:  This will replace firrtl-dbg-custom-variable-formats
