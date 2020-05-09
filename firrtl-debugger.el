@@ -113,6 +113,26 @@
 		(repeat string)))
    :group 'firrtl-dbg)
 
+(defconst firrtl-dbg-component-perm-spec
+   '(choice
+       (group
+	  (const decimal))
+       (group
+	  (const boolean))
+       (group
+	  (const hexadecimal))
+       (group
+	  (const enum)
+	  (string))
+       (group
+	  (const base)
+	  (integer)))
+   "Customize spec that applies to all components" )
+
+(defconst firrtl-dbg-component-perm-standard-value
+   '(decimal)
+   "The standard value for components perm-spec")
+
 
 (defcustom firrtl-dbg-custom-variable-formats
    ;; TEMPORARY for dev
