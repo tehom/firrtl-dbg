@@ -877,32 +877,19 @@ applied up until that column."
 	 (sym (widget-get widget :value))
 	 (name (symbol-name sym))
 	 (perm-sym (intern name firrtl-dbg-obarray-perm-props)))
-      ;;(message "Spec: %S" (get perm-sym 'custom-type))
 
-      ;; Only if soft-intern fails.  Symbol needs a conformant value?
-      ;; (set perm-sym firrtl-dbg-component-perm-standard-value)
+      ;; Only if soft-intern fails.
 
-      ;; Close but not quite right.  It still wants to evaluate 'decimal.
-      ;; Even though now we call 'custom-declare-variable' directly.
       (custom-declare-variable perm-sym
-	  firrtl-dbg-component-perm-standard-value
+	  (list 'quote firrtl-dbg-component-perm-standard-value)
 	  "The usual doc"
-	  :type firrtl-dbg-component-perm-spec
-	  )
-      (unless nil
-	 ;; (get perm-sym 'custom-type)
-	 (put perm-sym 'custom-type firrtl-dbg-component-perm-spec)
-	 (put perm-sym 'standard-value
-	    firrtl-dbg-component-perm-standard-value))
-      
-      (message "State is %S, sv = %S"
-	 (custom-variable-state perm-sym nil)
-	 (get perm-sym 'standard-value)
-	 )
-      
+	 :type firrtl-dbg-component-perm-spec)
       
       (customize-option perm-sym)
-      ;; This will replace firrtl-dbg-custom-variable-formats
+      ;; WRITE ME:  This will replace firrtl-dbg-custom-variable-formats
+
+      ;; WRITE ME: Saving and restoring this has to capture exactly
+      ;; the symbols in firrtl-dbg-obarray-perm-props.
       ))
 
 (defun firrtl-dbg-do-alt-interaction (pos &optional event)
