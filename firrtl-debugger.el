@@ -763,6 +763,9 @@ applied up until that column."
 		      :tag ,(car cell)
 		      :format "%[%t%]\n"
 		      :notify firrtl-dbg-punt-notify
+		      ;; If it's an inner node, nothing to do yet.
+		      ;; Maybe could adjust sort order or initial
+		      ;; openness.
 		      :alt-action ,#'ignore)
 	     :dynargs firrtl-dbg-tree-expand)
 	 (let*
@@ -844,6 +847,9 @@ applied up until that column."
 (defun firrtl-dbg-edit-properties (widget &optional event)
    ""
    
+
+   ;; If it's a leaf, get the symbol, get the data, customize it
+   ;; (interaction type, maybe sort order)
    (interactive)
    (message "Edit your properties")
    (let*
@@ -862,16 +868,9 @@ applied up until that column."
 	    ((widget (widget-get button :node)))
 	    ;; Do we have to check :active as widget-apply-action does?
 
-	    ;; IMPROVE ME: Check whether it has the property
-	    ;; :alt-action, skip if it doesn't.
-	    (widget-apply widget :alt-action event)
-	    ;; If it's an inner node, nothing to do yet (sort order?)
-
-	    ;; If it's a leaf, get the symbol, get the data, customize
-	    ;; it (interaction type, w/e)
-
-	    ;; TEMPORARY
-	    (message "Do the interaction"))
+	    ;; Do :alt-action if it can
+	    (when (widget-member widget :alt-action)
+	       (widget-apply widget :alt-action event)))
 	 
 	 ;; Otherwise do whatever we'd have done in the global map
 	 (let ((command (lookup-key widget-global-map (this-command-keys))))
