@@ -844,17 +844,19 @@ applied up until that column."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun firrtl-dbg-edit-properties (widget &optional event)
-   ""
-   
 
-   ;; If it's a leaf, get the symbol, get the data, customize it
-   ;; (interaction type, maybe sort order)
-   (interactive)
-   (message "Edit your properties")
-   (let*
-      ()
-      
+
+(defun firrtl-dbg-edit-properties (widget &optional event)
+   "Edit the properties of a component symbol"
+   ;; IMPROVE ME:  Allow a regex instead.
+   (let* 
+      (
+	 (sym (widget-get wid :value))
+	 (v (symbol-value sym)))
+      ;; Get the name, set the interaction type.
+
+      ;; 
+      ;; firrtl-dbg-custom-variable-formats
       ))
 
 (defun firrtl-dbg-do-alt-interaction (pos &optional event)
