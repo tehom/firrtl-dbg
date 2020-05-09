@@ -935,12 +935,6 @@ applied up until that column."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
 
-' ;; Proc = 
-(when (widget-get widget :value)
-   ;; This forces a redraw
-   (widget-value-set widget
-      (widget-value widget)))
-
 (defun firrtl-dbg-for-all-buttons (proc)
    ""
 
@@ -970,36 +964,13 @@ applied up until that column."
 
 (defun firrtl-dbg-redraw-widgets ()
    ""
-
-   ;; Look at the text properties to find the relevant widgets.
-   ;; Update them.
-
-   (let
-      ((done nil)
-	 (pos (point-min)))
-
-      (while (not done)
-	 (let* 
-	    ((next-pos
-		(next-single-char-property-change
-		   pos 'button (current-buffer)))
-	       (advanced
-		  (and next-pos (not (equal next-pos (point-max))))))
-	    (if advanced
-	       (progn
-		  (setq pos next-pos)
-		  (let* 
-		     ((maybe-widget (get-char-property next-pos 'button)))
-		     (when maybe-widget
-			;; WRITE ME: Check whether it's a leaf.  Check
-			;; its timestamp to see whether we need to
-			(let* 
-			   ((widget (widget-get maybe-widget :node)))
-			   (when (widget-get widget :value)
-			      ;; This forces a redraw
-			      (widget-value-set widget
-				 (widget-value widget)))))))
-	       (setq done t))))))
+   (with-current-buffer firrtl-dbg-widgets-buffer
+      (firrtl-dbg-for-all-buttons
+	 #'(lambda (widget)
+	      (when (widget-get widget :value)
+		 ;; This forces a redraw
+		 (widget-value-set widget
+		    (widget-value widget)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun firrtl-dbg-read-new-boolean-val (prompt old-val)
