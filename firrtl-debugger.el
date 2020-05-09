@@ -1320,8 +1320,9 @@ PROC should return non-nil if it has finished its work"
 
 (defun firrtl-dbg-process-is-ready-p (process)
    "True if the firrtl-dbg process is ready, meaning that it has arrived at its initial prompt.  This may take a while."
-   (goto-char (point-min))
-   (search-forward firrtl-dbg-tq-prompt-string nil t))
+   (with-current-buffer (process-buffer process)
+      (goto-char (point-min))
+      (search-forward firrtl-dbg-tq-prompt-string nil t)))
 
 (defun firrtl-dbg-wait-for-prompt (process-buffer string num-seconds msg)
    ""
