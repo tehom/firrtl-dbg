@@ -920,18 +920,30 @@ applied up until that column."
 
 (defun firrtl-dbg-save-perms (&rest ignore)
    ""
-   ;; Like Custom-save
-   (message "Now we'd save the perms (WRITE ME)")
-   (let*
-      ()
-
-      ))
+   ;; WRITE ME:  Copy perms to firrtl-dbg-perm-props-alist
+   ;; This was (Custom-save)
+   (add-dir-local-variable nil
+      'firrtl-dbg-perm-props-alist
+      firrtl-dbg-perm-props-alist))
 
 (defun firrtl-dbg-custom-variable-save (widget)
    "Save value of variable edited by widget WIDGET."
    (custom-variable-mark-to-save widget)
-   ;;(custom-save-all) ;; REPLACE ME
-   (message "We have replaced custom-save-all")
+   (save-excursion
+      (let* 
+	 ((sym (widget-get widget :value)))
+	 ;; Copy this sym to firrtl-dbg-perm-props-alist
+	 (setq firrtl-dbg-perm-props-alist
+	    (cons
+	       (cons (symbol-name sym) (symbol-value sym))
+	       (delete (symbol-name sym) firrtl-dbg-perm-props-alist)))
+	 ;; FIX ME:  File is in the wrong place.
+	 ;; Nice to save the file automatically and not necessarily
+	 ;; see the buffer in a window.
+	 (add-dir-local-variable nil
+	    'firrtl-dbg-perm-props-alist
+	    firrtl-dbg-perm-props-alist)))
+   
    (custom-variable-state-set-and-redraw widget))
 
 (defun firrtl-dbg-make-custom-variable-menu ()
