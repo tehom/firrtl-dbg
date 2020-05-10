@@ -288,12 +288,19 @@ customize-option makes it into that widget.  Can we add another action there?
 custom-tag-action just passes control to first child of widget's
 parents.  We want to replace custom-variable-action.
 
+Nope, we want to replace Custom-save
+
 **** Getting customize to save it our way
 
 Approaches:
  * Make our own version of that and add a different action there.
    * Con: That code is very, very hairy
  * Find and alter all widgets that have :action 'custom-variable-action
+   * That finds none
+     * Info: There are 10 buttons, just none of them have this action
+     * We didn't find custom-tag-action either
+     * The widget type was always 'nil
+     * So were the widgets' actions
  * ... that are of type 'custom-variable
 
 
