@@ -868,7 +868,14 @@ applied up until that column."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun firrtl-dbg-save-perms (&rest ignore)
+   ""
 
+   (message "Now we'd save the perms (WRITE ME)")
+   (let*
+      ()
+
+      ))
 
 (defun firrtl-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
@@ -895,9 +902,9 @@ applied up until that column."
       '
       (firrtl-dbg-for-all-buttons
 	 #'(lambda (widget)
-	      (when (eq (widget-get widget :action) 'custom-variable-action)
-		 ;; WRITE ME:  Replace it with our own function
-		 (message "Found one"))))
+	      (when (eq (widget-get widget :action) 'Custom-save)
+		 (widget-put widget :action firrtl-dbg-save-perms))))
+      ;; Also need to check widget-parent-action for dispatching custom-save-all
       
       ;; WRITE ME:  This will replace firrtl-dbg-custom-variable-formats
 
