@@ -195,6 +195,10 @@
    (make-vector firrtl-dbg-obarray-default-size nil)
    "Obarray that holds data about FIRRTL components that persists between sessions" )
 
+(defvar firrtl-dbg-perm-props-alist
+   '()
+   "Alist that holds data that persists between sessions about FIRRTL components" )
+
 (defvar firrtl-dbg-have-built-subname-tree
    nil
    "True if we have already built the subname tree" )
@@ -904,7 +908,7 @@ applied up until that column."
 	  
 	 (pop-to-buffer-same-window buf))
       
-      ;; WRITE ME:  This will replace firrtl-dbg-custom-variable-formats
+      ;; WRITE ME:  Use this instead of firrtl-dbg-custom-variable-formats
 
       ;; WRITE ME: Saving and restoring this has to capture exactly
       ;; the symbols in firrtl-dbg-obarray-perm-props.
