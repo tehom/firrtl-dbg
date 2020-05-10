@@ -889,6 +889,16 @@ applied up until that column."
 	    :type firrtl-dbg-component-perm-spec))
       
       (customize-option perm-sym)
+
+      ;; Execute in the customize buffer.  But this doesn't find any
+      ;; relevant buttons.
+      '
+      (firrtl-dbg-for-all-buttons
+	 #'(lambda (widget)
+	      (when (eq (widget-get widget :action) 'custom-variable-action)
+		 ;; WRITE ME:  Replace it with our own function
+		 (message "Found one"))))
+      
       ;; WRITE ME:  This will replace firrtl-dbg-custom-variable-formats
 
       ;; WRITE ME: Saving and restoring this has to capture exactly
@@ -953,13 +963,9 @@ applied up until that column."
 	       (progn
 		  (setq pos next-pos)
 		  (let* 
-		     ((maybe-widget (get-char-property next-pos 'button)))
-		     (when maybe-widget
-			;; WRITE ME: Check whether it's a leaf.  Check
-			;; its timestamp to see whether we need to
-			(let* 
-			   ((widget (widget-get maybe-widget :node)))
-			   (funcall proc widget)))))
+		     ((button (get-char-property next-pos 'button)))
+		     (when button
+			(funcall proc button))))
 	       (setq done t))))))
 
 (defun firrtl-dbg-redraw-widgets ()
@@ -967,10 +973,13 @@ applied up until that column."
    (with-current-buffer firrtl-dbg-widgets-buffer
       (firrtl-dbg-for-all-buttons
 	 #'(lambda (widget)
-	      (when (widget-get widget :value)
-		 ;; This forces a redraw
-		 (widget-value-set widget
-		    (widget-value widget)))))))
+	      (let* 
+		 ((widget (widget-get widget :node)))
+		 (when (widget-get widget :value)
+		    ;; This forces a redraw
+		    (widget-value-set widget
+		       (widget-value widget))))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun firrtl-dbg-read-new-boolean-val (prompt old-val)
