@@ -268,6 +268,11 @@ Approaches:
  * tiny-db
    * Con: It's not naturally a list of symbols & their values.
    * Pro: It works directly.
+   * Con: Even this does more than we need
+ * Roll our own
+   * Con: We'd largely be repeating tiny-db
+ * Use dir-locals
+   * copy-file-locals-to-dir-locals, add-dir-local-variable
  * As customize-save
    * Pro: We enter it as customization
    * Fatal con: This has a lot of stuff that assumes symbols.  It's not just obarray.
@@ -288,7 +293,9 @@ customize-option makes it into that widget.  Can we add another action there?
 custom-tag-action just passes control to first child of widget's
 parents.  We want to replace custom-variable-action.
 
-Nope, we want to replace Custom-save
+Nope, we want to replace Custom-save.  And custom-variable-action
+shows a user menu, given by custom-variable-menu.  We'd have to change
+that menu.  Give it a local value?
 
 **** Getting customize to save it our way
 
