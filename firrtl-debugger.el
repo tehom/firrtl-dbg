@@ -868,24 +868,6 @@ applied up until that column."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun firrtl-dbg-save-perms (&rest ignore)
-   ""
-   ;; Like Custom-save
-   (message "Now we'd save the perms (WRITE ME)")
-   (let*
-      ()
-
-      ))
-
-(defun firrtl-dbg-save-perms (&rest ignore)
-   ""
-   ;; Like Custom-save
-   (message "Now we'd save the perms (WRITE ME)")
-   (let*
-      ()
-
-      ))
-
 (defun firrtl-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
    (let* 
@@ -903,64 +885,24 @@ applied up until that column."
 	    (list 'quote firrtl-dbg-component-perm-standard-value)
 	    "The usual doc"
 	    :type firrtl-dbg-component-perm-spec))
-      
-      (customize-option perm-sym)
 
-      ;; This does it; there are also some checks that we don't need
-      ;; here.
-      '(custom-buffer-create (list (list basevar 'custom-variable))
-	  (format "*Customize circuit component %s*"
-	     (custom-unlispify-tag-name basevar)))
+      (let
+	 ((buf
+	     (custom-get-fresh-buffer
+		(format "*Customize circuit component %s*"
+		   (custom-unlispify-tag-name perm-sym)))))
+	 (with-current-buffer buf
+	    (custom-buffer-create-internal
+	       (list (list perm-sym 'custom-variable))
+	       ;; The parm "description" doesn't do anything
+	       nil)
 
-      ;; Better, letting us get access to the buffer.
-      '(let
-	  ((buf
-	      (custom-get-fresh-buffer
-		 (format "*Customize circuit component %s*"
-		    (custom-unlispify-tag-name perm-sym)))))
-	  (with-current-buffer buf
-	     (custom-buffer-create-internal options
-		(list (list perm-sym 'custom-variable))
-		;; The parm "description" doesn't do anything
-		nil)
-
-	     (fset (make-local-variable 'Custom-save)
-		#'(lambda (&rest _ignore)
-		     (message "We have replaced Custom-save")))
-	     (set (make-local-variable 'custom-variable-menu)
-		firrtl-dbg-custom-variable-menu))
+	    (fset (make-local-variable 'Custom-save)
+	       #'firrtl-dbg-save-perms)
+	    (set (make-local-variable 'custom-variable-menu)
+	       firrtl-dbg-custom-variable-menu))
 	  
-	  (pop-to-buffer-same-window buf))
-      
-      
-
-      ;; Execute in the customize buffer.
-      '
-      (firrtl-dbg-for-all-buttons
-	 #'(lambda (widget)
-	      (when (eq (widget-get widget :action) 'Custom-save)
-		 (widget-put widget :action firrtl-dbg-save-perms))))
-      ;; This works.  Gotta build the menu
-      '
-      (set (make-local-variable 'custom-variable-menu)
-	 '(("Set for Current Session" custom-variable-set
-	     (lambda
-		(widget)
-		(eq
-		   (widget-get widget :custom-state)
-		   'modified)))
-	     ))
-      '
-      (fset (make-local-variable 'Custom-save)
-	 #'(lambda ()
-	      (message "We have replaced Custom-save")))
-      
-      ;; Making it:  Start with custom-variable-menu, remove the entry where
-      ;; (eq (second el) 'custom-variable-save) and replace it with
-      '(("Save component settings for Future Sessions" firrtl-dbg-something-to-replace-custom-variable-save
-	   (lambda (widget)
-	     (memq (widget-get widget :custom-state)
-		   '(modified set changed rogue)))))
+	 (pop-to-buffer-same-window buf))
       
       ;; WRITE ME:  This will replace firrtl-dbg-custom-variable-formats
 
@@ -971,6 +913,15 @@ applied up until that column."
 (defvar firrtl-dbg-custom-variable-menu
    (firrtl-dbg-make-custom-variable-menu)
    "" )
+
+(defun firrtl-dbg-save-perms (&rest ignore)
+   ""
+   ;; Like Custom-save
+   (message "Now we'd save the perms (WRITE ME)")
+   (let*
+      ()
+
+      ))
 
 (defun firrtl-dbg-custom-variable-save (widget)
    "Save value of variable edited by widget WIDGET."
