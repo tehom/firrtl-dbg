@@ -870,7 +870,16 @@ applied up until that column."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun firrtl-dbg-save-perms (&rest ignore)
    ""
+   ;; Like Custom-save
+   (message "Now we'd save the perms (WRITE ME)")
+   (let*
+      ()
 
+      ))
+
+(defun firrtl-dbg-save-perms (&rest ignore)
+   ""
+   ;; Like Custom-save
    (message "Now we'd save the perms (WRITE ME)")
    (let*
       ()
@@ -897,20 +906,104 @@ applied up until that column."
       
       (customize-option perm-sym)
 
-      ;; Execute in the customize buffer.  But this doesn't find any
-      ;; relevant buttons.
+      ;; This does it; there are also some checks that we don't need
+      ;; here.
+      '(custom-buffer-create (list (list basevar 'custom-variable))
+	  (format "*Customize circuit component %s*"
+	     (custom-unlispify-tag-name basevar)))
+
+      ;; Better, letting us get access to the buffer.
+      '(let
+	  ((buf
+	      (custom-get-fresh-buffer
+		 (format "*Customize circuit component %s*"
+		    (custom-unlispify-tag-name perm-sym)))))
+	  (with-current-buffer buf
+	     (custom-buffer-create-internal options
+		(list (list perm-sym 'custom-variable))
+		;; The parm "description" doesn't do anything
+		nil)
+
+	     (fset (make-local-variable 'Custom-save)
+		#'(lambda (&rest _ignore)
+		     (message "We have replaced Custom-save")))
+	     (set (make-local-variable 'custom-variable-menu)
+		firrtl-dbg-custom-variable-menu))
+	  
+	  (pop-to-buffer-same-window buf))
+      
+      
+
+      ;; Execute in the customize buffer.
       '
       (firrtl-dbg-for-all-buttons
 	 #'(lambda (widget)
 	      (when (eq (widget-get widget :action) 'Custom-save)
 		 (widget-put widget :action firrtl-dbg-save-perms))))
-      ;; Also need to check widget-parent-action for dispatching custom-save-all
+      ;; This works.  Gotta build the menu
+      '
+      (set (make-local-variable 'custom-variable-menu)
+	 '(("Set for Current Session" custom-variable-set
+	     (lambda
+		(widget)
+		(eq
+		   (widget-get widget :custom-state)
+		   'modified)))
+	     ))
+      '
+      (fset (make-local-variable 'Custom-save)
+	 #'(lambda ()
+	      (message "We have replaced Custom-save")))
+      
+      ;; Making it:  Start with custom-variable-menu, remove the entry where
+      ;; (eq (second el) 'custom-variable-save) and replace it with
+      '(("Save component settings for Future Sessions" firrtl-dbg-something-to-replace-custom-variable-save
+	   (lambda (widget)
+	     (memq (widget-get widget :custom-state)
+		   '(modified set changed rogue)))))
       
       ;; WRITE ME:  This will replace firrtl-dbg-custom-variable-formats
 
       ;; WRITE ME: Saving and restoring this has to capture exactly
       ;; the symbols in firrtl-dbg-obarray-perm-props.
       ))
+
+(defvar firrtl-dbg-custom-variable-menu
+   (firrtl-dbg-make-custom-variable-menu)
+   "" )
+
+(defun firrtl-dbg-custom-variable-save (widget)
+   "Save value of variable edited by widget WIDGET."
+   (custom-variable-mark-to-save widget)
+   ;;(custom-save-all) ;; REPLACE ME
+   (message "We have replaced custom-save-all")
+   (custom-variable-state-set-and-redraw widget))
+
+(defun firrtl-dbg-make-custom-variable-menu ()
+   ""
+   
+   (require 'cus-edit)
+   (let*
+      (
+	 (our-menu '()))
+
+      (dolist (i custom-variable-menu)
+	 (let* 
+	    ((entry
+		(if (eq (second i) 'custom-variable-save)
+		   ;; PUNT:  Here add our replacement
+		   '("Save for Future Sessions" firrtl-dbg-custom-variable-save
+		       (lambda
+			  (widget)
+			  (memq
+			     (widget-get widget :custom-state)
+			     '(modified set changed rogue))))
+		   i)))
+	    (setq our-menu (cons entry our-menu))))
+      (nreverse our-menu)))
+
+'
+(firrtl-dbg-make-custom-variable-menu)
 
 (defun firrtl-dbg-do-alt-interaction (pos &optional event)
    "Do the alternate widget interaction at pos"
