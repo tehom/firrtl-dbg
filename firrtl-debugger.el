@@ -179,6 +179,9 @@
 
 
 ;; Local variables
+;; Maybe firrtl-dbg-current-buffer-type, and hold (nil 'main 'custom 'process )
+(defvar firrtl-dbg-is-main-buffer nil
+   "Non-nil just if current buffer is a main buffer" )
 
 (defconst firrtl-dbg-obarray-default-size 257
    "The default size of an obarry" )
@@ -532,6 +535,7 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-build-data (state-string)
    ""
+   (message "firrtl-dbg-build-data")
    (firrtl-dbg-assert-in-main-buffer
       "Building the data only makes sense for a specific circuit")
    (let
@@ -1037,12 +1041,9 @@ applied up until that column."
    (tq-enqueue firrtl-dbg-tq
       "step ; show\n"
       firrtl-dbg-tq-regexp
-      nil
+      (list (current-buffer))
       #'(lambda (data str)
-	   ;; Process buffer knows a particular widgets buffer
-	   (with-current-buffer firrtl-dbg-main-buffer
-	      (firrtl-dbg-assert-in-main-buffer
-		 "Only makes sense in main buffer")
+	   (with-current-buffer (first data)
 	      ;; IMPROVE ME: At some point change all states of
 	      ;; set-by-user-now to set-by-user-earlier.  For
 	      ;; non-inputs, figure out whether it changed since last
@@ -1298,11 +1299,13 @@ PROC should return non-nil if it has finished its work"
 ;; Don't call this directly.  firrtl-dbg-startup calls it
 (defun firrtl-dbg-initial-load ()
    ""
+   ;; (firrtl-dbg-assert-in-main-buffer) Too early
    (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
-      nil
+      (list (current-buffer))
       #'(lambda (data str)
 	   ;; Process buffer knows a main buffer
-	   (with-current-buffer firrtl-dbg-main-buffer
+	   (debug)
+	   (with-current-buffer (first data)
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-create-widgets)))))
 
@@ -1321,8 +1324,11 @@ PROC should return non-nil if it has finished its work"
 (defun firrtl-dbg-assert-in-main-buffer (&optional msg)
    ""
    
-   (unless (eq major-mode 'firrtl-dbg-mode)
-      (error (or msg "This operation only makes sense in main buffer"))))
+   (unless firrtl-dbg-is-main-buffer
+      ;; PUT ME BACK when ready
+      ;;(error (or msg "This operation only makes sense in main buffer"))
+      (message "I'm not in firrtl-dbg-mode yet")))
+
 
 (defun firrtl-dbg-startup ()
    ""
@@ -1335,6 +1341,9 @@ PROC should return non-nil if it has finished its work"
 	 (setq default-directory firrtl-dbg-working-directory)
 	 ;; Set up most of the local variables.  Some are set further
 	 ;; down as their objects are created.
+	 (set (make-local-variable 'firrtl-dbg-is-main-buffer)
+	    t)
+
 	 (set (make-local-variable 'firrtl-dbg-obarray)
 	    (make-vector firrtl-dbg-obarray-default-size nil))
 	 (put 'firrtl-dbg-obarray 'variable-documentation
@@ -1384,9 +1393,8 @@ Format: Each node is either:
 	       (make-local-variable 'firrtl-dbg-main-buffer)
 	       main-buf))
 	 
-	 (setq (make-local-variable 'firrtl-dbg-process)
-	    ;; Really just need to control the current directory
-	    (with-current-buffer firrtl-dbg-process-buffer
+	 (set (make-local-variable 'firrtl-dbg-process)
+	    (let ((default-directory firrtl-dbg-working-directory))
 	       (start-process
 		  firrtl-dbg-process-name
 		  firrtl-dbg-process-buffer
@@ -1395,18 +1403,24 @@ Format: Each node is either:
 		  ;; actually messes us up.
 		  firrtl-dbg-repl-launch-string)))
 
+	 (make-local-variable 'firrtl-dbg-tq)
+	 (put 'firrtl-dbg-tq 'variable-documentation
+	    "The firrtl-dbg transaction queue")
+	 
 	 (firrtl-dbg-call-until-done-w/timeout
 	    40
-	    #'(lambda ()
+	    #'(lambda (process main-buf)
 		 (when
-		    (firrtl-dbg-process-is-ready-p firrtl-dbg-process)
+		    (firrtl-dbg-process-is-ready-p process)
 		    (message "Debugger process is ready")
-		    (setq firrtl-dbg-tq
-		       (tq-create firrtl-dbg-process))
-		    (firrtl-dbg-initial-load)
+		    (let* 
+		       ((tq (tq-create process)))
+		       (with-current-buffer main-buf
+			  (setq firrtl-dbg-tq tq)
+			  (firrtl-dbg-initial-load)))
 		    ;; Indicate that we have succeeded
 		    t))
-	    '()
+	    (list firrtl-dbg-process main-buf)
 	    #'(lambda ()
 		 (message "Debugger process timed out"))
 	    '()))))
