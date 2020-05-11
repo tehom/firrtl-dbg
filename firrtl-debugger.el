@@ -226,6 +226,8 @@ Format: Each node is either:
    nil
    "" )
 
+;; Can't refer to it outside the buffer itself!  Might as well use
+;; current-buffer.  Come back to this, as it was unsettled.
 (defvar firrtl-dbg-widgets-buffer
    nil
    "" )
@@ -272,6 +274,7 @@ Format: Each node is either:
    (firrtl-dbg-make-custom-variable-menu)
    "" )
 
+;; No, we will create these variables just in the buffers that use them
 (defconst firrtl-dbg-local-var-syms
    '(
        firrtl-dbg-obarray ;; Make these vectors too in the mode
@@ -405,6 +408,8 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-mutate-subname-tree (full-name data)
    ""
+   (firrtl-dbg-assert-in-main-buffer
+      "Objects are only available in the main buffer")
    (setq
       firrtl-dbg-subname-tree
       (firrtl-dbg-add-to-subname-tree firrtl-dbg-subname-tree
@@ -414,7 +419,7 @@ DATA is the data to store, usually a symbol"
 (defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
    ""
    (firrtl-dbg-assert-in-main-buffer
-      "Add object only makes sense in the main buffer")
+      "Objects are only available in the main buffer")
 
    (let* 
       (
@@ -522,6 +527,7 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-read-overview (spl)
    ""
+   (firrtl-dbg-assert-in-main-buffer)
    (let* 
       ((str (firrtl-dbg-state-strings-overview spl))
 	 (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
@@ -593,7 +599,8 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-build-data (state-string)
    ""
-
+   (firrtl-dbg-assert-in-main-buffer
+      "Building the data only makes sense for a specific circuit")
    (let
       ((spl (split-string state-string "\n")))
 
@@ -655,8 +662,7 @@ DATA is the data to store, usually a symbol"
 (defun firrtl-dbg-clear ()
    "Clear all the values; ready to start again"
    (firrtl-dbg-assert-in-main-buffer
-      "Clear all only makes sense in the main buffer")
-
+      "Clearing only makes sense for a specific circuit")
 
    (interactive)
    (setq firrtl-dbg-have-built-subname-tree nil)
@@ -668,7 +674,10 @@ DATA is the data to store, usually a symbol"
    ""
    
    (interactive)
-   
+
+   (firrtl-dbg-assert-in-main-buffer
+      "Shutting down only makes sense for a specific circuit")
+
    (firrtl-dbg-clear)
    
    (when firrtl-dbg-tq
@@ -911,6 +920,7 @@ applied up until that column."
 	 (mapcar #'firrtl-dbg-tree-widget alist))))
 
 (defun firrtl-dbg-create-widgets ()
+   (firrtl-dbg-assert-in-main-buffer)
    (widget-insert "FIRRTL debugger interface\n\n")
 
    (widget-create 'push-button
@@ -923,7 +933,10 @@ applied up until that column."
    ;; Rebuild buffer
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
+		 ;; CHANGE ME Instead, check current buffer.
+		 ;; ENCAP ME
 		 (with-current-buffer firrtl-dbg-widgets-buffer
+		    (firrtl-dbg-assert-in-main-buffer)
 		    (erase-buffer)
 		    (firrtl-dbg-create-widgets)))
       "Rebuild buffer")
@@ -1020,6 +1033,7 @@ applied up until that column."
       (let* 
 	 ((sym (widget-get widget :value)))
 	 ;; Copy this sym to firrtl-dbg-perm-props-alist
+	 ;; IMPROVE ME:  This needs to know main buffer and be run there
 	 (setq firrtl-dbg-perm-props-alist
 	    (cons
 	       (cons (symbol-name sym) (symbol-value sym))
@@ -1091,7 +1105,10 @@ applied up until that column."
       firrtl-dbg-tq-regexp
       nil
       #'(lambda (data str)
+	   ;; IMPROVE ME:  Process buffer needs to know widgets buffer
 	   (with-current-buffer firrtl-dbg-widgets-buffer
+	      (firrtl-dbg-assert-in-main-buffer
+		 "Only makes sense in main buffer")
 	      ;; IMPROVE ME: At some point change all states of
 	      ;; set-by-user-now to set-by-user-earlier.  For
 	      ;; non-inputs, figure out whether it changed since last
@@ -1127,6 +1144,7 @@ applied up until that column."
 
 (defun firrtl-dbg-redraw-widgets ()
    ""
+   (firrtl-dbg-assert-in-main-buffer)
    (with-current-buffer firrtl-dbg-widgets-buffer
       (firrtl-dbg-for-all-buttons
 	 #'(lambda (widget)
@@ -1247,7 +1265,7 @@ applied up until that column."
 
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
-
+   (firrtl-dbg-assert-in-main-buffer)
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
@@ -1263,7 +1281,7 @@ applied up until that column."
       (tq-enqueue firrtl-dbg-tq
 	 msg
 	 firrtl-dbg-tq-regexp
-	 (list current widget new-val firrtl-dbg-widgets-buffer)
+	 (list current widget new-val (current-buffer))
 	 #'(lambda (data str)
 	      (let* 
 		 ((had-problem
@@ -1298,102 +1316,6 @@ applied up until that column."
 
 
 ;;;;;;;;;;;;;;;;;;;;
-;; Dev of widgets buffer overall
-'
-(setq firrtl-dbg-widgets-buffer
-   (generate-new-buffer firrtl-dbg-widgets-buffer-name))
-
-;; And pop-to-buffer
-'
-(with-current-buffer firrtl-dbg-widgets-buffer
-   (firrtl-dbg-create-widgets))
-
-;; For the updates
-'
-(with-current-buffer firrtl-dbg-widgets-buffer
-   (firrtl-dbg-redraw-widgets))
-
-;;;;;;;;;;;;;;;;;;;;
-
-'
-(setq firrtl-dbg-process-buffer
-   (generate-new-buffer firrtl-dbg-process-buffer-name))
-
-'
-(with-current-buffer firrtl-dbg-process-buffer
-   (setq default-directory firrtl-dbg-working-directory))
-
-;; This didn't quite work.  Wrong directory?  Worked when
-;; executed in that buffer.
-
-'
-(with-current-buffer firrtl-dbg-process-buffer
-   (setq firrtl-dbg-process
-      (start-process
-	 firrtl-dbg-process-name
-	 firrtl-dbg-process-buffer
-	 firrtl-dbg-executable
-	 ;; Quoting this string with shell-quote-argument actually messes
-	 ;; us up.
-	 firrtl-dbg-repl-launch-string)))
-
-
-;; Wait for prompt; may be already there in buffer.
-'
-(setq firrtl-dbg-tq
-   (tq-create firrtl-dbg-process))
-
-'
-(tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
-   'ok
-   #'(lambda (data str)
-	(message str)
-	(firrtl-dbg-build-data str)))
-
-;; Working an example from the docs.  Works now.
-'
-(tq-enqueue firrtl-dbg-tq
-   "poke io_value1 4;poke io_value2 4;poke io_loadingValues 1;show\n"
-   firrtl-dbg-tq-regexp
-   'ok
-   #'(lambda (data str)
-	(pop-to-buffer firrtl-dbg-widgets-buffer)
-	(message str)
-	(with-current-buffer firrtl-dbg-widgets-buffer
-	   (firrtl-dbg-build-data str)
-	   (firrtl-dbg-redraw-widgets))))
-
-'
-(tq-enqueue firrtl-dbg-tq
-   "step ; show\n"
-   firrtl-dbg-tq-regexp
-   'ok
-   #'(lambda (data str)
-	(pop-to-buffer firrtl-dbg-widgets-buffer)
-	(message str)
-	(with-current-buffer firrtl-dbg-widgets-buffer
-	   (firrtl-dbg-build-data str)
-	   (firrtl-dbg-redraw-widgets))))
-
-
-'
-(tq-enqueue firrtl-dbg-tq
-   "poke io_loadingValues 0;step;show\n"
-   firrtl-dbg-tq-regexp
-   'ok
-   #'(lambda (data str)
-	(pop-to-buffer firrtl-dbg-widgets-buffer)
-	(message str)
-	(with-current-buffer firrtl-dbg-widgets-buffer
-	   (firrtl-dbg-build-data str)
-	   (firrtl-dbg-redraw-widgets))))
-
-'
-(symbol-value (intern "io_loadingValues" firrtl-dbg-obarray))
-
-;; Use this at the end.
-'
-(tq-close firrtl-dbg-tq)
 
 ;; Example:
 ;; (firrtl-dbg-call-until-done-w/timeout 4
@@ -1449,6 +1371,7 @@ PROC should return non-nil if it has finished its work"
       nil
       #'(lambda (data str)
 	   (firrtl-dbg-build-data str)
+	   ;; Needs to know main buffer
 	   (with-current-buffer firrtl-dbg-widgets-buffer
 	      (firrtl-dbg-create-widgets)))))
 
@@ -1464,15 +1387,16 @@ PROC should return non-nil if it has finished its work"
       ;; Make these vars buffer-local:
       ))
 
-(defun firrtl-dbg-assert-in-main-buffer (msg)
+(defun firrtl-dbg-assert-in-main-buffer (&optional msg)
    ""
    
    (unless (eq major-mode 'firrtl-dbg-mode)
-      (error msg)))
+      (error (or msg "This operation only makes sense in main buffer"))))
 
 (defun firrtl-dbg-startup ()
    ""
    (interactive)
+   ;; Careful with locals here.  Maybe this creates them.  Can't refer to firrtl-dbg-widgets-buffer outside itself!
    (setq firrtl-dbg-widgets-buffer
       (generate-new-buffer firrtl-dbg-widgets-buffer-name))
    
