@@ -264,27 +264,6 @@ Format: Each node is either:
    (concat ".*" firrtl-dbg-tq-prompt-string " *")
    "" )
 
-;; IMPROVE ME: Make this const
-(defvar firrtl-dbg-custom-variable-menu
-   (firrtl-dbg-make-custom-variable-menu)
-   "" )
-
-;; No, we will create these variables just in the buffers that use them
-(defconst firrtl-dbg-local-var-syms
-   '(
-       firrtl-dbg-obarray ;; Make these vectors too in the mode
-       firrtl-dbg-obarray-perm-props
-       firrtl-dbg-perm-props-alist
-       firrtl-dbg-have-built-subname-tree
-       firrtl-dbg-current-step
-       firrtl-dbg-current-freshness
-       firrtl-dbg-subname-tree
-       firrtl-dbg-process-buffer
-       firrtl-dbg-main-buffer
-       firrtl-dbg-process
-       )
-   "List of the symbol of all variables that are buffer-local in firrtl-dbg-mode" )
-
 (defun firrtl-dbg-add-to-subname-tree (tree subname-list data)
    "
 TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
@@ -1027,7 +1006,9 @@ applied up until that column."
 	    (setq our-menu (cons entry our-menu))))
       (nreverse our-menu)))
 
-
+(defconst firrtl-dbg-custom-variable-menu
+   (firrtl-dbg-make-custom-variable-menu)
+   "" )
 
 (defun firrtl-dbg-do-alt-interaction (pos &optional event)
    "Do the alternate widget interaction at pos"
