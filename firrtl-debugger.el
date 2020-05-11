@@ -272,7 +272,7 @@ Format: Each node is either:
 
 (defconst firrtl-dbg-local-var-syms
    '(
-       firrtl-dbg-obarray
+       firrtl-dbg-obarray ;; Make these vectors too in the mode
        firrtl-dbg-obarray-perm-props
        firrtl-dbg-perm-props-alist
        firrtl-dbg-have-built-subname-tree
@@ -411,6 +411,7 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
    ""
+   ;; IMPROVE ME:  Check that it's called in a firrtl-dbg-mode buffer
    (let* 
       (
 	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
@@ -649,7 +650,8 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-clear ()
    "Clear all the values; ready to start again"
-   
+   ;; IMPROVE ME:  Check that it's called in a firrtl-dbg-mode buffer
+
    (interactive)
    (setq firrtl-dbg-have-built-subname-tree nil)
    (setq firrtl-dbg-subname-tree '())
@@ -937,6 +939,8 @@ applied up until that column."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun firrtl-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
+   ;; IMPROVE ME:  Check that it's called in a firrtl-dbg-mode buffer
+   ;; Tho we're going into a customize buffer
    (let* 
       (
 	 (sym (widget-get widget :value))
@@ -983,6 +987,7 @@ applied up until that column."
 (defun firrtl-dbg-copy-perms-to-alist ()
    ""
 
+   ;; IMPROVE ME:  Check that it's called in a firrtl-dbg-mode buffer
    (setq firrtl-dbg-perm-props-alist '())
    (mapatoms
       #'(lambda (sym)
@@ -1396,7 +1401,7 @@ applied up until that column."
 
 (defstruct (firrtl-dbg-timer-data (:type list))
    ""
-   seconds-elapsed
+   seconds-to-wait
    timer)
 
 
@@ -1405,13 +1410,12 @@ applied up until that column."
    "
 PROC should return non-nil if it has finished its work"
    (let
-      ((data (make-firrtl-dbg-timer-data :seconds-elapsed 0)))
+      ((data (make-firrtl-dbg-timer-data :seconds-to-wait num-seconds)))
       (setf (firrtl-dbg-timer-data-timer data)
 	 (run-at-time t 1
-	    #'(lambda (data num-seconds proc args timed-out-proc timed-out-args)
+	    #'(lambda (data proc args timed-out-proc timed-out-args)
 		 ;; Manage timeout
-		 (if (> (firrtl-dbg-timer-data-seconds-elapsed data)
-			num-seconds)
+		 (if (<= (firrtl-dbg-timer-data-seconds-to-wait data) 0)
 		    (progn
 		       (cancel-timer (firrtl-dbg-timer-data-timer data))
 		       (when timed-out-proc
@@ -1420,10 +1424,9 @@ PROC should return non-nil if it has finished its work"
 		       ((done (apply proc args)))
 		       (if done
 			  (cancel-timer (firrtl-dbg-timer-data-timer data))
-			  (incf (firrtl-dbg-timer-data-seconds-elapsed data))))))
+			  (decf (firrtl-dbg-timer-data-seconds-to-wait data))))))
 	    data
-	    num-seconds proc
-	    args
+	    proc args
 	    timed-out-proc timed-out-args))))
 
 (defun firrtl-dbg-process-is-ready-p (process)
