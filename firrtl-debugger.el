@@ -265,7 +265,7 @@ Format: Each node is either:
    (concat ".*" firrtl-dbg-tq-prompt-string " *")
    "" )
 
-;; Make const
+;; IMPROVE ME: Make this const
 (defvar firrtl-dbg-custom-variable-menu
    (firrtl-dbg-make-custom-variable-menu)
    "" )
@@ -638,9 +638,7 @@ DATA is the data to store, usually a symbol"
    (when firrtl-dbg-process-buffer
       (kill-buffer firrtl-dbg-process-buffer))
    (setq firrtl-dbg-process-buffer nil)
-   (when firrtl-dbg-widgets-buffer
-      (kill-buffer firrtl-dbg-widgets-buffer))
-   (setq firrtl-dbg-widgets-buffer nil))
+   (kill-buffer (current-buffer)))
 
 
 ;; PLACEHOLDER
@@ -886,12 +884,10 @@ applied up until that column."
    ;; Rebuild buffer
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		 ;; CHANGE ME Instead, check current buffer.
 		 ;; ENCAP ME
-		 (with-current-buffer firrtl-dbg-widgets-buffer
-		    (firrtl-dbg-assert-in-main-buffer)
-		    (erase-buffer)
-		    (firrtl-dbg-create-widgets)))
+		 (firrtl-dbg-assert-in-main-buffer)
+		 (erase-buffer)
+		 (firrtl-dbg-create-widgets))
       "Rebuild buffer")
 
    ;; IMPROVE ME:  Add other buttons: Reset, Done, Poison, Randomize, etc
@@ -931,12 +927,16 @@ applied up until that column."
 	    :type firrtl-dbg-component-perm-spec))
 
       (let
-	 ((buf
+	 (  (main-buf (current-buffer))
+	    (buf
 	     (custom-get-fresh-buffer
 		(format "*Customize circuit component %s*"
 		   (custom-unlispify-tag-name perm-sym)))))
 	 (with-current-buffer buf
 	    (setq default-directory firrtl-dbg-working-directory)
+	    (set
+	       (make-local-variable 'firrtl-dbg-widgets-buffer)
+	       main-buf)
 	    (custom-buffer-create-internal
 	       (list (list perm-sym 'custom-variable))
 	       ;; The parm "description" doesn't do anything
@@ -985,18 +985,20 @@ applied up until that column."
    (save-excursion
       (let* 
 	 ((sym (widget-get widget :value)))
-	 ;; Copy this sym to firrtl-dbg-perm-props-alist
-	 ;; IMPROVE ME:  This needs to know main buffer and be run there
-	 (setq firrtl-dbg-perm-props-alist
-	    (cons
-	       (cons (symbol-name sym) (symbol-value sym))
-	       (delete-if
-		  #'(lambda (a)
-		       (string-equal (first a) (symbol-name sym)))
-		  firrtl-dbg-perm-props-alist)))
-	 ;; IMPROVE ME: Nice to save the file automatically and not
-	 ;; necessarily see the buffer in a window.
+
+	 ;; Customize buffer knows a particular widgets buffer
 	 (with-current-buffer firrtl-dbg-widgets-buffer
+	    (firrtl-dbg-assert-in-main-buffer)
+	    ;; Copy this sym to firrtl-dbg-perm-props-alist
+	    (setq firrtl-dbg-perm-props-alist
+	       (cons
+		  (cons (symbol-name sym) (symbol-value sym))
+		  (delete-if
+		     #'(lambda (a)
+			  (string-equal (first a) (symbol-name sym)))
+		     firrtl-dbg-perm-props-alist)))
+	    ;; IMPROVE ME: Nice to save the file automatically and not
+	    ;; necessarily see the buffer in a window.
 	    (add-dir-local-variable 'firrtl-dbg-mode
 	       'firrtl-dbg-perm-props-alist
 	       firrtl-dbg-perm-props-alist))))
@@ -1015,8 +1017,8 @@ applied up until that column."
 	 (let* 
 	    ((entry
 		(if (eq (second i) 'custom-variable-save)
-		   ;; PUNT:  Here add our replacement
-		   '("Save for Future Sessions" firrtl-dbg-custom-variable-save
+		   '("Save for Future Sessions"
+		       firrtl-dbg-custom-variable-save
 		       (lambda
 			  (widget)
 			  (memq
@@ -1057,7 +1059,7 @@ applied up until that column."
       firrtl-dbg-tq-regexp
       nil
       #'(lambda (data str)
-	   ;; IMPROVE ME:  Process buffer needs to know widgets buffer
+	   ;; Process buffer knows a particular widgets buffer
 	   (with-current-buffer firrtl-dbg-widgets-buffer
 	      (firrtl-dbg-assert-in-main-buffer
 		 "Only makes sense in main buffer")
@@ -1097,16 +1099,14 @@ applied up until that column."
 (defun firrtl-dbg-redraw-widgets ()
    ""
    (firrtl-dbg-assert-in-main-buffer)
-   (with-current-buffer firrtl-dbg-widgets-buffer
-      (firrtl-dbg-for-all-buttons
-	 #'(lambda (widget)
-	      (let* 
-		 ((widget (widget-get widget :node)))
-		 (when (widget-get widget :value)
-		    ;; This forces a redraw
-		    (widget-value-set widget
-		       (widget-value widget))))))))
-
+   (firrtl-dbg-for-all-buttons
+      #'(lambda (widget)
+	   (let* 
+	      ((widget (widget-get widget :node)))
+	      (when (widget-get widget :value)
+		 ;; This forces a redraw
+		 (widget-value-set widget
+		    (widget-value widget)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun firrtl-dbg-read-new-boolean-val (prompt old-val)
@@ -1318,13 +1318,12 @@ PROC should return non-nil if it has finished its work"
 ;; Don't call this directly.  firrtl-dbg-startup calls it
 (defun firrtl-dbg-initial-load ()
    ""
-   ;; Encap this?  This is just first-time show
    (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
       nil
       #'(lambda (data str)
-	   (firrtl-dbg-build-data str)
-	   ;; Needs to know main buffer
+	   ;; Process buffer knows a main buffer
 	   (with-current-buffer firrtl-dbg-widgets-buffer
+	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-create-widgets)))))
 
 (define-derived-mode firrtl-dbg-mode
@@ -1348,44 +1347,51 @@ PROC should return non-nil if it has finished its work"
 (defun firrtl-dbg-startup ()
    ""
    (interactive)
-   ;; Careful with locals here.  Maybe this creates them.  Can't refer to firrtl-dbg-widgets-buffer outside itself!
-   (setq firrtl-dbg-widgets-buffer
-      (generate-new-buffer firrtl-dbg-widgets-buffer-name))
+   ;; Careful with locals here.  Maybe this creates them.  Can't refer
+   ;; to firrtl-dbg-widgets-buffer outside itself!
+
    
-   (with-current-buffer firrtl-dbg-widgets-buffer
-      (setq default-directory firrtl-dbg-working-directory)
-      (setq firrtl-dbg-process-buffer
-	 (generate-new-buffer firrtl-dbg-process-buffer-name))
+   (let
+      ((main-buf
+	  (generate-new-buffer firrtl-dbg-widgets-buffer-name)))
+      (with-current-buffer main-buf
+	 (setq default-directory firrtl-dbg-working-directory)
+	 (setq firrtl-dbg-process-buffer
+	    (generate-new-buffer firrtl-dbg-process-buffer-name))
 
-      (with-current-buffer firrtl-dbg-process-buffer
-	 (setq default-directory firrtl-dbg-working-directory))
-
-      (setq firrtl-dbg-process
-	 ;; Really just need with current directory
 	 (with-current-buffer firrtl-dbg-process-buffer
-	    (start-process
-	       firrtl-dbg-process-name
-	       firrtl-dbg-process-buffer
-	       firrtl-dbg-executable
-	       ;; Quoting this string with shell-quote-argument actually messes
-	       ;; us up.
-	       firrtl-dbg-repl-launch-string)))
+	    (setq default-directory firrtl-dbg-working-directory)
+	    (set
+	       (make-local-variable 'firrtl-dbg-widgets-buffer)
+	       main-buf)
+	    )
 
-      (firrtl-dbg-call-until-done-w/timeout
-	 40
-	 #'(lambda ()
-	      (when
-		 (firrtl-dbg-process-is-ready-p firrtl-dbg-process)
-		 (message "Debugger process is ready")
-		 (setq firrtl-dbg-tq
-		    (tq-create firrtl-dbg-process))
-		 (firrtl-dbg-initial-load)
-		 ;; Indicate that we have succeeded
-		 t))
-	 '()
-	 #'(lambda ()
-	      (message "Debugger process timed out"))
-	 '())))
+	 (setq firrtl-dbg-process
+	    ;; Really just need with current directory
+	    (with-current-buffer firrtl-dbg-process-buffer
+	       (start-process
+		  firrtl-dbg-process-name
+		  firrtl-dbg-process-buffer
+		  firrtl-dbg-executable
+		  ;; Quoting this string with shell-quote-argument actually messes
+		  ;; us up.
+		  firrtl-dbg-repl-launch-string)))
+
+	 (firrtl-dbg-call-until-done-w/timeout
+	    40
+	    #'(lambda ()
+		 (when
+		    (firrtl-dbg-process-is-ready-p firrtl-dbg-process)
+		    (message "Debugger process is ready")
+		    (setq firrtl-dbg-tq
+		       (tq-create firrtl-dbg-process))
+		    (firrtl-dbg-initial-load)
+		    ;; Indicate that we have succeeded
+		    t))
+	    '()
+	    #'(lambda ()
+		 (message "Debugger process timed out"))
+	    '()))))
 
 
 
