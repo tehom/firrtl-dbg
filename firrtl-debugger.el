@@ -936,13 +936,18 @@ applied up until that column."
 	 (setq firrtl-dbg-perm-props-alist
 	    (cons
 	       (cons (symbol-name sym) (symbol-value sym))
-	       (delete (symbol-name sym) firrtl-dbg-perm-props-alist)))
+	       (delete-if
+		  #'(lambda (a)
+		       (string-equal (first a) (symbol-name sym)))
+		  firrtl-dbg-perm-props-alist)))
 	 ;; FIX ME:  File is in the wrong place.
+	 ;; FIX ME:  Use a proper mode name for this stuff.
 	 ;; Nice to save the file automatically and not necessarily
 	 ;; see the buffer in a window.
-	 (add-dir-local-variable nil
-	    'firrtl-dbg-perm-props-alist
-	    firrtl-dbg-perm-props-alist)))
+	 (with-current-buffer firrtl-dbg-widgets-buffer
+	    (add-dir-local-variable nil
+	       'firrtl-dbg-perm-props-alist
+	       firrtl-dbg-perm-props-alist))))
    
    (custom-variable-state-set-and-redraw widget))
 
