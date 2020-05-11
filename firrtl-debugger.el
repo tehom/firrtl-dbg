@@ -923,7 +923,7 @@ applied up until that column."
    ""
    ;; WRITE ME:  Copy perms to firrtl-dbg-perm-props-alist
    ;; This was (Custom-save)
-   (add-dir-local-variable nil
+   (add-dir-local-variable 'firrtl-dbg-mode
       'firrtl-dbg-perm-props-alist
       firrtl-dbg-perm-props-alist))
 
@@ -946,7 +946,7 @@ applied up until that column."
 	 ;; Nice to save the file automatically and not necessarily
 	 ;; see the buffer in a window.
 	 (with-current-buffer firrtl-dbg-widgets-buffer
-	    (add-dir-local-variable nil
+	    (add-dir-local-variable 'firrtl-dbg-mode
 	       'firrtl-dbg-perm-props-alist
 	       firrtl-dbg-perm-props-alist))))
    
