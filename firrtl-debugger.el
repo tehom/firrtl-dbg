@@ -1432,6 +1432,19 @@ PROC should return non-nil if it has finished its work"
 	   (with-current-buffer firrtl-dbg-widgets-buffer
 	      (firrtl-dbg-create-widgets)))))
 
+(define-derived-mode firrtl-dbg-mode
+   special-mode "Firrtl-Dbg"
+   "Major mode for FIRRTL debugger interface"
+   :group 'firrtl-dbg
+   (progn
+      (set-keymap-parent firrtl-dbg-mode-map widget-keymap)
+      (define-key firrtl-dbg-mode-map  "\M-\r"
+	 #'firrtl-dbg-do-alt-interaction)))
+
+
+
+
+
 (defun firrtl-dbg-startup ()
    ""
    (interactive)
