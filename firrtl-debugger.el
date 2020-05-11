@@ -1455,9 +1455,11 @@ PROC should return non-nil if it has finished its work"
       ;; Make these vars buffer-local:
       ))
 
-
-
-
+(defun firrtl-dbg-assert-in-main-buffer (msg)
+   ""
+   
+   (unless (eq major-mode 'firrtl-dbg-mode)
+      (error msg)))
 
 (defun firrtl-dbg-startup ()
    ""
