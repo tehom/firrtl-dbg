@@ -177,10 +177,6 @@
 		  (firrtl-dbg-component-current component))
 	       (second i))))))
 
-;; This doesn't do anything good.
-'
-(custom-add-frequent-value 'firrtl-dbg-custom-variable-formats
-        '("reset" boolean))
 
 ;; Local variables
 
@@ -383,28 +379,28 @@ DATA is the data to store, usually a symbol"
       
       (cdr current-tag+tree)))
 
-'
-(firrtl-dbg-add-to-subname-tree '() '("a" "b")
-   'my-data)
 
-'
-(firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "b")
-    'new-data)
+;; (firrtl-dbg-add-to-subname-tree '() '("a" "b")
+;;    'my-data)
 
-'
-(firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "c")
-    'new-data)
 
-'
-(firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("d" "b")
-    'new-data)
+;; (firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "b")
+;;     'new-data)
+
+
+;; (firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "c")
+;;     'new-data)
+
+
+;; (firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("d" "b")
+;;     'new-data)
 
 
 (defun firrtl-dbg-split-component-name (str)
    ""
    (split-string str "[._]+"))
-'
-(firrtl-dbg-split-component-name "io_a.b")
+
+;; (firrtl-dbg-split-component-name "io_a.b")
 
 (defun firrtl-dbg-mutate-subname-tree (full-name data)
    ""
@@ -508,23 +504,6 @@ DATA is the data to store, usually a symbol"
    ephemera
    memories)
 
-
-
-
-;; Setup:
-;; Check that we're in sbt
-;; Load anything local
-
-;; WORK IN PROGRESS
-
-;; But instead use buffer-substring-no-properties to capture it.
-(setq firrtl-state-string (car kill-ring))
-;; Te remove properties
-(setq firrtl-state-string (substring-no-properties firrtl-state-string))
-
-(setq spl (split-string firrtl-state-string "\n"))
-;; Gives a firrtl-dbg-state-strings
-
 (defun firrtl-dbg-read-overview (spl)
    ""
    (firrtl-dbg-assert-in-main-buffer)
@@ -538,16 +517,6 @@ DATA is the data to store, usually a symbol"
       (setq firrtl-dbg-current-freshness freshness-str)
       (setq firrtl-dbg-current-step step)))
 
-
-
-;; Prefix rxes
-;; "Inputs: *"
-;; "Outputs: *"
-;; "Registers *: *"
-;; "FutureRegisters: *"
-;; "Ephemera: *"
-;; "Memories" ;; This one may be different.  None written yet.
-
 (defun firrtl-dbg-split-input-line (input-str prefix-rx)
    ""
    (let* 
@@ -557,10 +526,6 @@ DATA is the data to store, usually a symbol"
 	 (input-str (substring input-str end)))
       (split-string input-str ",")))
 
-'
-(setq ephems
-   (firrtl-dbg-split-input-line
-      (firrtl-dbg-state-strings-ephemera spl) "Ephemera: *"))
 
 (defun firrtl-dbg-act-on-component-str (component-str proc)
    "PROC should take three parms: name, value, and is-valid"
@@ -586,16 +551,6 @@ DATA is the data to store, usually a symbol"
       (funcall proc
 	 full-name value state)))
 
-;; '
-;; (firrtl-dbg-act-on-component-str (second split) #'list)
-;; '
-;; (firrtl-dbg-act-on-component-str (third ephems)
-;;    #'firrtl-dbg-add-ephemeral)
-;; '
-;; (mapcar
-;;    #'(lambda (v)
-;; 	(firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
-;;    ephems)
 
 (defun firrtl-dbg-build-data (state-string)
    ""
@@ -656,8 +611,6 @@ DATA is the data to store, usually a symbol"
 
       (setq firrtl-dbg-have-built-subname-tree t)))
 
-;; Demo
-;; '(firrtl-dbg-build-data firrtl-state-string)
 
 (defun firrtl-dbg-clear ()
    "Clear all the values; ready to start again"
@@ -1073,8 +1026,7 @@ applied up until that column."
 	    (setq our-menu (cons entry our-menu))))
       (nreverse our-menu)))
 
-'
-(firrtl-dbg-make-custom-variable-menu)
+
 
 (defun firrtl-dbg-do-alt-interaction (pos &optional event)
    "Do the alternate widget interaction at pos"
