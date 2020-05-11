@@ -189,7 +189,8 @@
 
 (defvar firrtl-dbg-obarray
    (make-vector firrtl-dbg-obarray-default-size nil)
-   "Obarray that holds the current data of FIRRTL components" )
+   "Obarray that holds the current data of FIRRTL components.  
+Local in the buffer" )
 
 (defvar firrtl-dbg-obarray-perm-props
    (make-vector firrtl-dbg-obarray-default-size nil)
@@ -221,6 +222,75 @@ Format: Each node is either:
 
 ")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconst firrtl-dbg-executable
+   "sbt"
+   "" )
+;; This has to be customizable, and may be set explicitly in the entry point.
+(defconst firrtl-dbg-working-directory
+   "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/"
+   "" )
+(defconst firrtl-dbg-repl-launch-string
+   "test:runMain gcd.GCDRepl"
+   "" )
+(defconst firrtl-dbg-process-name
+   "firrtl-dbg-process"
+   "" )
+(defconst firrtl-dbg-process-buffer-name
+   "*Firrtl-dbg process*"
+   "" )
+
+(defconst firrtl-dbg-widgets-buffer-name
+   "*Firrtl-dbg circuit state*"
+   "" )
+
+(defconst firrtl-dbg-tq-prompt-string
+   "firrtl>>"
+   "" )
+
+(defconst firrtl-dbg-tq-regexp
+   (concat ".*" firrtl-dbg-tq-prompt-string " *")
+   "" )
+
+;; Process buffer and widget buffer are distinct
+(defvar firrtl-dbg-process-buffer
+   nil
+   "" )
+
+(defvar firrtl-dbg-widgets-buffer
+   nil
+   "" )
+
+(defvar firrtl-dbg-process
+   nil
+   "" )
+
+(defvar firrtl-dbg-custom-variable-menu
+   (firrtl-dbg-make-custom-variable-menu)
+   "" )
+
+(defvar firrtl-dbg-timer nil
+   "Timer that checks whether the FIRRTL debugger has started yet")
+
+(defvar firrtl-dbg-num-seconds-waited nil
+   "How many seconds we have waited for the FIRRTL debugger")
+
+
+(defconst firrtl-dbg-local-var-syms
+   '(
+       firrtl-dbg-obarray
+       firrtl-dbg-obarray-perm-props
+       firrtl-dbg-perm-props-alist
+       firrtl-dbg-have-built-subname-tree
+       firrtl-dbg-current-step
+       firrtl-dbg-current-freshness
+       firrtl-dbg-subname-tree
+       firrtl-dbg-process-buffer
+       firrtl-dbg-widgets-buffer
+       firrtl-dbg-process
+       )
+   "List of the symbol of all variables that are buffer-local in firrtl-dbg-mode" )
 
 (defun firrtl-dbg-add-to-subname-tree (tree subname-list data)
    "
@@ -915,9 +985,7 @@ applied up until that column."
       ;; the symbols in firrtl-dbg-obarray-perm-props.
       ))
 
-(defvar firrtl-dbg-custom-variable-menu
-   (firrtl-dbg-make-custom-variable-menu)
-   "" )
+
 
 (defun firrtl-dbg-copy-perms-to-alist ()
    ""
@@ -1212,50 +1280,6 @@ applied up until that column."
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defconst firrtl-dbg-executable
-   "sbt"
-   "" )
-;; This has to be customizable, and may be set explicitly in the entry point.
-(defconst firrtl-dbg-working-directory
-   "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/"
-   "" )
-(defconst firrtl-dbg-repl-launch-string
-   "test:runMain gcd.GCDRepl"
-   "" )
-(defconst firrtl-dbg-process-name
-   "firrtl-dbg-process"
-   "" )
-(defconst firrtl-dbg-process-buffer-name
-   "*Firrtl-dbg process*"
-   "" )
-
-(defconst firrtl-dbg-widgets-buffer-name
-   "*Firrtl-dbg circuit state*"
-   "" )
-
-(defconst firrtl-dbg-tq-prompt-string
-   "firrtl>>"
-   "" )
-
-(defconst firrtl-dbg-tq-regexp
-   (concat ".*" firrtl-dbg-tq-prompt-string " *")
-   "" )
-
-;; Process buffer and widget buffer are distinct
-(defvar firrtl-dbg-process-buffer
-   nil
-   "" )
-
-(defvar firrtl-dbg-widgets-buffer
-   nil
-   "" )
-
-(defvar firrtl-dbg-process
-   nil
-   "" )
-
 (defun firrtl-dbg-parse-response-maybe-complain (str)
    "Return non-nil if str caused an error message"
    
@@ -1367,12 +1391,6 @@ applied up until that column."
 '
 (tq-close firrtl-dbg-tq)
 
-(defvar firrtl-dbg-timer nil
-   "Timer that checks whether the FIRRTL debugger has started yet")
-
-(defvar firrtl-dbg-num-seconds-waited nil
-   "How many seconds we have waited for the FIRRTL debugger")
-
 ;; Example:
 ;; (firrtl-dbg-call-until-done-w/timeout 4
 ;;    #'(lambda (msg)
@@ -1451,7 +1469,10 @@ PROC should return non-nil if it has finished its work"
    (progn
       (set-keymap-parent firrtl-dbg-mode-map widget-keymap)
       (define-key firrtl-dbg-mode-map  "\M-\r"
-	 #'firrtl-dbg-do-alt-interaction)))
+	 #'firrtl-dbg-do-alt-interaction)
+      ;; In process, make the process buffers know about this one.
+      ;; Make these vars buffer-local:
+      ))
 
 
 
