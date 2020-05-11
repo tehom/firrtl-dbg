@@ -183,46 +183,60 @@
         '("reset" boolean))
 
 ;; Local variables
-;; MAKE ME LOCAL in the mode
 
 (defconst firrtl-dbg-obarray-default-size 257 "" )
-
-(defvar firrtl-dbg-obarray
-   (make-vector firrtl-dbg-obarray-default-size nil)
-   "Obarray that holds the current data of FIRRTL components.  
+'
+(progn
+   (defvar firrtl-dbg-obarray
+      (make-vector firrtl-dbg-obarray-default-size nil)
+      "Obarray that holds the current data of FIRRTL components.  
 Local in the buffer" )
 
-(defvar firrtl-dbg-obarray-perm-props
-   (make-vector firrtl-dbg-obarray-default-size nil)
-   "Obarray that holds data about FIRRTL components that persists between sessions" )
+   (defvar firrtl-dbg-obarray-perm-props
+      (make-vector firrtl-dbg-obarray-default-size nil)
+      "Obarray that holds data about FIRRTL components that persists between sessions" )
 
-(defvar firrtl-dbg-perm-props-alist
-   '()
-   "Alist that holds data that persists between sessions about FIRRTL components" )
+   (defvar firrtl-dbg-perm-props-alist
+      '()
+      "Alist that holds data that persists between sessions about FIRRTL components" )
 
-(defvar firrtl-dbg-have-built-subname-tree
-   nil
-   "True if we have already built the subname tree" )
+   (defvar firrtl-dbg-have-built-subname-tree
+      nil
+      "True if we have already built the subname tree" )
 
-(defvar firrtl-dbg-current-step
-   0
-   "The current step of the circuit" )
+   (defvar firrtl-dbg-current-step
+      0
+      "The current step of the circuit" )
 
-(defvar firrtl-dbg-current-freshness
-   "UNKNOWN"
-   "The current freshness of the circuit, as a string" )
+   (defvar firrtl-dbg-current-freshness
+      "UNKNOWN"
+      "The current freshness of the circuit, as a string" )
 
-(defvar firrtl-dbg-subname-tree
-   '()
-   "The component-tree of the circuit.
+   (defvar firrtl-dbg-subname-tree
+      '()
+      "The component-tree of the circuit.
 
 Format: Each node is either:
   (subname-string t list-of-nodes)
   (subname-string nil . sym)
 
 ")
+   ;; Process buffer and widget buffer are distinct
+(defvar firrtl-dbg-process-buffer
+   nil
+   "" )
+
+(defvar firrtl-dbg-widgets-buffer
+   nil
+   "" )
+
+(defvar firrtl-dbg-process
+   nil
+   "" )
+   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Make these customizable
 
 (defconst firrtl-dbg-executable
    "sbt"
@@ -253,19 +267,7 @@ Format: Each node is either:
    (concat ".*" firrtl-dbg-tq-prompt-string " *")
    "" )
 
-;; Process buffer and widget buffer are distinct
-(defvar firrtl-dbg-process-buffer
-   nil
-   "" )
-
-(defvar firrtl-dbg-widgets-buffer
-   nil
-   "" )
-
-(defvar firrtl-dbg-process
-   nil
-   "" )
-
+;; Make const
 (defvar firrtl-dbg-custom-variable-menu
    (firrtl-dbg-make-custom-variable-menu)
    "" )
