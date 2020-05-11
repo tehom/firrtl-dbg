@@ -180,7 +180,8 @@
 
 ;; Local variables
 
-(defconst firrtl-dbg-obarray-default-size 257 "" )
+(defconst firrtl-dbg-obarray-default-size 257
+   "The default size of an obarry" )
 '
 (progn
    (defvar firrtl-dbg-obarray
@@ -921,7 +922,7 @@ applied up until that column."
       (unless perm-sym-soft
 	 (custom-declare-variable perm-sym
 	    (list 'quote firrtl-dbg-component-perm-standard-value)
-	    "The usual doc"
+	    "The format to display the component in"
 	    :type firrtl-dbg-component-perm-spec))
 
       (let
@@ -1345,34 +1346,57 @@ PROC should return non-nil if it has finished its work"
 (defun firrtl-dbg-startup ()
    ""
    (interactive)
-   ;; Careful with locals here.  Maybe this creates them.  Can't refer
-   ;; to firrtl-dbg-main-buffer outside itself!
-
    
    (let
       ((main-buf
 	  (generate-new-buffer firrtl-dbg-main-buffer-name)))
       (with-current-buffer main-buf
 	 (setq default-directory firrtl-dbg-working-directory)
-	 (setq firrtl-dbg-process-buffer
+	 ;; Set up most of the local variables.  Some are set further
+	 ;; down as their objects are created.
+	 (set (make-local-variable 'firrtl-dbg-obarray)
+	    (make-vector firrtl-dbg-obarray-default-size nil))
+	 (set (make-local-variable 'firrtl-dbg-obarray-perm-props)
+	    (make-vector firrtl-dbg-obarray-default-size nil))
+	 (set (make-local-variable 'firrtl-dbg-perm-props-alist)
+	    '())
+	 "Alist that holds data that persists between sessions about FIRRTL components"
+	 (set (make-local-variable 'firrtl-dbg-subname-tree)
+	    '())
+	 "The component-tree of the circuit.
+
+Format: Each node is either:
+  (subname-string t list-of-nodes)
+  (subname-string nil . sym)
+
+"
+	 (set (make-local-variable 'firrtl-dbg-have-built-subname-tree)
+	    nil)
+	 (set (make-local-variable 'firrtl-dbg-current-step)
+	    nil)
+	 "The current step of the circuit"
+	 (set (make-local-variable 'firrtl-dbg-current-freshness)
+	    "UNKNOWN")
+	 "The current freshness of the circuit, as a string"
+
+	 (set (make-local-variable 'firrtl-dbg-process-buffer)
 	    (generate-new-buffer firrtl-dbg-process-buffer-name))
 
 	 (with-current-buffer firrtl-dbg-process-buffer
 	    (setq default-directory firrtl-dbg-working-directory)
 	    (set
 	       (make-local-variable 'firrtl-dbg-main-buffer)
-	       main-buf)
-	    )
-
-	 (setq firrtl-dbg-process
-	    ;; Really just need with current directory
+	       main-buf))
+	 
+	 (setq (make-local-variable 'firrtl-dbg-process)
+	    ;; Really just need to control the current directory
 	    (with-current-buffer firrtl-dbg-process-buffer
 	       (start-process
 		  firrtl-dbg-process-name
 		  firrtl-dbg-process-buffer
 		  firrtl-dbg-executable
-		  ;; Quoting this string with shell-quote-argument actually messes
-		  ;; us up.
+		  ;; Quoting this string with shell-quote-argument
+		  ;; actually messes us up.
 		  firrtl-dbg-repl-launch-string)))
 
 	 (firrtl-dbg-call-until-done-w/timeout
