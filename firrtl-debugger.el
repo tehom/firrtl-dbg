@@ -411,7 +411,9 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
    ""
-   ;; IMPROVE ME:  Check that it's called in a firrtl-dbg-mode buffer
+   (firrtl-dbg-assert-in-main-buffer
+      "Add object only makes sense in the main buffer")
+
    (let* 
       (
 	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
@@ -650,7 +652,9 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-clear ()
    "Clear all the values; ready to start again"
-   ;; IMPROVE ME:  Check that it's called in a firrtl-dbg-mode buffer
+   (firrtl-dbg-assert-in-main-buffer
+      "Clear all only makes sense in the main buffer")
+
 
    (interactive)
    (setq firrtl-dbg-have-built-subname-tree nil)
@@ -939,8 +943,9 @@ applied up until that column."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun firrtl-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
-   ;; IMPROVE ME:  Check that it's called in a firrtl-dbg-mode buffer
-   ;; Tho we're going into a customize buffer
+   (firrtl-dbg-assert-in-main-buffer
+      "Calling edit-properties only makes sense in the main buffer, although it creates a customize buffer")
+
    (let* 
       (
 	 (sym (widget-get widget :value))
@@ -984,7 +989,9 @@ applied up until that column."
 (defun firrtl-dbg-copy-perms-to-alist ()
    ""
 
-   ;; IMPROVE ME:  Check that it's called in a firrtl-dbg-mode buffer
+   (firrtl-dbg-assert-in-main-buffer
+      "Copying to the perm alist only makes sense in the main buffer")
+
    (setq firrtl-dbg-perm-props-alist '())
    (mapatoms
       #'(lambda (sym)
