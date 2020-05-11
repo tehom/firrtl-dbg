@@ -1430,27 +1430,6 @@ PROC should return non-nil if it has finished its work"
       (goto-char (point-min))
       (search-forward firrtl-dbg-tq-prompt-string nil t)))
 
-(defun firrtl-dbg-wait-for-prompt (process-buffer string num-seconds msg)
-   ""
-
-   (with-current-buffer process-buffer
-      (let* 
-	 ((num-seconds-waited 0)
-	    (found nil))
-	 
-	 (while (and (not found) (< num-seconds-waited num-seconds))
-	    (message msg)
-	    (sleep-for 1)
-	    (goto-char (point-min))
-	    (let* 
-	       ((found-now-p
-		   (search-forward string nil t)))
-	       (if found-now-p
-		  (setq found t)
-		  (incf num-seconds-waited))))
-
-	 (if found num-seconds-waited nil))))
-
 ;; Don't call this directly.  firrtl-dbg-startup calls it
 (defun firrtl-dbg-initial-load ()
    ""
