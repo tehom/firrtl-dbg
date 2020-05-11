@@ -270,13 +270,6 @@ Format: Each node is either:
    (firrtl-dbg-make-custom-variable-menu)
    "" )
 
-(defvar firrtl-dbg-timer nil
-   "Timer that checks whether the FIRRTL debugger has started yet")
-
-(defvar firrtl-dbg-num-seconds-waited nil
-   "How many seconds we have waited for the FIRRTL debugger")
-
-
 (defconst firrtl-dbg-local-var-syms
    '(
        firrtl-dbg-obarray
