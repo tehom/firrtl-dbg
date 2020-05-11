@@ -1356,29 +1356,44 @@ PROC should return non-nil if it has finished its work"
 	 ;; down as their objects are created.
 	 (set (make-local-variable 'firrtl-dbg-obarray)
 	    (make-vector firrtl-dbg-obarray-default-size nil))
+	 (put 'firrtl-dbg-obarray 'variable-documentation
+	    "Obarray that holds the current data of FIRRTL components")
 	 (set (make-local-variable 'firrtl-dbg-obarray-perm-props)
 	    (make-vector firrtl-dbg-obarray-default-size nil))
+	 (put 'firrtl-dbg-obarray-perm-props 'variable-documentation
+	    "Obarray that holds data about FIRRTL components that persists between sessions")
+
 	 (set (make-local-variable 'firrtl-dbg-perm-props-alist)
 	    '())
-	 "Alist that holds data that persists between sessions about FIRRTL components"
+	 (put 'firrtl-dbg-perm-props-alist 'variable-documentation
+	    "Alist that holds data that persists between sessions about FIRRTL components")
+	 
 	 (set (make-local-variable 'firrtl-dbg-subname-tree)
 	    '())
-	 "The component-tree of the circuit.
+	 (put 'firrtl-dbg-subname-tree 'variable-documentation
+	    "The component-tree of the circuit.
 
 Format: Each node is either:
   (subname-string t list-of-nodes)
-  (subname-string nil . sym)
-
-"
+  (subname-string nil . sym)")
+	 
+	 
 	 (set (make-local-variable 'firrtl-dbg-have-built-subname-tree)
 	    nil)
+	 (put 'firrtl-dbg-have-built-subname-tree 'variable-documentation
+	    "Whether the subname tree has been built yet")
+
 	 (set (make-local-variable 'firrtl-dbg-current-step)
 	    nil)
-	 "The current step of the circuit"
+	 
+	 (put 'firrtl-dbg-current-step 'variable-documentation
+	    "The current step of the circuit")
+	 
 	 (set (make-local-variable 'firrtl-dbg-current-freshness)
 	    "UNKNOWN")
-	 "The current freshness of the circuit, as a string"
-
+	 (put 'firrtl-dbg-current-freshness 'variable-documentation
+	    "The current freshness of the circuit, as a string")
+	 
 	 (set (make-local-variable 'firrtl-dbg-process-buffer)
 	    (generate-new-buffer firrtl-dbg-process-buffer-name))
 
