@@ -180,7 +180,7 @@
 
 ;; Local variables
 ;; Maybe firrtl-dbg-current-buffer-type, and hold (nil 'main 'custom 'process )
-(defvar firrtl-dbg-is-main-buffer nil
+(defvar firrtl-dbg-current-buffer-type nil
    "Non-nil just if current buffer is a main buffer" )
 
 (defconst firrtl-dbg-obarray-default-size 257
@@ -385,8 +385,10 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-mutate-subname-tree (full-name data)
    ""
-   (firrtl-dbg-assert-in-main-buffer
-      "Objects are only available in the main buffer")
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Objects are only available in the main buffer"))
+
    (setq
       firrtl-dbg-subname-tree
       (firrtl-dbg-add-to-subname-tree firrtl-dbg-subname-tree
@@ -395,8 +397,9 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
    ""
-   (firrtl-dbg-assert-in-main-buffer
-      "Objects are only available in the main buffer")
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Objects are only available in the main buffer"))
 
    (let* 
       (
@@ -487,7 +490,9 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-read-overview (spl)
    ""
-   (firrtl-dbg-assert-in-main-buffer)
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+
    (let* 
       ((str (firrtl-dbg-state-strings-overview spl))
 	 (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
@@ -535,9 +540,10 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-build-data (state-string)
    ""
-   (message "firrtl-dbg-build-data")
-   (firrtl-dbg-assert-in-main-buffer
-      "Building the data only makes sense for a specific circuit")
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Building the data only makes sense in a circuit buffer"))
+
    (let
       ((spl (split-string state-string "\n")))
 
@@ -596,10 +602,12 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-clear ()
    "Clear all the values; ready to start again"
-   (firrtl-dbg-assert-in-main-buffer
-      "Clearing only makes sense for a specific circuit")
-
    (interactive)
+
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Clearing the data only makes sense in a circuit buffer"))
+
    (setq firrtl-dbg-have-built-subname-tree nil)
    (setq firrtl-dbg-subname-tree '())
    (setq firrtl-dbg-obarray
@@ -610,8 +618,9 @@ DATA is the data to store, usually a symbol"
    
    (interactive)
 
-   (firrtl-dbg-assert-in-main-buffer
-      "Shutting down only makes sense for a specific circuit")
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Shutting down only makes sense in a circuit buffer"))
 
    (firrtl-dbg-clear)
    
@@ -853,7 +862,10 @@ applied up until that column."
 	 (mapcar #'firrtl-dbg-tree-widget alist))))
 
 (defun firrtl-dbg-create-widgets ()
-   (firrtl-dbg-assert-in-main-buffer)
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Creating the widgets only makes sense in a circuit buffer"))
+
    (widget-insert "FIRRTL debugger interface\n\n")
 
    (widget-create 'push-button
@@ -866,8 +878,10 @@ applied up until that column."
    ;; Rebuild buffer
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		 ;; ENCAP ME
-		 (firrtl-dbg-assert-in-main-buffer)
+		    (unless (eq firrtl-dbg-current-buffer-type 'main)
+		       (firrtl-dbg-complain-bad-buffer
+			  "Rebuilding the widgets only makes sense in a circuit buffer"))
+
 		 (erase-buffer)
 		 (firrtl-dbg-create-widgets))
       "Rebuild buffer")
@@ -889,8 +903,10 @@ applied up until that column."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun firrtl-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
-   (firrtl-dbg-assert-in-main-buffer
-      "Calling edit-properties only makes sense in the main buffer, although it creates a customize buffer")
+
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Calling edit-properties only makes sense in the main buffer, although it creates a customize buffer"))
 
    (let* 
       (
@@ -939,8 +955,9 @@ applied up until that column."
 (defun firrtl-dbg-copy-perms-to-alist ()
    ""
 
-   (firrtl-dbg-assert-in-main-buffer
-      "Copying to the perm alist only makes sense in the main buffer")
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Copying to the perm alist only makes sense in the main buffer"))
 
    (setq firrtl-dbg-perm-props-alist '())
    (mapatoms
@@ -970,7 +987,9 @@ applied up until that column."
 
 	 ;; Customize buffer knows a particular widgets buffer
 	 (with-current-buffer firrtl-dbg-main-buffer
-	    (firrtl-dbg-assert-in-main-buffer)
+	    (unless (eq firrtl-dbg-current-buffer-type 'main)
+	       (firrtl-dbg-complain-bad-buffer))
+
 	    ;; Copy this sym to firrtl-dbg-perm-props-alist
 	    (setq firrtl-dbg-perm-props-alist
 	       (cons
@@ -1079,7 +1098,9 @@ applied up until that column."
 
 (defun firrtl-dbg-redraw-widgets ()
    ""
-   (firrtl-dbg-assert-in-main-buffer)
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+
    (firrtl-dbg-for-all-buttons
       #'(lambda (widget)
 	   (let* 
@@ -1198,7 +1219,9 @@ applied up until that column."
 
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
-   (firrtl-dbg-assert-in-main-buffer)
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
@@ -1299,13 +1322,15 @@ PROC should return non-nil if it has finished its work"
 ;; Don't call this directly.  firrtl-dbg-startup calls it
 (defun firrtl-dbg-initial-load ()
    ""
-   ;; (firrtl-dbg-assert-in-main-buffer) Too early
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+
    (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
-	   ;; Process buffer knows a main buffer
-	   (debug)
 	   (with-current-buffer (first data)
+	      (unless (eq firrtl-dbg-current-buffer-type 'main)
+		 (firrtl-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-create-widgets)))))
 
@@ -1321,13 +1346,20 @@ PROC should return non-nil if it has finished its work"
       ;; Make these vars buffer-local:
       ))
 
+(defun firrtl-dbg-complain-bad-buffer (&optional msg)
+   ""
+
+   ;;(error (or msg "This operation only makes sense in main buffer"))
+   (message
+      (or msg "This operation only makes sense in a main circuit buffer")))
+
 (defun firrtl-dbg-assert-in-main-buffer (&optional msg)
    ""
    
-   (unless firrtl-dbg-is-main-buffer
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
       ;; PUT ME BACK when ready
       ;;(error (or msg "This operation only makes sense in main buffer"))
-      (message "I'm not in firrtl-dbg-mode yet")))
+      (firrtl-dbg-complain-bad-buffer "I'm not in firrtl-dbg-mode yet")))
 
 
 (defun firrtl-dbg-startup ()
@@ -1341,8 +1373,8 @@ PROC should return non-nil if it has finished its work"
 	 (setq default-directory firrtl-dbg-working-directory)
 	 ;; Set up most of the local variables.  Some are set further
 	 ;; down as their objects are created.
-	 (set (make-local-variable 'firrtl-dbg-is-main-buffer)
-	    t)
+	 (set (make-local-variable 'firrtl-dbg-current-buffer-type)
+	    'main)
 
 	 (set (make-local-variable 'firrtl-dbg-obarray)
 	    (make-vector firrtl-dbg-obarray-default-size nil))
