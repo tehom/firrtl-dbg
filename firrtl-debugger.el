@@ -941,10 +941,8 @@ applied up until that column."
 		  #'(lambda (a)
 		       (string-equal (first a) (symbol-name sym)))
 		  firrtl-dbg-perm-props-alist)))
-	 ;; FIX ME:  File is in the wrong place.
-	 ;; FIX ME:  Use a proper mode name for this stuff.
-	 ;; Nice to save the file automatically and not necessarily
-	 ;; see the buffer in a window.
+	 ;; IMPROVE ME: Nice to save the file automatically and not
+	 ;; necessarily see the buffer in a window.
 	 (with-current-buffer firrtl-dbg-widgets-buffer
 	    (add-dir-local-variable 'firrtl-dbg-mode
 	       'firrtl-dbg-perm-props-alist
