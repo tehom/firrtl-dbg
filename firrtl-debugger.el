@@ -222,9 +222,7 @@ Format: Each node is either:
    nil
    "" )
 
-;; Can't refer to it outside the buffer itself!  Might as well use
-;; current-buffer.  Come back to this, as it was unsettled.
-(defvar firrtl-dbg-widgets-buffer
+(defvar firrtl-dbg-main-buffer
    nil
    "" )
 
@@ -253,7 +251,7 @@ Format: Each node is either:
    "*Firrtl-dbg process*"
    "" )
 
-(defconst firrtl-dbg-widgets-buffer-name
+(defconst firrtl-dbg-main-buffer-name
    "*Firrtl-dbg circuit state*"
    "" )
 
@@ -281,7 +279,7 @@ Format: Each node is either:
        firrtl-dbg-current-freshness
        firrtl-dbg-subname-tree
        firrtl-dbg-process-buffer
-       firrtl-dbg-widgets-buffer
+       firrtl-dbg-main-buffer
        firrtl-dbg-process
        )
    "List of the symbol of all variables that are buffer-local in firrtl-dbg-mode" )
@@ -935,7 +933,7 @@ applied up until that column."
 	 (with-current-buffer buf
 	    (setq default-directory firrtl-dbg-working-directory)
 	    (set
-	       (make-local-variable 'firrtl-dbg-widgets-buffer)
+	       (make-local-variable 'firrtl-dbg-main-buffer)
 	       main-buf)
 	    (custom-buffer-create-internal
 	       (list (list perm-sym 'custom-variable))
@@ -987,7 +985,7 @@ applied up until that column."
 	 ((sym (widget-get widget :value)))
 
 	 ;; Customize buffer knows a particular widgets buffer
-	 (with-current-buffer firrtl-dbg-widgets-buffer
+	 (with-current-buffer firrtl-dbg-main-buffer
 	    (firrtl-dbg-assert-in-main-buffer)
 	    ;; Copy this sym to firrtl-dbg-perm-props-alist
 	    (setq firrtl-dbg-perm-props-alist
@@ -1060,7 +1058,7 @@ applied up until that column."
       nil
       #'(lambda (data str)
 	   ;; Process buffer knows a particular widgets buffer
-	   (with-current-buffer firrtl-dbg-widgets-buffer
+	   (with-current-buffer firrtl-dbg-main-buffer
 	      (firrtl-dbg-assert-in-main-buffer
 		 "Only makes sense in main buffer")
 	      ;; IMPROVE ME: At some point change all states of
@@ -1322,7 +1320,7 @@ PROC should return non-nil if it has finished its work"
       nil
       #'(lambda (data str)
 	   ;; Process buffer knows a main buffer
-	   (with-current-buffer firrtl-dbg-widgets-buffer
+	   (with-current-buffer firrtl-dbg-main-buffer
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-create-widgets)))))
 
@@ -1348,12 +1346,12 @@ PROC should return non-nil if it has finished its work"
    ""
    (interactive)
    ;; Careful with locals here.  Maybe this creates them.  Can't refer
-   ;; to firrtl-dbg-widgets-buffer outside itself!
+   ;; to firrtl-dbg-main-buffer outside itself!
 
    
    (let
       ((main-buf
-	  (generate-new-buffer firrtl-dbg-widgets-buffer-name)))
+	  (generate-new-buffer firrtl-dbg-main-buffer-name)))
       (with-current-buffer main-buf
 	 (setq default-directory firrtl-dbg-working-directory)
 	 (setq firrtl-dbg-process-buffer
@@ -1362,7 +1360,7 @@ PROC should return non-nil if it has finished its work"
 	 (with-current-buffer firrtl-dbg-process-buffer
 	    (setq default-directory firrtl-dbg-working-directory)
 	    (set
-	       (make-local-variable 'firrtl-dbg-widgets-buffer)
+	       (make-local-variable 'firrtl-dbg-main-buffer)
 	       main-buf)
 	    )
 
