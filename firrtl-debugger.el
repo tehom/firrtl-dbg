@@ -919,6 +919,20 @@ applied up until that column."
    (firrtl-dbg-make-custom-variable-menu)
    "" )
 
+(defun firrtl-dbg-copy-perms-to-alist ()
+   ""
+
+   (setq firrtl-dbg-perm-props-alist '())
+   (mapatoms
+      #'(lambda (sym)
+	   (when sym
+	      (setq firrtl-dbg-perm-props-alist
+		 (cons
+		    (cons (symbol-name sym) (symbol-value sym))
+		    firrtl-dbg-perm-props-alist))))
+      firrtl-dbg-obarray-perm-props))
+
+
 (defun firrtl-dbg-save-perms (&rest ignore)
    ""
    ;; WRITE ME:  Copy perms to firrtl-dbg-perm-props-alist
