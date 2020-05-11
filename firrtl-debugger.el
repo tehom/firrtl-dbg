@@ -896,6 +896,7 @@ applied up until that column."
 		(format "*Customize circuit component %s*"
 		   (custom-unlispify-tag-name perm-sym)))))
 	 (with-current-buffer buf
+	    (setq default-directory firrtl-dbg-working-directory)
 	    (custom-buffer-create-internal
 	       (list (list perm-sym 'custom-variable))
 	       ;; The parm "description" doesn't do anything
@@ -1438,6 +1439,7 @@ PROC should return non-nil if it has finished its work"
       (generate-new-buffer firrtl-dbg-widgets-buffer-name))
    
    (with-current-buffer firrtl-dbg-widgets-buffer
+      (setq default-directory firrtl-dbg-working-directory)
       (setq firrtl-dbg-process-buffer
 	 (generate-new-buffer firrtl-dbg-process-buffer-name))
 
