@@ -932,13 +932,13 @@ applied up until that column."
 		   (custom-unlispify-tag-name perm-sym)))))
 	 (with-current-buffer buf
 	    (setq default-directory firrtl-dbg-working-directory)
-	    (set
-	       (make-local-variable 'firrtl-dbg-main-buffer)
-	       main-buf)
 	    (custom-buffer-create-internal
 	       (list (list perm-sym 'custom-variable))
 	       ;; The parm "description" doesn't do anything
 	       nil)
+	    (set
+	       (make-local-variable 'firrtl-dbg-main-buffer)
+	       main-buf)
 
 	    (fset (make-local-variable 'Custom-save)
 	       #'firrtl-dbg-save-perms)
@@ -985,6 +985,7 @@ applied up until that column."
       (let* 
 	 ((sym (widget-get widget :value)))
 
+	 ;; WRITE ME
 	 ;; Customize buffer knows a particular widgets buffer
 	 (with-current-buffer firrtl-dbg-main-buffer
 	    (unless (eq firrtl-dbg-current-buffer-type 'main)
