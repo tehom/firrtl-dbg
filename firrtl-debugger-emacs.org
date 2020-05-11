@@ -272,7 +272,8 @@ Approaches:
  * Roll our own
    * Con: We'd largely be repeating tiny-db
  * Use dir-locals
-   * copy-file-locals-to-dir-locals, add-dir-local-variable
+   * add-dir-local-variable
+   * This works well.  Had to make a mode but that's worth doing.
  * As customize-save
    * Pro: We enter it as customization
    * Fatal con: This has a lot of stuff that assumes symbols.  It's not just obarray.
