@@ -1401,28 +1401,37 @@ applied up until that column."
 ;; 	(message "For the last time: %s" msg))
 ;;    (list "Aloha!"))
 
+(defstruct (firrtl-dbg-timer-data (:type list))
+   ""
+   seconds-elapsed
+   timer)
+
+
 (defun firrtl-dbg-call-until-done-w/timeout
    (num-seconds proc args &optional timed-out-proc timed-out-args)
    "
 PROC should return non-nil if it has finished its work"
-
-   (setq firrtl-dbg-num-seconds-waited 0)
-   (setq firrtl-dbg-timer
-      (run-at-time t 1
-	 #'(lambda (num-seconds proc args timed-out-proc timed-out-args)
-	      ;; Manage timeout
-	      (if (> firrtl-dbg-num-seconds-waited num-seconds)
-		 (progn
-		    (cancel-timer firrtl-dbg-timer)
-		    (when timed-out-proc
-		       (apply timed-out-proc timed-out-args)))
-		 (let
-		    ((done (apply proc args)))
-		    (if done (cancel-timer firrtl-dbg-timer)
-		       (incf firrtl-dbg-num-seconds-waited)))))
-	 num-seconds proc
-	 args
-	 timed-out-proc timed-out-args)))
+   (let
+      ((data (make-firrtl-dbg-timer-data :seconds-elapsed 0)))
+      (setf (firrtl-dbg-timer-data-timer data)
+	 (run-at-time t 1
+	    #'(lambda (data num-seconds proc args timed-out-proc timed-out-args)
+		 ;; Manage timeout
+		 (if (> (firrtl-dbg-timer-data-seconds-elapsed data)
+			num-seconds)
+		    (progn
+		       (cancel-timer (firrtl-dbg-timer-data-timer data))
+		       (when timed-out-proc
+			  (apply timed-out-proc timed-out-args)))
+		    (let
+		       ((done (apply proc args)))
+		       (if done
+			  (cancel-timer (firrtl-dbg-timer-data-timer data))
+			  (incf (firrtl-dbg-timer-data-seconds-elapsed data))))))
+	    data
+	    num-seconds proc
+	    args
+	    timed-out-proc timed-out-args))))
 
 (defun firrtl-dbg-process-is-ready-p (process)
    "True if the firrtl-dbg process is ready, meaning that it has arrived at its initial prompt.  This may take a while."
