@@ -1341,10 +1341,8 @@ PROC should return non-nil if it has finished its work"
    (progn
       (set-keymap-parent firrtl-dbg-mode-map widget-keymap)
       (define-key firrtl-dbg-mode-map  "\M-\r"
-	 #'firrtl-dbg-do-alt-interaction)
-      ;; In process, make the process buffers know about this one.
-      ;; Make these vars buffer-local:
-      ))
+	 #'firrtl-dbg-do-alt-interaction)))
+
 
 (defun firrtl-dbg-complain-bad-buffer (&optional msg)
    ""
