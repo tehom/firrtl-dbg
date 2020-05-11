@@ -977,9 +977,6 @@ applied up until that column."
 	 (pop-to-buffer-same-window buf))
       
       ;; WRITE ME:  Use this instead of firrtl-dbg-custom-variable-formats
-
-      ;; WRITE ME: Saving and restoring this has to capture exactly
-      ;; the symbols in firrtl-dbg-obarray-perm-props.
       ))
 
 
