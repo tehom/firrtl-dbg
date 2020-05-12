@@ -1141,11 +1141,11 @@ Return nil if component has no permanent props."
 	 :signed-p signed-p
 	 :width width)))
 
-'
-(firrtl-dbg-parse-component-type-string
-   (firrtl-dbg-remove-prompt-suffix "type x 3.PU<4>
-firrtl>> ")
-    )
+
+;; (firrtl-dbg-parse-component-type-string
+;;    (firrtl-dbg-remove-prompt-suffix "type x 3.PU<4>
+;; firrtl>> "))
+;;     
 
 (defun firrtl-dbg-init-component-type (name)
    "Set the type of component NAME according to the REPL"
