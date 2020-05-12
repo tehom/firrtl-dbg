@@ -168,7 +168,7 @@
 		   (group
 		      (const base)
 		      (integer)))))
-   
+
    :group 'firrtl-dbg)
 
 
@@ -248,13 +248,27 @@ Format: Each node is either:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make these customizable
 
+(defcustom firrtl-dbg-directory-history
+   '()
+   "History list of working directories.  Put the directory that you would run sbt in for your project on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
+   :type '(repeat directory)
+   :group 'firrtl-dbg)
+
+(defcustom firrtl-dbg-repl-name-history
+   '("test:runMain gcd.GCDRepl")
+   "History list of FIRRTL REPL commands.  Put the full command that you would give sbt to run a FIRRTL debugger on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
+   :type '(repeat string)
+   :group 'firrtl-dbg)
+
+
 (defconst firrtl-dbg-executable
    "sbt"
    "" )
-;; This has to be customizable, and may be set explicitly in the entry point.
+'
 (defconst firrtl-dbg-working-directory
    "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/"
    "" )
+'
 (defconst firrtl-dbg-repl-launch-string
    "test:runMain gcd.GCDRepl"
    "" )
