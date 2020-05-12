@@ -759,10 +759,7 @@ applied up until that column."
       (
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym)))
-      ;; if
-      ;; (eq (firrtl-dbg-component-string-format v) t)
-      ;; Print as a boolean
-      ;; But what's the right way to get this info to the printer?
+
       (firrtl-dbg-insert-fields
 	 (list
 	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
@@ -794,7 +791,8 @@ applied up until that column."
       (
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym))
-	 (perm-props 	       (firrtl-dbg-get-perm-props (symbol-name sym))))
+	 (perm-props
+	    (firrtl-dbg-get-perm-props (symbol-name sym))))
       
       (firrtl-dbg-insert-fields
 	 (list
@@ -1219,10 +1217,10 @@ Return nil if component has no permanent props."
 	 (error "No such enum: %s" key))))
 
 
-(defun firrtl-dbg-read-new-val (prompt old-val)
+(defun firrtl-dbg-read-new-val (prompt old-val perm-props)
    ""
    (let
-      ((fmt (firrtl-dbg-value-string-format old-val)))
+      ((fmt perm-props))
       (case
 	 (car fmt)
 	 ;; Treat as a boolean
@@ -1246,9 +1244,12 @@ Return nil if component has no permanent props."
 	 (component (symbol-value sym))
 	 (component-name (firrtl-dbg-input-full-name component))
 	 (current (firrtl-dbg-input-current component))
+	 (perm-props
+	    (firrtl-dbg-get-perm-props (symbol-name sym)))
 	 (new-val (firrtl-dbg-read-new-val
 		     (format "New value for %s: " component-name)
-		     current))
+		     current
+		     perm-props))
 	 (msg (concat "poke " component-name " "
 		 (number-to-string new-val) "\n")))
       
