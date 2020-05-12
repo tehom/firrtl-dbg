@@ -1473,8 +1473,10 @@ PROC should return non-nil if it has finished its work"
    
    
    (let
-      ((main-buf
-	  (generate-new-buffer firrtl-dbg-main-buffer-name)))
+      (
+	 (buf-name (concat "*FIRRTL " repl-launch-command "*" ) )
+	 (main-buf
+	    (generate-new-buffer buf-name)))
       (with-current-buffer main-buf
 	 (setq default-directory working-directory)
 	 ;; Set up most of the local variables.  Some are set further
