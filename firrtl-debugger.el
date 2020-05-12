@@ -1408,8 +1408,9 @@ PROC should return non-nil if it has finished its work"
    ""
    (interactive
       (list
-	 ;;?? Want to use the history list!  Can use read-file-name for this?
-	 (read-directory-name "Working directory: ")
+	 (let
+	    ((file-name-history firrtl-dbg-directory-history))
+	    (read-directory-name "Working directory: "))
 	 (read-string "FIRRTL REPL in Scala: " nil
 	    firrtl-dbg-repl-name-history)))
    
