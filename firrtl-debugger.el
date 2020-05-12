@@ -676,6 +676,10 @@ DATA is the data to store, usually a symbol"
    (+ 20 firrtl-dbg-next-value-begin-column)
    "Column that next-value should end at" )
 
+(defconst firrtl-dbg-type-end-column
+   (+ 20 firrtl-dbg-next-value-end-column)
+   "Column that type should end at" )
+
 
 (defun firrtl-dbg-pad-to-column (column face)
    ""
@@ -701,9 +705,10 @@ END-COL is the column to start the next field at.  Face is
 applied up until that column."
    
    (dolist (field field-list)
-      (destructuring-bind (text face end-col) field
-	 (firrtl-dbg-insert-w-face text face)
-	 (firrtl-dbg-pad-to-column end-col face))))
+      (when field
+	 (destructuring-bind (text face end-col) field
+	    (firrtl-dbg-insert-w-face text face)
+	    (firrtl-dbg-pad-to-column end-col face)))))
 
 (defun firrtl-dbg-get-face-by-validity (validity)
    ""
@@ -756,6 +761,22 @@ applied up until that column."
 	 text
 	 face
 	 end-col)))
+
+(defun firrtl-dbg-type-fmt (component end-col)
+   ""
+   
+   (let*
+      ((type (firrtl-dbg-component-type component))
+	 (signed-str
+	    (if (firrtl-dbg-component-type-signed-p type)
+	       "SInt"
+	       "UInt"))
+	 (width-str
+	    (number-to-string
+	       (firrtl-dbg-component-type-width type)))
+	 (str
+	    (concat signed-str "(" width-str ")")))
+      (list str nil end-col)))
 
 
 (defun firrtl-dbg-insert-ephemeral-component (wid)
@@ -816,7 +837,9 @@ applied up until that column."
       
       (firrtl-dbg-insert-fields
 	 (list
-	    (list (firrtl-dbg-register-full-name v) nil firrtl-dbg-value-column)
+	    (list (firrtl-dbg-register-full-name v)
+	       nil
+	       firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-register-current v)
 	       perm-props
@@ -825,9 +848,10 @@ applied up until that column."
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-register-next v)
 	       perm-props
-	       firrtl-dbg-next-value-end-column)))))
-
-
+	       firrtl-dbg-next-value-end-column)
+	    (firrtl-dbg-type-fmt
+	       v
+	       firrtl-dbg-type-end-column)))))
 
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
@@ -1172,6 +1196,15 @@ Return nil if component has no permanent props."
 			  (setf
 			     (firrtl-dbg-component-type component)
 			     type)))))))))
+
+;; Try this, but also experiment printing nils
+'
+(mapatoms
+   #'(lambda (sym)
+	(when sym
+	   (firrtl-dbg-init-component-type (symbol-name sym))))
+   firrtl-dbg-obarray)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
