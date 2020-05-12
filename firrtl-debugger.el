@@ -766,18 +766,21 @@ applied up until that column."
    ""
    
    (let*
-      ((type (firrtl-dbg-component-type component))
-	 (signed-str
-	    (if (firrtl-dbg-component-type-signed-p type)
-	       "SInt"
-	       "UInt"))
-	 (width-str
-	    (number-to-string
-	       (firrtl-dbg-component-type-width type)))
-	 (str
-	    (concat signed-str "(" width-str ")")))
-      (list str nil end-col)))
-
+      ((type (firrtl-dbg-component-type component)))
+      (if (null type)
+	 (list "[unknown]" nil end-col)
+	 (let* 
+	    ((signed-str
+		(if (firrtl-dbg-component-type-signed-p type)
+		   "SInt"
+		   "UInt"))
+	       (width-str
+		  (number-to-string
+		     (firrtl-dbg-component-type-width type)))
+	       (str
+		  (concat signed-str "(" width-str ")")))
+	 
+	    (list str nil end-col)))))
 
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
@@ -792,7 +795,10 @@ applied up until that column."
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-ephemeral-current v)
 	       (firrtl-dbg-get-perm-props (symbol-name sym))
-	       firrtl-dbg-value-end-column)))))
+	       firrtl-dbg-value-end-column)
+	    (firrtl-dbg-type-fmt
+	       v
+	       firrtl-dbg-type-end-column)))))
 
 (defun firrtl-dbg-insert-input-component (wid)
    "Insert an input component"
@@ -807,7 +813,10 @@ applied up until that column."
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-input-current v)
 	       (firrtl-dbg-get-perm-props (symbol-name sym))
-	       firrtl-dbg-value-end-column)))))
+	       firrtl-dbg-value-end-column)
+	    (firrtl-dbg-type-fmt
+	       v
+	       firrtl-dbg-type-end-column)))))
 
 
 
@@ -824,7 +833,10 @@ applied up until that column."
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-output-current v)
 	       (firrtl-dbg-get-perm-props (symbol-name sym))
-	       firrtl-dbg-value-end-column)))))
+	       firrtl-dbg-value-end-column)
+	    (firrtl-dbg-type-fmt
+	       v
+	       firrtl-dbg-type-end-column)))))
 
 (defun firrtl-dbg-insert-register-component (wid)
    "Insert a register component"
