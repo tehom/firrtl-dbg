@@ -1127,14 +1127,9 @@ Return nil if component has no permanent props."
 
 (defun firrtl-dbg-parse-component-type-string (str)
    ""
-   
+   (string-match firrtl-dbg-type-regexp str)
    (let*
-      ((str (firrtl-dbg-remove-prompt-suffix str))
-
-
-	 (dummy (string-match
-		   firrtl-dbg-type-regexp str))
-	 (name (match-string 1 str))
+      (	 (name (match-string 1 str))
 	 (value (match-string 2 str))
 	 (type-tag-str (match-string 3 str))
 	 (width (match-string 4 str))
@@ -1148,8 +1143,8 @@ Return nil if component has no permanent props."
 
 '
 (firrtl-dbg-parse-component-type-string
-   "type x 3.PU<4>
-firrtl>> "
+   (firrtl-dbg-remove-prompt-suffix "type x 3.PU<4>
+firrtl>> ")
     )
 
 (defun firrtl-dbg-get-component-type (sym)
@@ -1160,16 +1155,27 @@ firrtl>> "
       
       ))
 
-'(tq-enqueue firrtl-dbg-tq "type x\n" firrtl-dbg-tq-regexp
-      (list (current-buffer))
+'
+(tq-enqueue firrtl-dbg-tq "type x\n" firrtl-dbg-tq-regexp
+      (list (current-buffer) "x")
       #'(lambda (data str)
 	   (with-current-buffer (first data)
 	      (unless (eq firrtl-dbg-current-buffer-type 'main)
 		 (firrtl-dbg-complain-bad-buffer))
-	      (message "Type is %S" str)
-	      
+	      (let* 
+		 ((str (firrtl-dbg-remove-prompt-suffix str))
+		    (type (firrtl-dbg-parse-component-type-string str))
+		    (full-name (second data))
+		    (sym (intern-soft full-name firrtl-dbg-obarray)))
+		 (when sym
+		    (let* 
+		       ((component (symbol-value sym)))
+		       (setf
+			  (firrtl-dbg-component-type component)
+			  type)))
+		 
+		 (message "Type is %S" type)))))
 
-	      )))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
