@@ -1280,6 +1280,43 @@ Return nil if component has no permanent props."
 	 (otherwise
 	    (firrtl-dbg-read-new-decimal-val prompt old-val)))))
 
+(defun firrtl-dbg-poke-value (sym new-val
+				&optional extra-proc extra-data)
+   "Poke NEW-VAL into the component named by SYM
+Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
+   
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+
+   (let* 
+      (  
+	 (component (symbol-value sym))
+	 (component-name (firrtl-dbg-input-full-name component))
+	 (current (firrtl-dbg-input-current component))
+	 (msg (concat "poke " component-name " "
+		 (number-to-string new-val) "\n")))
+      
+      ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
+      (tq-enqueue firrtl-dbg-tq
+	 msg
+	 firrtl-dbg-tq-regexp
+	 (list current new-val extra-proc extra-data)
+	 #'(lambda (data str)
+	      (let* 
+		 ((had-problem
+		     (firrtl-dbg-parse-response-maybe-complain str))
+		    (current (first data))
+		    (new-val (second data))
+		    (extra-proc (third data))
+		    (extra-data (fourth data)))
+
+		 (unless had-problem
+		    ;; Set the component's value to that.
+		    (setf (firrtl-dbg-value-v current) new-val)
+		    (setf (firrtl-dbg-value-state current) 'set-by-user-now)
+
+		    (when extra-proc
+		       (apply extra-proc extra-data))))))))
 
 
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
