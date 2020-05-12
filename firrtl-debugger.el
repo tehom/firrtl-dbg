@@ -87,6 +87,19 @@
 	      :named)
    "An output wire")
 
+(defstruct (firrtl-dbg-state-strings (:type list))
+   "Structuring the post-split strings"
+   overview
+   inputs
+   outputs
+   registers
+   future-registers
+   ephemera
+   memories)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Customizations and constants
+
 (defgroup firrtl-dbg nil "Customizations for Firrtl-dbg")
 
 (defface firrtl-dbg-face-value-poison '((t :background "gray"))
@@ -148,8 +161,8 @@ Local in the relevant buffers." )
 (defconst firrtl-dbg-obarray-default-size 257
    "The default size of an obarry" )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Make these customizable
+;;;;;;;;;;;;;;;;;;;;
+;; History lists
 
 (defcustom firrtl-dbg-directory-history
    '()
@@ -163,6 +176,8 @@ Local in the relevant buffers." )
    :type '(repeat string)
    :group 'firrtl-dbg)
 
+;;;;;;;;;;;;;;;;;;;;
+;;Configuration
 
 (defconst firrtl-dbg-executable
    "sbt"
@@ -179,6 +194,9 @@ Local in the relevant buffers." )
    "*Firrtl-dbg circuit state*"
    "" )
 
+;;;;;;;;;;;;;;;;;;;;
+;; Regexps
+
 (defconst firrtl-dbg-tq-prompt-string
    "firrtl>>"
    "" )
@@ -190,6 +208,31 @@ Local in the relevant buffers." )
 (defconst firrtl-dbg-tq-regexp
    (concat ".*" firrtl-dbg-tq-prompt-string " *")
    "" )
+
+;;;;;;;;;;;;;;;;;;;;
+;; Print columns
+
+
+(defconst firrtl-dbg-value-column 15
+   "Column that values should print at" )
+
+(defconst firrtl-dbg-value-end-column 25
+   "Column that values should end at" )
+
+(defconst firrtl-dbg-next-value-begin-column
+   (+ 4 firrtl-dbg-value-end-column)
+   "Column that values should end at" )
+
+(defconst firrtl-dbg-next-value-end-column
+   (+ 20 firrtl-dbg-next-value-begin-column)
+   "Column that next-value should end at" )
+
+(defconst firrtl-dbg-type-end-column
+   (+ 20 firrtl-dbg-next-value-end-column)
+   "Column that type should end at" )
+
+
+;;;;;;;;;;;;;;;;;;;;
 
 (defun firrtl-dbg-add-to-subname-tree (tree subname-list data)
    "
@@ -402,16 +445,6 @@ DATA is the data to store, usually a symbol"
 	      :full-name full-name))))
 
 
-(defstruct (firrtl-dbg-state-strings (:type list))
-   "Structuring the post-split strings"
-   overview
-   inputs
-   outputs
-   registers
-   future-registers
-   ephemera
-   memories)
-
 (defun firrtl-dbg-read-overview (spl)
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
@@ -556,7 +589,7 @@ DATA is the data to store, usually a symbol"
    (kill-buffer (current-buffer)))
 
 
-;; PLACEHOLDER
+;; REMOVE ME and callers 
 (defun firrtl-dbg-punt-notify (but &rest ignore)
    ""
    
@@ -564,25 +597,6 @@ DATA is the data to store, usually a symbol"
       ()
       
       ))
-
-(defconst firrtl-dbg-value-column 15
-   "Column that values should print at" )
-
-(defconst firrtl-dbg-value-end-column 25
-   "Column that values should end at" )
-
-(defconst firrtl-dbg-next-value-begin-column
-   (+ 4 firrtl-dbg-value-end-column)
-   "Column that values should end at" )
-
-(defconst firrtl-dbg-next-value-end-column
-   (+ 20 firrtl-dbg-next-value-begin-column)
-   "Column that next-value should end at" )
-
-(defconst firrtl-dbg-type-end-column
-   (+ 20 firrtl-dbg-next-value-end-column)
-   "Column that type should end at" )
-
 
 (defun firrtl-dbg-pad-to-column (column face)
    ""
@@ -935,8 +949,9 @@ applied up until that column."
 
 (defun firrtl-dbg-save-perms (&rest ignore)
    ""
-   ;; WRITE ME:  Copy perms to firrtl-dbg-perm-props-alist
-   ;; This was (Custom-save)
+   ;; This takes the place of Custom-save
+
+   ;; Do we need to copy perms to firrtl-dbg-perm-props-alist?
 
    ;; Quick&dirty: Just save firrtl-dbg-perm-props-alist.  We don't
    ;; save firrtl-dbg-custom-enums because that's useful globally
@@ -966,7 +981,6 @@ Return nil if component has no permanent props."
       (let* 
 	 ((sym (widget-get widget :value)))
 
-	 ;; WRITE ME
 	 ;; Customize buffer knows a particular widgets buffer
 	 (with-current-buffer firrtl-dbg-main-buffer
 	    (unless (eq firrtl-dbg-current-buffer-type 'main)
@@ -1011,6 +1025,7 @@ Return nil if component has no permanent props."
 	    (setq our-menu (cons entry our-menu))))
       (nreverse our-menu)))
 
+;; Needs to be after firrtl-dbg-make-custom-variable-menu
 (defconst firrtl-dbg-custom-variable-menu
    (firrtl-dbg-make-custom-variable-menu)
    "" )
@@ -1189,7 +1204,7 @@ Return nil if component has no permanent props."
 
 (defun firrtl-dbg-read-new-decimal-val (prompt old-val)
    ""
-   ;; PUNT: Using type info, check new-val for bit width and
+   ;; IMPROVE ME: Using type info, check new-val for bit width and
    ;; signedness.  Abort if new-val is not conformant.
    (let ((new-val
 	    (read-number
