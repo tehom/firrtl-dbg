@@ -41,7 +41,7 @@
    ;; first-seen just-changed stayed-same) Some of these aren't set
    ;; yet, and 'ok' will yield to the three new ones.
    state
-   ;; Moved into here
+   ;; REMOVE ME: This will go away
    string-format
    ;; Not used yet
    last-time-changed)
@@ -133,7 +133,7 @@
    '(decimal)
    "The standard value for components perm-spec")
 
-
+;; REMOVE ME: This will go away
 (defcustom firrtl-dbg-custom-variable-formats
    ;; TEMPORARY for dev
    '(("io_value1" (enum "operation")))
@@ -181,7 +181,8 @@
 ;; Local variables
 ;; Maybe firrtl-dbg-current-buffer-type, and hold (nil 'main 'custom 'process )
 (defvar firrtl-dbg-current-buffer-type nil
-   "Non-nil just if current buffer is a main buffer" )
+   "Non-nil just if current buffer is a main buffer.
+Possible values are (nil 'main 'custom 'process)" )
 
 (defconst firrtl-dbg-obarray-default-size 257
    "The default size of an obarry" )
@@ -709,7 +710,7 @@ applied up until that column."
 	 "[no such enum]")))
 
 
-(defun firrtl-dbg-field-fmt (cvalue end-col)
+(defun firrtl-dbg-field-fmt (cvalue perm-props end-col)
    ""
    (let* 
       ((face
@@ -749,6 +750,7 @@ applied up until that column."
 	    (list (firrtl-dbg-ephemeral-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-ephemeral-current v)
+	       (firrtl-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)))))
 
 (defun firrtl-dbg-insert-input-component (wid)
@@ -766,6 +768,7 @@ applied up until that column."
 	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-input-current v)
+	       (firrtl-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)))))
 
 
@@ -782,6 +785,7 @@ applied up until that column."
 	    (list (firrtl-dbg-output-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-output-current v)
+	       (firrtl-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)))))
 
 (defun firrtl-dbg-insert-register-component (wid)
@@ -789,17 +793,20 @@ applied up until that column."
    (let* 
       (
 	 (sym (widget-get wid :value))
-	 (v (symbol-value sym)))
+	 (v (symbol-value sym))
+	 (perm-props 	       (firrtl-dbg-get-perm-props (symbol-name sym))))
       
       (firrtl-dbg-insert-fields
 	 (list
 	    (list (firrtl-dbg-register-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-register-current v)
+	       perm-props
 	       firrtl-dbg-value-end-column)
 	    (list " -> " nil firrtl-dbg-next-value-begin-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-register-current v)
+	       perm-props
 	       firrtl-dbg-next-value-end-column)))))
 
 
@@ -977,6 +984,17 @@ applied up until that column."
    (add-dir-local-variable 'firrtl-dbg-mode
       'firrtl-dbg-perm-props-alist
       firrtl-dbg-perm-props-alist))
+
+(defun firrtl-dbg-get-perm-props (str)
+   "Get the permanent props for the component named STR.
+Return nil if component has no permanent props."
+   
+   (let*
+      (
+	 (perm-prop-sym
+	    (intern-soft str firrtl-dbg-obarray-perm-props)))
+      (if perm-prop-sym (symbol-value perm-prop-sym) nil)))
+
 
 (defun firrtl-dbg-custom-variable-save (widget)
    "Save value of variable edited by widget WIDGET."
