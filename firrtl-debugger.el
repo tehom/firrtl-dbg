@@ -111,9 +111,7 @@
 ;; directory.  But for now, it's simpler to let it be a normal
 ;; customization.
 (defcustom firrtl-dbg-custom-enums
-   ;; TEMPORARY for dev
-   '(("operation" ("doNoOp" "doPulse" "op2" "op3" "op4")))
-   ;; '()
+   '()
    "Customization for enumerated values"
    ;; The first string is the name of the enum.  The repeated strings
    ;; are the enumerated values.  We don't try to support jumps.
