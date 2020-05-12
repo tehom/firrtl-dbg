@@ -716,7 +716,7 @@ applied up until that column."
       ((face
 	  (firrtl-dbg-get-face-by-validity
 	     (firrtl-dbg-value-state cvalue)))
-	 (fmt (firrtl-dbg-value-string-format cvalue))
+	 (fmt perm-props)
 	 (text
 	    (case (first fmt)
 	       ((boolean)
