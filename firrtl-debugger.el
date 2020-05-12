@@ -264,14 +264,7 @@ Format: Each node is either:
 (defconst firrtl-dbg-executable
    "sbt"
    "" )
-'
-(defconst firrtl-dbg-working-directory
-   "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/"
-   "" )
-'
-(defconst firrtl-dbg-repl-launch-string
-   "test:runMain gcd.GCDRepl"
-   "" )
+
 (defconst firrtl-dbg-process-name
    "firrtl-dbg-process"
    "" )
@@ -1411,15 +1404,21 @@ PROC should return non-nil if it has finished its work"
       (firrtl-dbg-complain-bad-buffer "I'm not in firrtl-dbg-mode yet")))
 
 
-(defun firrtl-dbg-startup ()
+(defun firrtl-dbg-startup (working-directory repl-launch-command)
    ""
-   (interactive)
+   (interactive
+      (list
+	 ;;?? Want to use the history list!
+	 (read-directory-name "Working directory: ")
+	 (read-string "FIRRTL REPL in Scala: " nil
+	    firrtl-dbg-repl-name-history)))
+   
    
    (let
       ((main-buf
 	  (generate-new-buffer firrtl-dbg-main-buffer-name)))
       (with-current-buffer main-buf
-	 (setq default-directory firrtl-dbg-working-directory)
+	 (setq default-directory working-directory)
 	 ;; Set up most of the local variables.  Some are set further
 	 ;; down as their objects are created.
 	 (set (make-local-variable 'firrtl-dbg-current-buffer-type)
@@ -1469,20 +1468,20 @@ Format: Each node is either:
 	    (generate-new-buffer firrtl-dbg-process-buffer-name))
 
 	 (with-current-buffer firrtl-dbg-process-buffer
-	    (setq default-directory firrtl-dbg-working-directory)
+	    (setq default-directory working-directory)
 	    (set
 	       (make-local-variable 'firrtl-dbg-main-buffer)
 	       main-buf))
 	 
 	 (set (make-local-variable 'firrtl-dbg-process)
-	    (let ((default-directory firrtl-dbg-working-directory))
+	    (let ((default-directory working-directory))
 	       (start-process
 		  firrtl-dbg-process-name
 		  firrtl-dbg-process-buffer
 		  firrtl-dbg-executable
 		  ;; Quoting this string with shell-quote-argument
 		  ;; actually messes us up.
-		  firrtl-dbg-repl-launch-string)))
+		  repl-launch-command)))
 
 	 (make-local-variable 'firrtl-dbg-tq)
 	 (put 'firrtl-dbg-tq 'variable-documentation
