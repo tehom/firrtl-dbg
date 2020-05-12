@@ -1129,16 +1129,23 @@ Return nil if component has no permanent props."
    ""
    
    (let*
-      ((str (firrtl-dbg-remove-prompt-suffix str)))
-      (string-match
-	 firrtl-dbg-type-regexp str)
-      (list
-	 (match-string 1 str) ;; Name
-	 (match-string 2 str) ;; Value
-	 (match-string 3 str) ;; type tag?  "U" or "PU"
-	 (match-string 4 str) ;; Bitwidth
-	 )
-      ))
+      ((str (firrtl-dbg-remove-prompt-suffix str))
+
+
+	 (dummy (string-match
+		   firrtl-dbg-type-regexp str))
+	 (name (match-string 1 str))
+	 (value (match-string 2 str))
+	 (type-tag-str (match-string 3 str))
+	 (width (match-string 4 str))
+	 (signed-p
+	    (case type-tag-str
+	       (("U" "PU") t)
+	       (otherwise nil))))
+      (make-firrtl-dbg-component-type
+	 :signed-p signed-p
+	 :width width)))
+
 '
 (firrtl-dbg-parse-component-type-string
    "type x 3.PU<4>
