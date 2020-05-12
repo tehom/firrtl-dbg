@@ -29,13 +29,12 @@ thing happens with the _GEN_* wires.
 ** Notes
 *** First things to do
 
- * [ ] Capture "show" output
+ * [X] Capture "show" output
  * [X] Parse "show" output
    * Registers
    * [X] Circuit state
  * [X] Decide [[id:9282c996-d57a-4556-b167-530cf50a11f5][Whether to start directly]]
- * [ ] Startup
-   * Now it's just a comint launch
+ * [X] Startup
 
 *** Plan for general interaction
 
@@ -204,10 +203,10 @@ Nice to have:
 
 **** Development
 
- * [ ] Build and use any converter (say hex or binary with string-to-number)
- * [ ] Make a var customizer
- * [ ] Apply those customizations to a sym value / to all in the obarray.
- * [ ] Use those customizations to display
+ * [X] Build and use any converter (say hex or binary with string-to-number)
+ * [X] Make a var customizer
+ * [X] Apply those customizations to a sym value / to all in the obarray.
+ * [X] Use those customizations to display
 
 *** More things to do
 
@@ -223,7 +222,7 @@ Nice to have:
    * And by user customization
  * [ ] Pre-open some of them.
    * Easy to do but only nice to have.
- * [ ] Add something to save a configuration
+ * [X] Add something to save a configuration
    * Really, to save these customizations.  That's basically cloning
      code in cus-edit, with a different means of finding the affected
      variables and a different target file.
@@ -232,9 +231,10 @@ Nice to have:
    * Or just save the values straight, and read them back straight.
    * Yes, visit it in a buffer.  As p-sexps does.  Use my tiny-db /
      persist package.
- * [ ] For customizations, add the values of a circuit's symbols to
-   the completions.
-   * custom-add-frequent-value doesn't help us
+ * [X] Help for getting circuit symbols' names
+   * Add the values of a circuit's symbols to the customization
+     completions?
+     * custom-add-frequent-value doesn't help us
    * Maybe instead a dialog launched by clicking on that symbol?
      * Except firrtl-dbg-do-integer-edit&poke doesn't make that
        distinction.
