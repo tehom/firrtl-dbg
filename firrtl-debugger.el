@@ -1159,6 +1159,7 @@ Return nil if component has no permanent props."
 			     (firrtl-dbg-component-type component)
 			     type)))))))))
 
+;; IMPROVE ME:  Do this automatically.
 ;; Try this, but also experiment printing nils
 '
 (mapatoms
