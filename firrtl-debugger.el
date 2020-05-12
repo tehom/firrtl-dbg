@@ -1323,7 +1323,14 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
-
+   ;; Can replace most of it with this:
+   '(firrtl-dbg-poke-value
+       sym new-val
+       #'(lambda (widget widgets-buffer)
+	    (with-current-buffer widgets-buffer
+	       (widget-value-set widget (widget-value widget))))
+       
+       (list widget (current-buffer)))
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
