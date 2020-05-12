@@ -280,6 +280,10 @@ Format: Each node is either:
    "firrtl>>"
    "" )
 
+(defconst firrtl-dbg-type-regexp
+   "type \\([^ ]+\\) \\([0-9]+\\).\\([A-Z]+\\)<\\([0-9]+\\)>"
+   "" )
+
 (defconst firrtl-dbg-tq-regexp
    (concat ".*" firrtl-dbg-tq-prompt-string " *")
    "" )
@@ -1110,6 +1114,56 @@ Return nil if component has no permanent props."
 	      ;; time.
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-redraw-widgets)))))
+
+(defun firrtl-dbg-remove-prompt-suffix (str)
+   ""
+
+   (let*
+      (
+	 (start-legit (string-match firrtl-dbg-tq-prompt-string str)))
+      (when (null start-legit)
+	 (error "No FIRRTL prompt found"))
+      (substring str 0 start-legit)))
+
+(defun firrtl-dbg-parse-component-type-string (str)
+   ""
+   
+   (let*
+      ((str (firrtl-dbg-remove-prompt-suffix str)))
+      (string-match
+	 firrtl-dbg-type-regexp str)
+      (list
+	 (match-string 1 str) ;; Name
+	 (match-string 2 str) ;; Value
+	 (match-string 3 str) ;; type tag?  "U" or "PU"
+	 (match-string 4 str) ;; Bitwidth
+	 )
+      ))
+'
+(firrtl-dbg-parse-component-type-string
+   "type x 3.PU<4>
+firrtl>> "
+    )
+
+(defun firrtl-dbg-get-component-type (sym)
+   ""
+
+   (let*
+      ()
+      
+      ))
+
+'(tq-enqueue firrtl-dbg-tq "type x\n" firrtl-dbg-tq-regexp
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
+	      (unless (eq firrtl-dbg-current-buffer-type 'main)
+		 (firrtl-dbg-complain-bad-buffer))
+	      (message "Type is %S" str)
+	      
+
+	      )))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
