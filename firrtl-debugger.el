@@ -940,12 +940,13 @@ applied up until that column."
 
       (let
 	 (  (main-buf (current-buffer))
+	    (working-directory default-directory)
 	    (buf
 	     (custom-get-fresh-buffer
 		(format "*Customize circuit component %s*"
 		   (custom-unlispify-tag-name perm-sym)))))
 	 (with-current-buffer buf
-	    (setq default-directory firrtl-dbg-working-directory)
+	    (setq default-directory working-directory)
 	    (custom-buffer-create-internal
 	       (list (list perm-sym 'custom-variable))
 	       ;; The parm "description" doesn't do anything
