@@ -1412,7 +1412,7 @@ PROC should return non-nil if it has finished its work"
 	    ((file-name-history firrtl-dbg-directory-history))
 	    (read-directory-name "Working directory: "))
 	 (read-string "FIRRTL REPL in Scala: " nil
-	    firrtl-dbg-repl-name-history)))
+	    'firrtl-dbg-repl-name-history)))
    
    
    (let
