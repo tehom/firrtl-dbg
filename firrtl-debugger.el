@@ -1132,7 +1132,7 @@ Return nil if component has no permanent props."
       (	 (name (match-string 1 str))
 	 (value (match-string 2 str))
 	 (type-tag-str (match-string 3 str))
-	 (width (match-string 4 str))
+	 (width (string-to-number (match-string 4 str)))
 	 (signed-p
 	    (case type-tag-str
 	       (("U" "PU") t)
@@ -1147,36 +1147,31 @@ Return nil if component has no permanent props."
 firrtl>> ")
     )
 
-(defun firrtl-dbg-get-component-type (sym)
-   ""
+(defun firrtl-dbg-init-component-type (name)
+   "Set the type of component NAME according to the REPL"
 
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+   
    (let*
-      ()
-      
-      ))
-
-'
-(tq-enqueue firrtl-dbg-tq "type x\n" firrtl-dbg-tq-regexp
-      (list (current-buffer) "x")
-      #'(lambda (data str)
-	   (with-current-buffer (first data)
-	      (unless (eq firrtl-dbg-current-buffer-type 'main)
-		 (firrtl-dbg-complain-bad-buffer))
-	      (let* 
-		 ((str (firrtl-dbg-remove-prompt-suffix str))
-		    (type (firrtl-dbg-parse-component-type-string str))
-		    (full-name (second data))
-		    (sym (intern-soft full-name firrtl-dbg-obarray)))
-		 (when sym
-		    (let* 
-		       ((component (symbol-value sym)))
-		       (setf
-			  (firrtl-dbg-component-type component)
-			  type)))
-		 
-		 (message "Type is %S" type)))))
-
-
+      ((command (concat "type " name "\n")))
+      (tq-enqueue firrtl-dbg-tq "type x\n" firrtl-dbg-tq-regexp
+	 (list (current-buffer) name)
+	 #'(lambda (data str)
+	      (with-current-buffer (first data)
+		 (unless (eq firrtl-dbg-current-buffer-type 'main)
+		    (firrtl-dbg-complain-bad-buffer))
+		 (let* 
+		    ((str (firrtl-dbg-remove-prompt-suffix str))
+		       (type (firrtl-dbg-parse-component-type-string str))
+		       (full-name (second data))
+		       (sym (intern-soft full-name firrtl-dbg-obarray)))
+		    (when sym
+		       (let* 
+			  ((component (symbol-value sym)))
+			  (setf
+			     (firrtl-dbg-component-type component)
+			     type)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
