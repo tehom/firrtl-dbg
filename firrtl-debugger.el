@@ -823,7 +823,7 @@ applied up until that column."
 	       firrtl-dbg-value-end-column)
 	    (list " -> " nil firrtl-dbg-next-value-begin-column)
 	    (firrtl-dbg-field-fmt
-	       (firrtl-dbg-register-current v)
+	       (firrtl-dbg-register-next v)
 	       perm-props
 	       firrtl-dbg-next-value-end-column)))))
 
