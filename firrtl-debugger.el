@@ -46,10 +46,17 @@
    ;; Not used yet
    last-time-changed)
 
+(defstruct (firrtl-dbg-component-type (:type list))
+   ""
+   signed-p
+   width)
+
+
 (defstruct (firrtl-dbg-component (:type list) :named)
    "The base of FIRRTL component info for widgets"
    full-name
    current ;; A firrtl-dbg-value
+   type ;; (un)signed, bit width, etc
    )
 
 (defstruct (firrtl-dbg-register
