@@ -100,7 +100,9 @@
    "The face for normal values"
    :group 'firrtl-dbg)
 
-;; These should be buffer-local and saved in the working directory
+;; It's tempting to make this buffer-local and save it in the working
+;; directory.  But for now, it's simpler to let it be a normal
+;; customization.
 (defcustom firrtl-dbg-custom-enums
    ;; TEMPORARY for dev
    '(("operation" ("doNoOp" "doPulse" "op2" "op3" "op4")))
@@ -979,9 +981,16 @@ applied up until that column."
    ""
    ;; WRITE ME:  Copy perms to firrtl-dbg-perm-props-alist
    ;; This was (Custom-save)
+
+   ;; Quick&dirty: Just save firrtl-dbg-perm-props-alist.  We don't
+   ;; save firrtl-dbg-custom-enums because that's useful globally
+   ;; (though providing both local and global would be nice).  We
+   ;; don't try to track what's dirty, nor treat an extensible set of
+   ;; variables
    (add-dir-local-variable 'firrtl-dbg-mode
       'firrtl-dbg-perm-props-alist
       firrtl-dbg-perm-props-alist))
+
 
 (defun firrtl-dbg-get-perm-props (str)
    "Get the permanent props for the component named STR.
