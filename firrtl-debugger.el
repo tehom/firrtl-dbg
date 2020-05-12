@@ -1155,7 +1155,7 @@ Return nil if component has no permanent props."
    
    (let*
       ((command (concat "type " name "\n")))
-      (tq-enqueue firrtl-dbg-tq "type x\n" firrtl-dbg-tq-regexp
+      (tq-enqueue firrtl-dbg-tq command firrtl-dbg-tq-regexp
 	 (list (current-buffer) name)
 	 #'(lambda (data str)
 	      (with-current-buffer (first data)
