@@ -1499,6 +1499,7 @@ Format: Each node is either:
 		       (with-current-buffer main-buf
 			  (setq firrtl-dbg-tq tq)
 			  (firrtl-dbg-initial-load)))
+		    (pop-to-buffer main-buf)
 		    ;; Indicate that we have succeeded
 		    t))
 	    (list firrtl-dbg-process main-buf)
