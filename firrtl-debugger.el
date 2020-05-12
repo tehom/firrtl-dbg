@@ -142,51 +142,6 @@
    '(decimal)
    "The standard value for components perm-spec")
 
-;; REMOVE ME: This will go away
-(defcustom firrtl-dbg-custom-variable-formats
-   ;; TEMPORARY for dev
-   '(("io_value1" (enum "operation")))
-   ;; '()
-   "Customization for variables that require special display formats"
-   ;; The string refers to the symbol name in FIRRTL.  It would be
-   ;; nice to be able to complete it from the obarray, which only
-   ;; works when a circuit is loaded.  Nice to have: let it
-   ;; alternatively be a regexp
-   
-   :type '(repeat
-	     (group string
-		(choice
-		   (group
-		      (const decimal))
-		   (group
-		      (const boolean))
-		   (group
-		      (const hexadecimal))
-		   (group
-		      (const enum)
-		      (string))
-		   (group
-		      (const base)
-		      (integer)))))
-
-   :group 'firrtl-dbg)
-
-
-'
-(dolist (i firrtl-dbg-custom-variable-formats)
-   (let* 
-      (  (full-name (first i))
-	 (sym (intern-soft full-name firrtl-dbg-obarray)))
-      
-      (when sym
-	 (let* 
-	    ((component (symbol-value sym)))
-	    (setf
-	       (firrtl-dbg-value-string-format
-		  (firrtl-dbg-component-current component))
-	       (second i))))))
-
-
 (defvar firrtl-dbg-current-buffer-type nil
    "What type of buffer the current buffer is.  
 Possible values are (nil 'main 'custom 'process).
@@ -957,10 +912,8 @@ applied up until that column."
 	    (set (make-local-variable 'custom-variable-menu)
 	       firrtl-dbg-custom-variable-menu))
 	  
-	 (pop-to-buffer-same-window buf))
-      
-      ;; WRITE ME:  Use this instead of firrtl-dbg-custom-variable-formats
-      ))
+	 (pop-to-buffer-same-window buf))))
+
 
 
 
