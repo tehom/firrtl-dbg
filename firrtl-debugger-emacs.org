@@ -17,6 +17,15 @@ Begun Thu Apr 30 16:45:04 2020
 ** Issues
 ** Progress
 ** Communication
+*** Two questions for the dev
+
+In component types, what is the difference between "U" and "PU"?
+
+Is it normal that the GCD example loses some ephemeral components
+after it starts?  When I start it, it initially has 6 wires _T thru
+_T_5, but after stepping it, it loses all except _T_5.  A similar
+thing happens with the _GEN_* wires.
+
 ** Notes
 *** First things to do
 
