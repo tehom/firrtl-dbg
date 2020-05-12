@@ -320,4 +320,26 @@ Approaches:
      * So were the widgets' actions
  * ... that are of type 'custom-variable
 
+*** So to set things script-wise
 
+Approaches:
+ * Use their script format
+   * Con: It's pretty messy
+ * Allow elisp to do that
+   * Pro: We are mostly there already.
+
+**** Their script format
+
+I made an example, but inspection doesn't make it that clear.  What it
+wrote largely seems to record that I poked 10 and 5 into io_value2 and
+io_value1 respectively and in that order.
+
+Seems like it begins each step with "#N", N being a number.  Then the
+step seems to record assignments, regardless whether they came from
+user.  No peeks, pokes, changes of flags, nothing.
+
+It dumped a bunch of information as a prefix, and gave each wire a
+nickname.
+
+There's a "1%" in there somewhere - it's dumping the clock value at
+that point?
