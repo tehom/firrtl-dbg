@@ -1533,10 +1533,8 @@ PROC should return non-nil if it has finished its work"
 
 (defun firrtl-dbg-complain-bad-buffer (&optional msg)
    ""
-   ;; PUT ME BACK when ready
-   ;;(error (or msg "This operation only makes sense in main buffer"))
-   (message
-      (or msg "This operation only makes sense in a main circuit buffer")))
+   (error (or msg "This operation only makes sense in main buffer")))
+
 
 (defmacro firrtl-dbg-local-defvar (name value docstring)
    "Define VAR as a buffer-local variable with default value VAL.
