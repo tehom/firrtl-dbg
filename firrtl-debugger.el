@@ -1437,7 +1437,12 @@ Where NAME is a string
    (interactive)
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
-   (reverse firrtl-dbg-current-script-rv))
+   (with-output-to-temp-buffer "*FIRRTL script*"
+      (princ ";;User-generated script\n")
+      (princ ";;Call as '(firrtl-dbg-run-script SCRIPT)'\n")
+      (princ "\n")
+      (prin1
+	 (reverse firrtl-dbg-current-script-rv))))
 
 
 (defun firrtl-dbg-parse-response-maybe-complain (str)
