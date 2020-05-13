@@ -588,16 +588,6 @@ DATA is the data to store, usually a symbol"
    (setq firrtl-dbg-process-buffer nil)
    (kill-buffer (current-buffer)))
 
-
-;; REMOVE ME and callers 
-(defun firrtl-dbg-punt-notify (but &rest ignore)
-   ""
-   
-   (let*
-      ()
-      
-      ))
-
 (defun firrtl-dbg-pad-to-column (column face)
    ""
    
@@ -790,7 +780,6 @@ applied up until that column."
 		      :value ,(cddr cell)
 		      :tag ,(car cell)
 		      :format "%[%t%]\n"
-		      :notify firrtl-dbg-punt-notify
 		      ;; Nothing to do yet for inner nodes
 		      :alt-action ,#'ignore)
 	     :dynargs firrtl-dbg-tree-expand)
