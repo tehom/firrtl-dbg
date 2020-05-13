@@ -1,4 +1,4 @@
-;;;_ firrtl-debugger.el --- FIRRTL debugger interface
+;;;_ firrtl-dbg.el --- FIRRTL debugger interface
 
 ;;;_. Headers
 ;;;_ , License
@@ -1675,7 +1675,7 @@ Format: Each node is either:
 ;;;_. Footers
 ;;;_ , Provides
 
-(provide 'firrtl-debugger)
+(provide 'firrtl-dbg)
 
 ;;;_ * Local emacs vars.
 ;;;_  + Local variables:
@@ -1683,4 +1683,4 @@ Format: Each node is either:
 ;;;_  + End:
 
 ;;;_ , End
-;;; firrtl-debugger.el ends here
+;;; firrtl-dbg.el ends here
