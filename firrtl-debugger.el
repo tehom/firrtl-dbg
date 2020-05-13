@@ -1396,10 +1396,14 @@ Where NAME is a string
 	      (firrtl-dbg-redraw-widgets)))))
 
 
-'
-(firrtl-dbg-run-script
-   '()
-   )
+
+;; (firrtl-dbg-run-script
+;;    '((poke "io_value1" 4)
+;;        (poke "io_value2" 12)))
+
+;; (firrtl-dbg-run-script
+;;    '((step)))
+
 
 
 (defun firrtl-dbg-parse-response-maybe-complain (str)
