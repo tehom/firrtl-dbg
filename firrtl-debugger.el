@@ -613,9 +613,11 @@ applied up until that column."
    
    (dolist (field field-list)
       (when field
-	 (destructuring-bind (text face end-col) field
-	    (firrtl-dbg-insert-w-face text face)
-	    (firrtl-dbg-pad-to-column end-col face)))))
+	 (if (stringp field)
+	    (widget-insert field)
+	    (destructuring-bind (text face end-col) field
+	       (firrtl-dbg-insert-w-face text face)
+	       (firrtl-dbg-pad-to-column end-col face))))))
 
 (defun firrtl-dbg-get-face-by-validity (validity)
    ""
@@ -1509,8 +1511,8 @@ PROC should return non-nil if it has finished its work"
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
-   ;; FIX ME: Wait so that 'firrtl-dbg-init-all-component-types' can
-   ;; come back before we draw.  Or just redraw when it's done.
+   ;; FIX ME: Why doesn't 'firrtl-dbg-init-all-component-types'
+   ;; immediately show results?  It seems to show them later.
    (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
