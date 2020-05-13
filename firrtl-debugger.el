@@ -1318,7 +1318,6 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		    (when extra-proc
 		       (apply extra-proc extra-data))))))))
 
-
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
@@ -1367,7 +1366,40 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		    (with-current-buffer widgets-buffer
 		       (widget-value-set widget (widget-value widget)))))))))
 
+(defun firrtl-dbg-run-script (script)
+   "Run SCRIPT.
+Script should be a list whose entries are in on of the forms:
+ (poke name val)
+ (step)
+Where NAME is a string
+"
+   (dolist (line script)
+      (case (first line)
+	 (poke
+	    (firrtl-dbg-poke-value
+	       (intern (second line) firrtl-dbg-obarray)
+	       (third line)))
+	 
+	 (step
+	    (firrtl-dbg-step-circuit))))
 
+   ;; All done, now redisplay everything Mostly borrowed from
+   ;; firrtl-dbg-initial-load, but redraws widgets instead of doing
+   ;; initial draw.
+   (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
+	      (unless (eq firrtl-dbg-current-buffer-type 'main)
+		 (firrtl-dbg-complain-bad-buffer))
+	      (firrtl-dbg-build-data str)
+	      (firrtl-dbg-redraw-widgets)))))
+
+
+'
+(firrtl-dbg-run-script
+   '()
+   )
 
 
 (defun firrtl-dbg-parse-response-maybe-complain (str)
