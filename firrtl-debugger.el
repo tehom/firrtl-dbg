@@ -1129,13 +1129,16 @@ Return nil if component has no permanent props."
 			     type)))))))))
 
 ;; IMPROVE ME:  Do this automatically on startup.
-'
-(mapatoms
-   #'(lambda (sym)
-	(when sym
-	   (firrtl-dbg-init-component-type (symbol-name sym))))
-   firrtl-dbg-obarray)
-
+(defun firrtl-dbg-init-all-component-types ()
+   ""
+   
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+   (mapatoms
+      #'(lambda (sym)
+	   (when sym
+	      (firrtl-dbg-init-component-type (symbol-name sym))))
+      firrtl-dbg-obarray))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
