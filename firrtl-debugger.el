@@ -32,17 +32,14 @@
 (require 'tq)
 ;;;_. Body
 
-;; Maybe add a timestamp.
-;; 
 (defstruct (firrtl-dbg-value (:type list))
    ""
    v
-   ;; One of (ok poisoned set-by-user-now set-by-user-earlier
-   ;; first-seen just-changed stayed-same) Some of these aren't set
-   ;; yet, and 'ok' will yield to the three new ones.
+   ;; 'state' is one of (ok poisoned set-by-user-now
+   ;; set-by-user-earlier first-seen just-changed stayed-same) Some of
+   ;; these aren't set yet, and 'ok' will yield to (first-seen
+   ;; just-changed stayed-same)
    state
-   ;; REMOVE ME: This will go away
-   string-format
    ;; Not used yet
    last-time-changed)
 
