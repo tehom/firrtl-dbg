@@ -852,7 +852,9 @@ applied up until that column."
 		       (firrtl-dbg-complain-bad-buffer
 			  "Rebuilding the widgets only makes sense in a circuit buffer"))
 
-		 (erase-buffer)
+		 (let
+		    ((inhibit-read-only t))
+		    (erase-buffer))
 		 (firrtl-dbg-create-widgets))
       "Rebuild buffer")
 
@@ -1521,10 +1523,15 @@ PROC should return non-nil if it has finished its work"
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
+	      (message "Show, in buffer %S of type %S"
+		 (first data)
+		 firrtl-dbg-current-buffer-type)
 	      (unless (eq firrtl-dbg-current-buffer-type 'main)
 		 (firrtl-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
+	      (message "Before init-all-component-types")
 	      (firrtl-dbg-init-all-component-types)
+	      (message "After init-all-component-types")
 	      (firrtl-dbg-create-widgets)))))
 
 (define-derived-mode firrtl-dbg-mode
