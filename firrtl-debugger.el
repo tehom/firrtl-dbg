@@ -1535,7 +1535,8 @@ PROC should return non-nil if it has finished its work"
       (or msg "This operation only makes sense in a main circuit buffer")))
 
 (defmacro firrtl-dbg-local-defvar (name value docstring)
-   ""
+   "Define VAR as a buffer-local variable with default value VAL.
+This is different than defvar-local in that it doesn't define the variable in other buffers."
    
    `(progn
        (set (make-local-variable ',name) ,value)
@@ -1565,65 +1566,58 @@ PROC should return non-nil if it has finished its work"
 	 (set (make-local-variable 'firrtl-dbg-current-buffer-type)
 	    'main)
 
-	 (set (make-local-variable 'firrtl-dbg-obarray)
-	    (make-vector firrtl-dbg-obarray-default-size nil))
-	 (put 'firrtl-dbg-obarray 'variable-documentation
+	 (firrtl-dbg-local-defvar firrtl-dbg-obarray
+	    (make-vector firrtl-dbg-obarray-default-size nil)
 	    "Obarray that holds the current data of FIRRTL components")
-	 (set (make-local-variable 'firrtl-dbg-obarray-perm-props)
-	    (make-vector firrtl-dbg-obarray-default-size nil))
-	 (put 'firrtl-dbg-obarray-perm-props 'variable-documentation
+
+	 (firrtl-dbg-local-defvar firrtl-dbg-obarray-perm-props
+	    (make-vector firrtl-dbg-obarray-default-size nil)
 	    "Obarray that holds data about FIRRTL components that persists between sessions")
-	 (set (make-local-variable 'firrtl-dbg-perm-props-alist)
-	    '())
-	 (put 'firrtl-dbg-perm-props-alist 'variable-documentation
+
+	 (firrtl-dbg-local-defvar firrtl-dbg-perm-props-alist
+	    '()
 	    "Alist that holds data that persists between sessions about FIRRTL components")
 
-	 (set (make-local-variable 'firrtl-dbg-subname-tree)
-	    '())
-	 (put 'firrtl-dbg-subname-tree 'variable-documentation
+	 (firrtl-dbg-local-defvar firrtl-dbg-subname-tree
+	    '()
 	    "The component-tree of the circuit.
 
 Format: Each node is either:
   (subname-string t list-of-nodes)
-  (subname-string nil . sym)")
-	 
-	 
-	 (set (make-local-variable 'firrtl-dbg-have-built-subname-tree)
-	    nil)
-	 (put 'firrtl-dbg-have-built-subname-tree 'variable-documentation
-	    "Whether the subname tree has been built yet")
+  (subname-string nil . sym)"
+	    )
 
-	 (set (make-local-variable 'firrtl-dbg-current-step)
-	    nil)
+	 (firrtl-dbg-local-defvar firrtl-dbg-have-built-subname-tree
+	    nil
+	    "Whether the subname tree has been built yet")
 	 
-	 (put 'firrtl-dbg-current-step 'variable-documentation
+	 (firrtl-dbg-local-defvar firrtl-dbg-current-step
+	    nil
 	    "The current step of the circuit")
-	 
-	 (set (make-local-variable 'firrtl-dbg-current-freshness)
-	    "UNKNOWN")
-	 (put 'firrtl-dbg-current-freshness 'variable-documentation
+
+	 (firrtl-dbg-local-defvar firrtl-dbg-current-freshness
+	    "UNKNOWN"
 	    "The current freshness of the circuit, as a string")
 	 
-	 (set (make-local-variable 'firrtl-dbg-writing-script-p)
-	    nil)
-	 (put 'firrtl-dbg-writing-script-p 'variable-documentation
+	 (firrtl-dbg-local-defvar firrtl-dbg-writing-script-p
+	    nil
 	    "Whether we are currently writing a script")
 	 
-	 (set (make-local-variable 'firrtl-dbg-current-script-rv)
-	    '())
-	 (put 'firrtl-dbg-current-script-rv 'variable-documentation
+	 (firrtl-dbg-local-defvar firrtl-dbg-current-script-rv
+	    '()
 	    "The script that we are currently writing, in reverse order")
 	 
-	 (set (make-local-variable 'firrtl-dbg-process-buffer)
-	    (generate-new-buffer firrtl-dbg-process-buffer-name))
+	 (firrtl-dbg-local-defvar firrtl-dbg-process-buffer
+	    (generate-new-buffer firrtl-dbg-process-buffer-name)
+	    "The buffer of the FIRRTL REPL process")
 
 	 (with-current-buffer firrtl-dbg-process-buffer
 	    (setq default-directory working-directory)
 	    (set
 	       (make-local-variable 'firrtl-dbg-main-buffer)
 	       main-buf))
-	 
-	 (set (make-local-variable 'firrtl-dbg-process)
+
+	 (firrtl-dbg-local-defvar firrtl-dbg-process
 	    (let ((default-directory working-directory))
 	       (start-process
 		  firrtl-dbg-process-name
@@ -1631,11 +1625,13 @@ Format: Each node is either:
 		  firrtl-dbg-executable
 		  ;; Quoting this string with shell-quote-argument
 		  ;; actually messes us up.
-		  repl-launch-command)))
+		  repl-launch-command))
+	    "The FIRRTL REPL process")
 
-	 (make-local-variable 'firrtl-dbg-tq)
-	 (put 'firrtl-dbg-tq 'variable-documentation
+	 (firrtl-dbg-local-defvar firrtl-dbg-tq
+	    nil
 	    "The firrtl-dbg transaction queue")
+
 	 (hack-dir-local-variables-non-file-buffer)
 	 (firrtl-dbg-copy-alist-to-perms)
 	 
