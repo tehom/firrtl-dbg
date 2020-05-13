@@ -1534,7 +1534,7 @@ PROC should return non-nil if it has finished its work"
 	    'firrtl-dbg-repl-name-history)))
    
    
-   (let
+   (let*
       (
 	 (buf-name (concat "*FIRRTL " repl-launch-command "*" ) )
 	 (main-buf
