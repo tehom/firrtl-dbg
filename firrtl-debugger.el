@@ -914,6 +914,17 @@ applied up until that column."
 	 (pop-to-buffer-same-window buf))))
 
 
+(defun firrtl-dbg-copy-alist-to-perms ()
+   ""
+   
+   (interactive)
+   (dolist (cell firrtl-dbg-perm-props-alist)
+      (let* 
+	 ((name (car cell))
+	    (value (cdr cell))
+	    (sym (intern name firrtl-dbg-obarray-perm-props)))
+	 (set sym value))))
+
 
 
 (defun firrtl-dbg-copy-perms-to-alist ()
@@ -1619,6 +1630,7 @@ Format: Each node is either:
 	 (put 'firrtl-dbg-tq 'variable-documentation
 	    "The firrtl-dbg transaction queue")
 	 (hack-dir-local-variables-non-file-buffer)
+	 (firrtl-dbg-copy-alist-to-perms)
 	 
 	 (firrtl-dbg-call-until-done-w/timeout
 	    40
