@@ -1128,7 +1128,6 @@ Return nil if component has no permanent props."
 			     (firrtl-dbg-component-type component)
 			     type)))))))))
 
-;; IMPROVE ME:  Do this automatically on startup.
 (defun firrtl-dbg-init-all-component-types ()
    ""
    
@@ -1510,7 +1509,8 @@ PROC should return non-nil if it has finished its work"
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
-
+   ;; FIX ME: Wait so that 'firrtl-dbg-init-all-component-types' can
+   ;; come back before we draw.  Or just redraw when it's done.
    (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
@@ -1518,6 +1518,7 @@ PROC should return non-nil if it has finished its work"
 	      (unless (eq firrtl-dbg-current-buffer-type 'main)
 		 (firrtl-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
+	      (firrtl-dbg-init-all-component-types)
 	      (firrtl-dbg-create-widgets)))))
 
 (define-derived-mode firrtl-dbg-mode
