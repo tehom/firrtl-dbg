@@ -1054,6 +1054,11 @@ Return nil if component has no permanent props."
 (defun firrtl-dbg-step-circuit ()
    "Step the circuit"
 
+   (when firrtl-dbg-writing-script-p
+      (setq firrtl-dbg-current-script-rv
+	 (cons '(step)
+	    firrtl-dbg-current-script-rv)))
+   
    (tq-enqueue firrtl-dbg-tq
       "step ; show\n"
       firrtl-dbg-tq-regexp
@@ -1328,8 +1333,8 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
        #'(lambda (widget widgets-buffer)
 	    (with-current-buffer widgets-buffer
 	       (widget-value-set widget (widget-value widget))))
-       
        (list widget (current-buffer)))
+
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
@@ -1343,7 +1348,12 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		     perm-props))
 	 (msg (concat "poke " component-name " "
 		 (number-to-string new-val) "\n")))
-      
+
+      (when firrtl-dbg-writing-script-p
+	 (setq firrtl-dbg-current-script-rv
+	    (cons `(poke ,component-name ,new-val)
+	       firrtl-dbg-current-script-rv)))
+
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
       (tq-enqueue firrtl-dbg-tq
 	 msg
@@ -1411,7 +1421,7 @@ Where NAME is a string
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
    (setq firrtl-dbg-current-script-rv '())
-   (setq firrtl-dbg-making-script-p t))
+   (setq firrtl-dbg-writing-script-p t))
 
 (defun firrtl-dbg-stop-recording-script ()
    ""
@@ -1419,7 +1429,7 @@ Where NAME is a string
    (interactive)
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
-   (setq firrtl-dbg-making-script-p nil))
+   (setq firrtl-dbg-writing-script-p nil))
 
 (defun firrtl-dbg-get-script ()
    ""
@@ -1595,9 +1605,9 @@ Format: Each node is either:
 	 (put 'firrtl-dbg-current-freshness 'variable-documentation
 	    "The current freshness of the circuit, as a string")
 	 
-	 (set (make-local-variable 'firrtl-dbg-making-script-p)
+	 (set (make-local-variable 'firrtl-dbg-writing-script-p)
 	    nil)
-	 (put 'firrtl-dbg-making-script-p 'variable-documentation
+	 (put 'firrtl-dbg-writing-script-p 'variable-documentation
 	    "Whether we are currently writing a script")
 	 
 	 (set (make-local-variable 'firrtl-dbg-current-script-rv)
