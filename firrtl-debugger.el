@@ -1534,6 +1534,13 @@ PROC should return non-nil if it has finished its work"
    (message
       (or msg "This operation only makes sense in a main circuit buffer")))
 
+(defmacro firrtl-dbg-local-defvar (name value docstring)
+   ""
+   
+   `(progn
+       (set (make-local-variable ',name) ,value)
+       (put ',name 'variable-documentation ,docstring)))
+
 (defun firrtl-dbg-startup (working-directory repl-launch-command)
    ""
    (interactive
