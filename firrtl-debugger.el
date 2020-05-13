@@ -124,7 +124,8 @@
    '()
    "Customization for enumerated values"
    ;; The first string is the name of the enum.  The repeated strings
-   ;; are the enumerated values.  We don't try to support jumps.
+   ;; are the enumerated values.  We don't try to support arbitrary
+   ;; starting points etc.
    :type '(repeat
 	     (group string
 		(repeat string)))
@@ -176,35 +177,37 @@ Local in the relevant buffers." )
 ;;;;;;;;;;;;;;;;;;;;
 ;;Configuration
 
-(defconst firrtl-dbg-executable
+(defcustom firrtl-dbg-executable
    "sbt"
-   "" )
+   "Name of the actual executable that helps launch the debugger REPL"
+   :type 'string
+   :group 'firrtl-dbg)
+
 
 (defconst firrtl-dbg-process-name
    "firrtl-dbg-process"
-   "" )
+   "Name for the process that communicates with the debugger REPL" )
+
 (defconst firrtl-dbg-process-buffer-name
    "*Firrtl-dbg process*"
-   "" )
-
-(defconst firrtl-dbg-main-buffer-name
-   "*Firrtl-dbg circuit state*"
-   "" )
+   "Name of the process buffer" )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Regexps
 
-(defconst firrtl-dbg-tq-prompt-string
+(defcustom firrtl-dbg-tq-prompt-string
    "firrtl>>"
-   "" )
+   "The REPL's prompt string"
+   :type 'string
+   :group 'firrtl-dbg)
 
 (defconst firrtl-dbg-type-regexp
    "type \\([^ ]+\\) \\([0-9]+\\).\\([A-Z]+\\)<\\([0-9]+\\)>"
-   "" )
+   "Regexp matching the string returned by the 'type' command" )
 
 (defconst firrtl-dbg-tq-regexp
    (concat ".*" firrtl-dbg-tq-prompt-string " *")
-   "" )
+   "Regexp matching any response from the REPL" )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Print columns
