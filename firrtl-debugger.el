@@ -1404,6 +1404,30 @@ Where NAME is a string
 ;; (firrtl-dbg-run-script
 ;;    '((step)))
 
+(defun firrtl-dbg-start-recording-script ()
+   ""
+
+   (interactive)
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+   (setq firrtl-dbg-current-script-rv '())
+   (setq firrtl-dbg-making-script-p t))
+
+(defun firrtl-dbg-stop-recording-script ()
+   ""
+   
+   (interactive)
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+   (setq firrtl-dbg-making-script-p nil))
+
+(defun firrtl-dbg-get-script ()
+   ""
+   
+   (interactive)
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+   (reverse firrtl-dbg-current-script-rv))
 
 
 (defun firrtl-dbg-parse-response-maybe-complain (str)
