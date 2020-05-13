@@ -1555,18 +1555,11 @@ PROC should return non-nil if it has finished its work"
 	    (make-vector firrtl-dbg-obarray-default-size nil))
 	 (put 'firrtl-dbg-obarray-perm-props 'variable-documentation
 	    "Obarray that holds data about FIRRTL components that persists between sessions")
-
-	 (let* 
-	    ((exists (intern-soft "firrtl-dbg-perm-props-alist"))
-	       (local (make-local-variable 'firrtl-dbg-perm-props-alist)))
-	    
-	    (unless (and exists (not (null (symbol-value exists)))) 
-	       (set local '())))
-	 
+	 (set (make-local-variable 'firrtl-dbg-perm-props-alist)
+	    '())
 	 (put 'firrtl-dbg-perm-props-alist 'variable-documentation
 	    "Alist that holds data that persists between sessions about FIRRTL components")
 
-	 
 	 (set (make-local-variable 'firrtl-dbg-subname-tree)
 	    '())
 	 (put 'firrtl-dbg-subname-tree 'variable-documentation
@@ -1625,6 +1618,7 @@ Format: Each node is either:
 	 (make-local-variable 'firrtl-dbg-tq)
 	 (put 'firrtl-dbg-tq 'variable-documentation
 	    "The firrtl-dbg transaction queue")
+	 (hack-dir-local-variables-non-file-buffer)
 	 
 	 (firrtl-dbg-call-until-done-w/timeout
 	    40
