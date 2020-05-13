@@ -1517,8 +1517,10 @@ PROC should return non-nil if it has finished its work"
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
-   ;; FIX ME: Why doesn't 'firrtl-dbg-init-all-component-types'
-   ;; immediately show results?  It seems to show them later.
+   ;; 'firrtl-dbg-init-all-component-types' doesn't immediately show
+   ;; results because it is waiting for the FIRRTL REPL to answer,
+   ;; many times.  Could solve this with timers and dirty flags, but
+   ;; it's not a serious problem.
    (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
@@ -1529,9 +1531,7 @@ PROC should return non-nil if it has finished its work"
 	      (unless (eq firrtl-dbg-current-buffer-type 'main)
 		 (firrtl-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
-	      (message "Before init-all-component-types")
 	      (firrtl-dbg-init-all-component-types)
-	      (message "After init-all-component-types")
 	      (firrtl-dbg-create-widgets)))))
 
 (define-derived-mode firrtl-dbg-mode
