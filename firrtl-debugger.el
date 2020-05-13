@@ -1556,13 +1556,15 @@ PROC should return non-nil if it has finished its work"
 	 (put 'firrtl-dbg-obarray-perm-props 'variable-documentation
 	    "Obarray that holds data about FIRRTL components that persists between sessions")
 
-	 (unless (intern-soft "firrtl-dbg-perm-props-alist")
-	    (set
-	       (make-local-variable 'firrtl-dbg-perm-props-alist)
-	       '())
-	    (put 'firrtl-dbg-perm-props-alist 'variable-documentation
-	       "Alist that holds data that persists between sessions about FIRRTL components")
-	    )
+	 (let* 
+	    ((exists (intern-soft "firrtl-dbg-perm-props-alist"))
+	       (local (make-local-variable 'firrtl-dbg-perm-props-alist)))
+	    
+	    (unless (and exists (not (null (symbol-value exists)))) 
+	       (set local '())))
+	 
+	 (put 'firrtl-dbg-perm-props-alist 'variable-documentation
+	    "Alist that holds data that persists between sessions about FIRRTL components")
 
 	 
 	 (set (make-local-variable 'firrtl-dbg-subname-tree)
