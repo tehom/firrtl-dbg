@@ -1551,6 +1551,7 @@ PROC should return non-nil if it has finished its work"
 	 (main-buf
 	    (generate-new-buffer buf-name)))
       (with-current-buffer main-buf
+	 (firrtl-dbg-mode)
 	 (setq default-directory working-directory)
 	 ;; Set up most of the local variables.  Some are set further
 	 ;; down as their objects are created.
@@ -1566,10 +1567,14 @@ PROC should return non-nil if it has finished its work"
 	 (put 'firrtl-dbg-obarray-perm-props 'variable-documentation
 	    "Obarray that holds data about FIRRTL components that persists between sessions")
 
-	 (set (make-local-variable 'firrtl-dbg-perm-props-alist)
-	    '())
-	 (put 'firrtl-dbg-perm-props-alist 'variable-documentation
-	    "Alist that holds data that persists between sessions about FIRRTL components")
+	 (unless (intern-soft "firrtl-dbg-perm-props-alist")
+	    (set
+	       (make-local-variable 'firrtl-dbg-perm-props-alist)
+	       '())
+	    (put 'firrtl-dbg-perm-props-alist 'variable-documentation
+	       "Alist that holds data that persists between sessions about FIRRTL components")
+	    )
+
 	 
 	 (set (make-local-variable 'firrtl-dbg-subname-tree)
 	    '())
