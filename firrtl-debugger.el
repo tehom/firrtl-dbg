@@ -1571,6 +1571,16 @@ Format: Each node is either:
 	 (put 'firrtl-dbg-current-freshness 'variable-documentation
 	    "The current freshness of the circuit, as a string")
 	 
+	 (set (make-local-variable 'firrtl-dbg-making-script-p)
+	    nil)
+	 (put 'firrtl-dbg-making-script-p 'variable-documentation
+	    "Whether we are currently writing a script")
+	 
+	 (set (make-local-variable 'firrtl-dbg-current-script-rv)
+	    '())
+	 (put 'firrtl-dbg-current-script-rv 'variable-documentation
+	    "The script that we are currently writing, in reverse order")
+	 
 	 (set (make-local-variable 'firrtl-dbg-process-buffer)
 	    (generate-new-buffer firrtl-dbg-process-buffer-name))
 
