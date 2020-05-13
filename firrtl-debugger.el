@@ -705,6 +705,7 @@ applied up until that column."
 	       (firrtl-dbg-ephemeral-current v)
 	       (firrtl-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)
+	    " "
 	    (firrtl-dbg-type-fmt
 	       v
 	       firrtl-dbg-type-end-column)))))
@@ -723,6 +724,7 @@ applied up until that column."
 	       (firrtl-dbg-input-current v)
 	       (firrtl-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)
+	    " "
 	    (firrtl-dbg-type-fmt
 	       v
 	       firrtl-dbg-type-end-column)))))
@@ -743,6 +745,7 @@ applied up until that column."
 	       (firrtl-dbg-output-current v)
 	       (firrtl-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)
+	    " "
 	    (firrtl-dbg-type-fmt
 	       v
 	       firrtl-dbg-type-end-column)))))
@@ -765,11 +768,12 @@ applied up until that column."
 	       (firrtl-dbg-register-current v)
 	       perm-props
 	       firrtl-dbg-value-end-column)
-	    (list " -> " nil firrtl-dbg-next-value-begin-column)
+	    " -> "
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-register-next v)
 	       perm-props
 	       firrtl-dbg-next-value-end-column)
+	    " "
 	    (firrtl-dbg-type-fmt
 	       v
 	       firrtl-dbg-type-end-column)))))
