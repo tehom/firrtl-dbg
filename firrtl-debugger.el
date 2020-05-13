@@ -435,7 +435,8 @@ DATA is the data to store, usually a symbol"
    ""
    
    (firrtl-dbg-add-object full-name
-      ;; Later, we'll check equality and set a timestamp.
+      ;; IMPROVE ME: check equality with existing value and set a
+      ;; timestamp if it changed.
       #'(lambda (object)
 	   (setf (firrtl-dbg-register-next object)
 	      (make-firrtl-dbg-value :v value :state state)))
@@ -454,7 +455,6 @@ DATA is the data to store, usually a symbol"
       ((str (firrtl-dbg-state-strings-overview spl))
 	 (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
 	 (step (string-to-number (match-string 1 str)))
-	 ;; We need better info on this.  Only "FRESH" or "STALE"?
 	 (freshness-str (match-string 2 str)))
    
       (setq firrtl-dbg-current-freshness freshness-str)
@@ -486,7 +486,7 @@ DATA is the data to store, usually a symbol"
 	       'poisoned))
 	 (value (string-to-number (match-string 3 component-str))))
       
-      ;; 2 and 4 should be the same
+      ;; strings 2 and 4 should be the same
       (assert (string-equal
 		 (match-string 2 component-str)
 		 (match-string 4 component-str) ))
@@ -551,7 +551,7 @@ DATA is the data to store, usually a symbol"
 	    "Ephemera: *"))
 
       (when (not firrtl-dbg-have-built-subname-tree)
-	 ;; LATER: Sort the newly built subname tree
+	 ;; IMPROVE ME: Sort the newly built subname tree
 	 )
 
       (setq firrtl-dbg-have-built-subname-tree t)))
@@ -685,7 +685,7 @@ applied up until that column."
    (let*
       ((type (firrtl-dbg-component-type component)))
       (if (null type)
-	 (list "[unknown]" nil end-col)
+	 (list "??" nil end-col)
 	 (let* 
 	    ((signed-str
 		(if (firrtl-dbg-component-type-signed-p type)
@@ -791,9 +791,7 @@ applied up until that column."
 		      :tag ,(car cell)
 		      :format "%[%t%]\n"
 		      :notify firrtl-dbg-punt-notify
-		      ;; If it's an inner node, nothing to do yet.
-		      ;; Maybe could adjust sort order or initial
-		      ;; openness.
+		      ;; Nothing to do yet for inner nodes
 		      :alt-action ,#'ignore)
 	     :dynargs firrtl-dbg-tree-expand)
 	 (let*
@@ -853,7 +851,6 @@ applied up until that column."
 
    (widget-insert "    ")
 
-   ;; Rebuild buffer
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
 		    (unless (eq firrtl-dbg-current-buffer-type 'main)
@@ -864,7 +861,8 @@ applied up until that column."
 		 (firrtl-dbg-create-widgets))
       "Rebuild buffer")
 
-   ;; IMPROVE ME:  Add other buttons: Reset, Done, Poison, Randomize, etc
+   ;; IMPROVE ME: Add other buttons: Reset, Done, Poison, Randomize,
+   ;; Start/stop recording script, etc
    (widget-insert "\n\n")
 
    (widget-apply-action
@@ -951,7 +949,7 @@ applied up until that column."
    ""
    ;; This takes the place of Custom-save
 
-   ;; Do we need to copy perms to firrtl-dbg-perm-props-alist?
+   ;; CHECK ME: Do we need to copy perms to firrtl-dbg-perm-props-alist?
 
    ;; Quick&dirty: Just save firrtl-dbg-perm-props-alist.  We don't
    ;; save firrtl-dbg-custom-enums because that's useful globally
@@ -1130,8 +1128,7 @@ Return nil if component has no permanent props."
 			     (firrtl-dbg-component-type component)
 			     type)))))))))
 
-;; IMPROVE ME:  Do this automatically.
-;; Try this, but also experiment printing nils
+;; IMPROVE ME:  Do this automatically on startup.
 '
 (mapatoms
    #'(lambda (sym)
@@ -1381,7 +1378,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 Script should be a list whose entries are in on of the forms:
  (poke name val)
  (step)
-Where NAME is a string
+Where NAME is a string naming a component.
 "
    (dolist (line script)
       (case (first line)
@@ -1393,9 +1390,9 @@ Where NAME is a string
 	 (step
 	    (firrtl-dbg-step-circuit))))
 
-   ;; All done, now redisplay everything Mostly borrowed from
+   ;; All done, now redisplay everything.  Mostly borrowed from
    ;; firrtl-dbg-initial-load, but redraws widgets instead of doing
-   ;; initial draw.
+   ;; initial draw.  REFACTOR ME.
    (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
@@ -1406,7 +1403,7 @@ Where NAME is a string
 	      (firrtl-dbg-redraw-widgets)))))
 
 
-
+;; Examples:
 ;; (firrtl-dbg-run-script
 ;;    '((poke "io_value1" 4)
 ;;        (poke "io_value2" 12)))
@@ -1506,7 +1503,6 @@ PROC should return non-nil if it has finished its work"
       (goto-char (point-min))
       (search-forward firrtl-dbg-tq-prompt-string nil t)))
 
-;; Don't call this directly.  firrtl-dbg-startup calls it
 (defun firrtl-dbg-initial-load ()
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
@@ -1533,19 +1529,10 @@ PROC should return non-nil if it has finished its work"
 
 (defun firrtl-dbg-complain-bad-buffer (&optional msg)
    ""
-
+   ;; PUT ME BACK when ready
    ;;(error (or msg "This operation only makes sense in main buffer"))
    (message
       (or msg "This operation only makes sense in a main circuit buffer")))
-
-(defun firrtl-dbg-assert-in-main-buffer (&optional msg)
-   ""
-   
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
-      ;; PUT ME BACK when ready
-      ;;(error (or msg "This operation only makes sense in main buffer"))
-      (firrtl-dbg-complain-bad-buffer "I'm not in firrtl-dbg-mode yet")))
-
 
 (defun firrtl-dbg-startup (working-directory repl-launch-command)
    ""
