@@ -1591,7 +1591,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
        (set (make-local-variable ',name) ,value)
        (put ',name 'variable-documentation ,docstring)))
 
-(defun firrtl-dbg-startup (working-directory repl-launch-command)
+(defun firrtl-dbg (working-directory repl-launch-command)
    ""
    (interactive
       (list
