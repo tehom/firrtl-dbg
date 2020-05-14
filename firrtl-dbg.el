@@ -1081,11 +1081,10 @@ Return nil if component has no permanent props."
 	    (when (commandp command)
 	       (call-interactively command))))))
 
-
 (defun firrtl-dbg-step-circuit ()
    "Step the circuit"
-   ;; IMPROVE ME: May want to display something else when in script.
-   ;; So have another umbrella function for this.
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
    (widget-value-set
       firrtl-dbg-widget-of-freshness
       "Stepping")
@@ -1094,9 +1093,30 @@ Return nil if component has no permanent props."
       (setq firrtl-dbg-current-script-rv
 	 (cons '(step)
 	    firrtl-dbg-current-script-rv)))
-   
+
+   (firrtl-dbg-step-circuit-low)
+   (firrtl-dbg-show-circuit-low))
+
+
+(defun firrtl-dbg-step-circuit-low ()
+   "Step the circuit"
+
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
    (tq-enqueue firrtl-dbg-tq
-      "step ; show\n"
+      "step\n"
+      firrtl-dbg-tq-regexp
+      nil
+      nil
+      t))
+
+(defun firrtl-dbg-show-circuit-low ()
+   "Get the current component values"
+
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+   (tq-enqueue firrtl-dbg-tq
+      "show\n"
       firrtl-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
