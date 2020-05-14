@@ -848,7 +848,19 @@ applied up until that column."
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
    (widget-insert "FIRRTL debugger interface\n\n")
+   (setq firrtl-dbg-widget-of-step-num
+      (widget-create 'const
+	 :value 0
+	 :format "Step %v"))
+   
+   (widget-insert " ")
+   (setq firrtl-dbg-widget-of-freshness
+      (widget-create 'const
+	 :value ""
+	 :format "(%v)"))
 
+   (widget-insert "\n\n")
+   
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
 		 (firrtl-dbg-step-circuit))
