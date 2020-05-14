@@ -343,3 +343,19 @@ nickname.
 
 There's a "1%" in there somewhere - it's dumping the clock value at
 that point?
+
+*** Renamed files
+*** To fix: We want perms per circuit, not per directory
+
+*** To do now
+
+Now that I have tried it out, certain things:
+ * I really want sorting.
+   * io ought to come first
+   * I really want io starting open
+ * Some sort of regexp setting would be very welcome
+ * Scripts run so slowly.  Why?  They don't run that slowly in sbt.
+   * Because the rapid input was confusing the REPL, which made
+     spurious responses, and emacs slowed down to present those.
+     * Fixed
+

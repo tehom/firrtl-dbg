@@ -97,7 +97,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customizations and constants
 
-(defgroup firrtl-dbg nil "Customizations for Firrtl-dbg")
+(defgroup firrtl-dbg nil "Customizations for Firrtl-dbg"
+   :group 'applications)
 
 (defface firrtl-dbg-face-value-poison '((t :background "gray"))
    "The face for poisoned values"
@@ -1076,7 +1077,8 @@ Return nil if component has no permanent props."
 	      ;; non-inputs, figure out whether it changed since last
 	      ;; time.
 	      (firrtl-dbg-build-data str)
-	      (firrtl-dbg-redraw-widgets)))))
+	      (firrtl-dbg-redraw-widgets)))
+      t))
 
 (defun firrtl-dbg-remove-prompt-suffix (str)
    ""
@@ -1134,7 +1136,8 @@ Return nil if component has no permanent props."
 			  ((component (symbol-value sym)))
 			  (setf
 			     (firrtl-dbg-component-type component)
-			     type)))))))))
+			     type))))))
+	 t)))
 
 (defun firrtl-dbg-init-all-component-types ()
    ""
@@ -1212,7 +1215,7 @@ Return nil if component has no permanent props."
 	    1)
 	 ((string-equal new-string "false")
 	    0)
-	 (otherwise (error "Not a boolean")))))
+	 (t (error "Not a boolean")))))
 
 (defun firrtl-dbg-read-new-decimal-val (prompt old-val)
    ""
@@ -1328,7 +1331,8 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		    (setf (firrtl-dbg-value-state current) 'set-by-user-now)
 
 		    (when extra-proc
-		       (apply extra-proc extra-data))))))))
+		       (apply extra-proc extra-data)))))
+	 t)))
 
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
@@ -1381,7 +1385,8 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 
 		    (setf (firrtl-dbg-value-state current) 'set-by-user-now)
 		    (with-current-buffer widgets-buffer
-		       (widget-value-set widget (widget-value widget)))))))))
+		       (widget-value-set widget (widget-value widget))))))
+	 t)))
 
 (defun firrtl-dbg-run-script (script)
    "Run SCRIPT.
@@ -1410,7 +1415,8 @@ Where NAME is a string naming a component.
 	      (unless (eq firrtl-dbg-current-buffer-type 'main)
 		 (firrtl-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
-	      (firrtl-dbg-redraw-widgets)))))
+	      (firrtl-dbg-redraw-widgets)))
+      t))
 
 
 ;; Examples:
@@ -1532,7 +1538,8 @@ PROC should return non-nil if it has finished its work"
 		 (firrtl-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-init-all-component-types)
-	      (firrtl-dbg-create-widgets)))))
+	      (firrtl-dbg-create-widgets)))
+      t))
 
 (define-derived-mode firrtl-dbg-mode
    special-mode "Firrtl-Dbg"
