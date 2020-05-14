@@ -1085,6 +1085,10 @@ Return nil if component has no permanent props."
 (defun firrtl-dbg-step-circuit ()
    "Step the circuit"
 
+   (widget-value-set
+      firrtl-dbg-widget-of-freshness
+      "Stepping")
+
    (when firrtl-dbg-writing-script-p
       (setq firrtl-dbg-current-script-rv
 	 (cons '(step)
