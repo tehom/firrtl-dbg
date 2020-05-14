@@ -850,13 +850,13 @@ applied up until that column."
    (widget-insert "FIRRTL debugger interface\n\n")
    (setq firrtl-dbg-widget-of-step-num
       (widget-create 'const
-	 :value 0
+	 :value firrtl-dbg-current-step
 	 :format "Step %v"))
    
    (widget-insert " ")
    (setq firrtl-dbg-widget-of-freshness
       (widget-create 'const
-	 :value ""
+	 :value firrtl-dbg-current-freshness
 	 :format "(%v)"))
 
    (widget-insert "\n\n")
@@ -1201,6 +1201,12 @@ Return nil if component has no permanent props."
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
+   (widget-value-set
+      firrtl-dbg-widget-of-step-num
+      firrtl-dbg-current-step)
+   (widget-value-set
+      firrtl-dbg-widget-of-freshness
+      firrtl-dbg-current-freshness)
 
    (firrtl-dbg-for-all-buttons
       #'(lambda (widget)
