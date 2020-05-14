@@ -1446,10 +1446,16 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 (defun firrtl-dbg-run-script (script)
    "Run SCRIPT.
 Script should be a list whose entries are in on of the forms:
- (poke name val)
- (step)
-Where NAME is a string naming a component.
-"
+ (poke component-name-string val)
+ (step)"
+   
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+
+   (widget-value-set
+      firrtl-dbg-widget-of-freshness
+      "Running script")
+
    (dolist (line script)
       (case (first line)
 	 (poke
@@ -1458,20 +1464,11 @@ Where NAME is a string naming a component.
 	       (third line)))
 	 
 	 (step
-	    (firrtl-dbg-step-circuit))))
+	    (firrtl-dbg-step-circuit-low))))
+   
+   ;; All done, now redisplay everything.
+   (firrtl-dbg-show-circuit-low))
 
-   ;; All done, now redisplay everything.  Mostly borrowed from
-   ;; firrtl-dbg-initial-load, but redraws widgets instead of doing
-   ;; initial draw.  REFACTOR ME.
-   (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
-      (list (current-buffer))
-      #'(lambda (data str)
-	   (with-current-buffer (first data)
-	      (unless (eq firrtl-dbg-current-buffer-type 'main)
-		 (firrtl-dbg-complain-bad-buffer))
-	      (firrtl-dbg-build-data str)
-	      (firrtl-dbg-redraw-widgets)))
-      t))
 
 
 ;; Examples:
