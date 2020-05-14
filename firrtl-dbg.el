@@ -232,6 +232,15 @@ Local in the relevant buffers." )
    (+ 20 firrtl-dbg-next-value-end-column)
    "Column that type should end at" )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Local
+(defvar-local firrtl-dbg-widget-of-step-num
+   nil
+   "Widget displaying the current step value")
+
+(defvar-local firrtl-dbg-widget-of-freshness
+   nil
+   "Widget displaying the current freshness")
 
 ;;;;;;;;;;;;;;;;;;;;
 
