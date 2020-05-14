@@ -350,6 +350,7 @@ that point?
 *** To do now
 
 Now that I have tried it out, certain things:
+ * Important: Some feedback for stepping
  * I really want sorting.
    * io ought to come first
    * I really want io starting open
@@ -359,3 +360,9 @@ Now that I have tried it out, certain things:
      spurious responses, and emacs slowed down to present those.
      * Fixed
 
+** My circuit
+
+I suspect the problem was that it's still resetting after reset is
+turned off at the top.  Better to use the built-in reset that I didn't
+know about.  I'll try that before going further.  Then I'll try
+chain-of-nested-setters, then actual data.
