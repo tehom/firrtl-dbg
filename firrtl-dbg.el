@@ -1531,9 +1531,6 @@ PROC should return non-nil if it has finished its work"
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      (message "Show, in buffer %S of type %S"
-		 (first data)
-		 firrtl-dbg-current-buffer-type)
 	      (unless (eq firrtl-dbg-current-buffer-type 'main)
 		 (firrtl-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
