@@ -507,13 +507,16 @@ DATA is the data to store, usually a symbol"
 
 (defun firrtl-dbg-build-data (state-string)
    ""
+
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer
 	 "Building the data only makes sense in a circuit buffer"))
 
    (let
       ((spl (split-string state-string "\n")))
-
+      ;; IMPROVE ME: Instead, recognize lines by first word, and
+      ;; complain about spurious lines.
+      
       ;; We do nothing with step data yet
       (while (string-match "^step" (car spl))
 	 (setq spl (cdr spl)))
@@ -521,9 +524,9 @@ DATA is the data to store, usually a symbol"
       ;; Skip blank lines just before the data
       (while (string-match "^[ \t]*$" (car spl))
 	 (setq spl (cdr spl)))
-      
-      (firrtl-dbg-read-overview spl)
 
+      ;; Recognize "CircuitState"
+      (firrtl-dbg-read-overview spl)
       (mapcar
 	 #'(lambda (v)
 	      (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-input))
