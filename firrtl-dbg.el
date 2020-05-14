@@ -515,7 +515,7 @@ DATA is the data to store, usually a symbol"
       ((spl (split-string state-string "\n")))
 
       ;; We do nothing with step data yet
-      (while (string-match "^step [0-9]+" (car spl))
+      (while (string-match "^step" (car spl))
 	 (setq spl (cdr spl)))
 
       ;; Skip blank lines just before the data
