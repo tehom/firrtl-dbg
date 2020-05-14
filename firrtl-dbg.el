@@ -1084,7 +1084,8 @@ Return nil if component has no permanent props."
 
 (defun firrtl-dbg-step-circuit ()
    "Step the circuit"
-
+   ;; IMPROVE ME: May want to display something else when in script.
+   ;; So have another umbrella function for this.
    (widget-value-set
       firrtl-dbg-widget-of-freshness
       "Stepping")
