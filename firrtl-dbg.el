@@ -531,20 +531,7 @@ DATA is the data to store, usually a symbol"
       (setq firrtl-dbg-current-freshness freshness-str)
       (setq firrtl-dbg-current-step step)))
 
-'
-(defun firrtl-dbg-read-overview (spl)
-   ""
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
 
-   (let* 
-      ((str (firrtl-dbg-state-strings-overview spl))
-	 (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
-	 (step (string-to-number (match-string 1 str)))
-	 (freshness-str (match-string 2 str)))
-   
-      (setq firrtl-dbg-current-freshness freshness-str)
-      (setq firrtl-dbg-current-step step)))
 
 (defun firrtl-dbg-split-input-line (input-str prefix-rx)
    ""
@@ -1183,6 +1170,34 @@ Return nil if component has no permanent props."
    (firrtl-dbg-step-circuit-low)
    (firrtl-dbg-show-circuit-low))
 
+(defun firrtl-dbg-record-spurious-response-lines (str step-num)
+   ""
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
+   (message "Line we're splitting is %s" str)
+   (let
+      ((spl (split-string str "\n"))
+	 (collected-lines '()))
+      
+      (dolist (line spl)
+	 (cond
+	    ;; Blank line.  Ignore it.
+	    ((string-match "^[ \t]*$" line))
+
+	    ;; The prompt line.  Ignore it.
+	    ((string-match firrtl-dbg-prompt-line-regexp line))
+	    
+	    (t
+	       (push collected-lines line))))
+      (message "collected-lines = %S" collected-lines)
+      (let
+	 ((line-data
+	     (list step-num (nreverse collected-lines))))
+	 (setq
+	    firrtl-dbg-spurious-lines
+	    (cons line-data firrtl-dbg-spurious-lines)))))
+
+
 
 (defun firrtl-dbg-step-circuit-low ()
    "Step the circuit"
@@ -1195,15 +1210,10 @@ Return nil if component has no permanent props."
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      ;; IMPROVE ME: Split it, strip off the prompt and any
-	      ;; blank lines.
-	      (let
-		 ((line-data
-		     (list firrtl-dbg-current-step str)))
-		 (setq
-		    firrtl-dbg-spurious-lines
-		    (cons line-data firrtl-dbg-spurious-lines))
-		 (incf firrtl-dbg-current-step))))
+	      (firrtl-dbg-record-spurious-response-lines
+		 str firrtl-dbg-current-step)
+	      (incf firrtl-dbg-current-step)))
+      
       t))
 
 (defun firrtl-dbg-show-circuit-low ()
