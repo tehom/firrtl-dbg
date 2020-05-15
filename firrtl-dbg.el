@@ -335,10 +335,7 @@ DATA is the data to store, usually a symbol"
 		     (setq current-tag+tree found))
 	       
 		  (progn
-		     (setq subtree-info-list
-			(cons
-			   current-tag+tree
-			   subtree-info-list))
+		     (push current-tag+tree subtree-info-list)
 		     (setq current-tag+tree (list subname t)))))
 
 	    ;; What we're exploring is a structure.  Demote it to the
@@ -369,10 +366,7 @@ DATA is the data to store, usually a symbol"
 	 (and
 	    (second current-tag+tree)
 	    (not (null (cddr current-tag+tree))))
-	 (setq subtree-info-list
-	    (cons
-	       current-tag+tree
-	       subtree-info-list))
+	 (push current-tag+tree subtree-info-list)
 	 (setq current-tag+tree (list "" nil)))
       
       ;; Now current-tag+tree points at the leaf that corresponds to
@@ -1036,10 +1030,9 @@ applied up until that column."
    (mapatoms
       #'(lambda (sym)
 	   (when sym
-	      (setq firrtl-dbg-perm-props-alist
-		 (cons
-		    (cons (symbol-name sym) (symbol-value sym))
-		    firrtl-dbg-perm-props-alist))))
+	      (push
+		 (cons (symbol-name sym) (symbol-value sym))
+		 firrtl-dbg-perm-props-alist)))
       firrtl-dbg-obarray-perm-props))
 
 
@@ -1118,7 +1111,7 @@ Return nil if component has no permanent props."
 			     (widget-get widget :custom-state)
 			     '(modified set changed rogue))))
 		   i)))
-	    (setq our-menu (cons entry our-menu))))
+	    (push entry our-menu)))
       (nreverse our-menu)))
 
 ;; Needs to be after firrtl-dbg-make-custom-variable-menu
@@ -1155,9 +1148,7 @@ Return nil if component has no permanent props."
       "Stepping")
 
    (when firrtl-dbg-writing-script-p
-      (setq firrtl-dbg-current-script-rv
-	 (cons '(step)
-	    firrtl-dbg-current-script-rv)))
+      (push '(step) firrtl-dbg-current-script-rv))
 
    (firrtl-dbg-step-circuit-low)
    (firrtl-dbg-show-circuit-low))
@@ -1511,9 +1502,9 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		 (number-to-string new-val) "\n")))
 
       (when firrtl-dbg-writing-script-p
-	 (setq firrtl-dbg-current-script-rv
-	    (cons `(poke ,component-name ,new-val)
-	       firrtl-dbg-current-script-rv)))
+	 (push
+	    `(poke ,component-name ,new-val)
+	    firrtl-dbg-current-script-rv))
 
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
       (tq-enqueue firrtl-dbg-tq
