@@ -289,6 +289,10 @@ Format: Each node is either:
    nil
    "The buffer of the FIRRTL REPL process")
 
+(defvar-local firrtl-dbg-main-buffer
+   nil
+   "The main interaction buffer")
+
 (defvar-local firrtl-dbg-tq
    nil
    "The firrtl-dbg transaction queue")
@@ -994,9 +998,7 @@ applied up until that column."
 	       (list (list perm-sym 'custom-variable))
 	       ;; The parm "description" doesn't do anything
 	       nil)
-	    (set
-	       (make-local-variable 'firrtl-dbg-main-buffer)
-	       main-buf)
+	    (setq firrtl-dbg-main-buffer main-buf)
 
 	    (fset (make-local-variable 'Custom-save)
 	       #'firrtl-dbg-save-perms)
@@ -1732,9 +1734,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
 
 	 (with-current-buffer firrtl-dbg-process-buffer
 	    (setq default-directory working-directory)
-	    (set
-	       (make-local-variable 'firrtl-dbg-main-buffer)
-	       main-buf))
+	    (setq firrtl-dbg-main-buffer main-buf))
 
 	 (setq firrtl-dbg-process
 	    (let ((default-directory working-directory))
