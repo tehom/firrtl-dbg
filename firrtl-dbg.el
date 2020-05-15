@@ -932,13 +932,13 @@ applied up until that column."
 		 (firrtl-dbg-step-circuit))
       "Step")
 
-   (widget-insert "    ")
+   (widget-insert "   ")
 
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		    (unless (eq firrtl-dbg-current-buffer-type 'main)
-		       (firrtl-dbg-complain-bad-buffer
-			  "Rebuilding the widgets only makes sense in a circuit buffer"))
+		 (unless (eq firrtl-dbg-current-buffer-type 'main)
+		    (firrtl-dbg-complain-bad-buffer
+		       "Rebuilding the widgets only makes sense in a circuit buffer"))
 
 		 (let
 		    ((inhibit-read-only t))
@@ -946,7 +946,17 @@ applied up until that column."
 		 (firrtl-dbg-create-widgets))
       "Rebuild buffer")
 
-   ;; IMPROVE ME: Add other buttons: Reset, Done, Poison, Randomize,
+   (widget-insert "   ")
+
+   (widget-create 'push-button
+      :notify
+      (lambda (&rest ignore)
+	 (unless (eq firrtl-dbg-current-buffer-type 'main)
+	    (firrtl-dbg-complain-bad-buffer))
+	 (firrtl-dbg-shutdown))
+      "Done")
+   
+   ;; IMPROVE ME: Add other buttons: Reset, (Done), Poison, Randomize,
    ;; Start/stop recording script, etc
    (widget-insert "\n\n")
 
