@@ -210,6 +210,10 @@ Local in the relevant buffers." )
    (concat ".*" firrtl-dbg-tq-prompt-string " *")
    "Regexp matching any response from the REPL" )
 
+(defconst firrtl-dbg-prompt-line-regexp
+   (concat "^" firrtl-dbg-tq-prompt-string " *")
+   "Regexp matching a bare prompt line from the REPL" )
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; Print columns
 
@@ -572,8 +576,12 @@ DATA is the data to store, usually a symbol"
 			  v #'firrtl-dbg-add-ephemeral))
 		  (split-string (substring line (match-end 0)) ",")))
 
-	    ((string-match "^Memories *: *" line)
+	    ((string-match "^Memories *:? *" line)
 	       ;; We do nothing with memories yet
+	       )
+	    ((string-match firrtl-dbg-prompt-line-regexp line)
+	       ;; That's the prompt line, it's not part of the actual
+	       ;; response.  Ignore it.
 	       )
 	    (t
 	       ;; IMPROVE ME: Collect these lines, they are probably
