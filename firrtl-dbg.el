@@ -286,7 +286,7 @@ Format: Each node is either:
    "The script that we are currently writing, in reverse order")
 
 (defvar-local firrtl-dbg-process-buffer
-   (generate-new-buffer firrtl-dbg-process-buffer-name)
+   nil
    "The buffer of the FIRRTL REPL process")
 
 (defvar-local firrtl-dbg-tq
@@ -1734,6 +1734,9 @@ This is different than defvar-local in that it doesn't define the variable in ot
 	 ;; down as their objects are created.
 	 (set (make-local-variable 'firrtl-dbg-current-buffer-type)
 	    'main)
+
+	 (setq firrtl-dbg-process-buffer
+	    (generate-new-buffer firrtl-dbg-process-buffer-name))
 
 	 (with-current-buffer firrtl-dbg-process-buffer
 	    (setq default-directory working-directory)
