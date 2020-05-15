@@ -252,6 +252,59 @@ Local in the relevant buffers." )
    '()
    "Spurious lines from stepping")
 
+(defvar-local firrtl-dbg-obarray
+   (make-vector firrtl-dbg-obarray-default-size nil)
+   "Obarray that holds the current data of FIRRTL components")
+
+(defvar-local firrtl-dbg-obarray-perm-props
+   (make-vector firrtl-dbg-obarray-default-size nil)
+   "Obarray that holds data about FIRRTL components that persists between sessions")
+
+(defvar-local firrtl-dbg-perm-props-alist
+   '()
+   "Alist that holds data that persists between sessions about FIRRTL components")
+
+(defvar-local firrtl-dbg-subname-tree
+   '()
+   "The component-tree of the circuit.
+
+Format: Each node is either:
+  (subname-string t list-of-nodes)
+  (subname-string nil . sym)"
+   )
+
+(defvar-local firrtl-dbg-have-built-subname-tree
+   nil
+   "Whether the subname tree has been built yet")
+
+(defvar-local firrtl-dbg-current-step
+   nil
+   "The current step of the circuit")
+
+(defvar-local firrtl-dbg-current-freshness
+   "UNKNOWN"
+   "The current freshness of the circuit, as a string")
+
+(defvar-local firrtl-dbg-writing-script-p
+   nil
+   "Whether we are currently writing a script")
+
+(defvar-local firrtl-dbg-current-script-rv
+   '()
+   "The script that we are currently writing, in reverse order")
+
+(defvar-local firrtl-dbg-process-buffer
+   (generate-new-buffer firrtl-dbg-process-buffer-name)
+   "The buffer of the FIRRTL REPL process")
+
+(defvar-local firrtl-dbg-tq
+   nil
+   "The firrtl-dbg transaction queue")
+
+(defvar-local firrtl-dbg-process
+   nil
+   "The FIRRTL REPL process")
+
 ;;;;;;;;;;;;;;;;;;;;
 
 (defun firrtl-dbg-add-to-subname-tree (tree subname-list data)
@@ -1680,58 +1733,13 @@ This is different than defvar-local in that it doesn't define the variable in ot
 	 (set (make-local-variable 'firrtl-dbg-current-buffer-type)
 	    'main)
 
-	 (firrtl-dbg-local-defvar firrtl-dbg-obarray
-	    (make-vector firrtl-dbg-obarray-default-size nil)
-	    "Obarray that holds the current data of FIRRTL components")
-
-	 (firrtl-dbg-local-defvar firrtl-dbg-obarray-perm-props
-	    (make-vector firrtl-dbg-obarray-default-size nil)
-	    "Obarray that holds data about FIRRTL components that persists between sessions")
-
-	 (firrtl-dbg-local-defvar firrtl-dbg-perm-props-alist
-	    '()
-	    "Alist that holds data that persists between sessions about FIRRTL components")
-
-	 (firrtl-dbg-local-defvar firrtl-dbg-subname-tree
-	    '()
-	    "The component-tree of the circuit.
-
-Format: Each node is either:
-  (subname-string t list-of-nodes)
-  (subname-string nil . sym)"
-	    )
-
-	 (firrtl-dbg-local-defvar firrtl-dbg-have-built-subname-tree
-	    nil
-	    "Whether the subname tree has been built yet")
-	 
-	 (firrtl-dbg-local-defvar firrtl-dbg-current-step
-	    nil
-	    "The current step of the circuit")
-
-	 (firrtl-dbg-local-defvar firrtl-dbg-current-freshness
-	    "UNKNOWN"
-	    "The current freshness of the circuit, as a string")
-	 
-	 (firrtl-dbg-local-defvar firrtl-dbg-writing-script-p
-	    nil
-	    "Whether we are currently writing a script")
-	 
-	 (firrtl-dbg-local-defvar firrtl-dbg-current-script-rv
-	    '()
-	    "The script that we are currently writing, in reverse order")
-	 
-	 (firrtl-dbg-local-defvar firrtl-dbg-process-buffer
-	    (generate-new-buffer firrtl-dbg-process-buffer-name)
-	    "The buffer of the FIRRTL REPL process")
-
 	 (with-current-buffer firrtl-dbg-process-buffer
 	    (setq default-directory working-directory)
 	    (set
 	       (make-local-variable 'firrtl-dbg-main-buffer)
 	       main-buf))
 
-	 (firrtl-dbg-local-defvar firrtl-dbg-process
+	 (setq firrtl-dbg-process
 	    (let ((default-directory working-directory))
 	       (start-process
 		  firrtl-dbg-process-name
@@ -1739,12 +1747,7 @@ Format: Each node is either:
 		  firrtl-dbg-executable
 		  ;; Quoting this string with shell-quote-argument
 		  ;; actually messes us up.
-		  repl-launch-command))
-	    "The FIRRTL REPL process")
-
-	 (firrtl-dbg-local-defvar firrtl-dbg-tq
-	    nil
-	    "The firrtl-dbg transaction queue")
+		  repl-launch-command)))
 
 	 (hack-dir-local-variables-non-file-buffer)
 	 (firrtl-dbg-copy-alist-to-perms)
