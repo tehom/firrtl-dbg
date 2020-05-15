@@ -84,15 +84,7 @@
 	      :named)
    "An output wire")
 
-(defstruct (firrtl-dbg-state-strings (:type list))
-   "Structuring the post-split strings"
-   overview
-   inputs
-   outputs
-   registers
-   future-registers
-   ephemera
-   memories)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customizations and constants
