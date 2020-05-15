@@ -1505,6 +1505,10 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	 (push
 	    `(poke ,component-name ,new-val)
 	    firrtl-dbg-current-script-rv))
+      (setq firrtl-dbg-current-freshness "STALE")
+      (widget-value-set
+	 firrtl-dbg-widget-of-freshness
+	 "STALE")
 
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
       (tq-enqueue firrtl-dbg-tq
