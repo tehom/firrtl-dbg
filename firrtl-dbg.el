@@ -1166,7 +1166,7 @@ Return nil if component has no permanent props."
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer))
-   (message "Line we're splitting is %s" str)
+
    (let
       ((spl (split-string str "\n"))
 	 (collected-lines '()))
@@ -1180,14 +1180,11 @@ Return nil if component has no permanent props."
 	    ((string-match firrtl-dbg-prompt-line-regexp line))
 	    
 	    (t
-	       (push collected-lines line))))
-      (message "collected-lines = %S" collected-lines)
+	       (push line collected-lines))))
       (let
 	 ((line-data
 	     (list step-num (nreverse collected-lines))))
-	 (setq
-	    firrtl-dbg-spurious-lines
-	    (cons line-data firrtl-dbg-spurious-lines)))))
+	 (push line-data firrtl-dbg-spurious-lines))))
 
 
 
