@@ -580,57 +580,6 @@ DATA is the data to store, usually a symbol"
 	       ;; debug printing.
 	       (message "Spurious line: %s" line))))
 
-      '(progn
-      
-	  ;; We do nothing with step data yet
-	  (while (string-match "^step" (car spl))
-	     (setq spl (cdr spl)))
-
-	  ;; Skip blank lines just before the data
-	  (while (string-match "^[ \t]*$" (car spl))
-	     (setq spl (cdr spl)))
-
-	  ;; Recognize "CircuitState"
-	  (firrtl-dbg-read-overview spl)
-
-      
-	  (mapcar
-	     #'(lambda (v)
-		  (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-input))
-	     (firrtl-dbg-split-input-line
-		(firrtl-dbg-state-strings-inputs spl)
-		"Inputs: *"))
-	  (mapcar
-	     #'(lambda (v)
-		  (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-output))
-	     (firrtl-dbg-split-input-line
-		(firrtl-dbg-state-strings-outputs spl)
-		"Outputs: *"))
-
-	  (mapcar
-	     #'(lambda (v)
-		  (firrtl-dbg-act-on-component-str v
-		     #'firrtl-dbg-set-register-current))
-	     (firrtl-dbg-split-input-line
-		(firrtl-dbg-state-strings-registers spl)
-		"Registers *: *"))
-
-	  (mapcar
-	     #'(lambda (v)
-		  (firrtl-dbg-act-on-component-str v
-		     #'firrtl-dbg-set-register-next))
-	     (firrtl-dbg-split-input-line
-		(firrtl-dbg-state-strings-future-registers spl)
-		"FutureRegisters: *"))
-
-	  (mapcar
-	     #'(lambda (v)
-		  (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
-	     (firrtl-dbg-split-input-line
-		(firrtl-dbg-state-strings-ephemera spl)
-		"Ephemera: *"))
-	  )
-
       (when (not firrtl-dbg-have-built-subname-tree)
 	 ;; IMPROVE ME: Sort the newly built subname tree
 	 )
