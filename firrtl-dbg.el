@@ -237,7 +237,7 @@ Local in the relevant buffers." )
    "Column that type should end at" )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Local
+;; Widgets
 (defvar-local firrtl-dbg-widget-of-step-num
    nil
    "Widget displaying the current step value")
@@ -245,6 +245,12 @@ Local in the relevant buffers." )
 (defvar-local firrtl-dbg-widget-of-freshness
    nil
    "Widget displaying the current freshness")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Data items
+(defvar-local firrtl-dbg-spurious-lines
+   '()
+   "Spurious lines from stepping")
 
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -606,7 +612,9 @@ DATA is the data to store, usually a symbol"
    (setq firrtl-dbg-have-built-subname-tree nil)
    (setq firrtl-dbg-subname-tree '())
    (setq firrtl-dbg-obarray
-      (make-vector firrtl-dbg-obarray-default-size nil)))
+      (make-vector firrtl-dbg-obarray-default-size nil))
+   (setq firrtl-dbg-spurious-lines '()))
+
 
 (defun firrtl-dbg-shutdown ()
    ""
