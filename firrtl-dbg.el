@@ -1139,8 +1139,18 @@ Return nil if component has no permanent props."
    (tq-enqueue firrtl-dbg-tq
       "step\n"
       firrtl-dbg-tq-regexp
-      nil
-      nil
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
+	      ;; IMPROVE ME: Split it, strip off the prompt and any
+	      ;; blank lines.
+	      (let
+		 ((line-data
+		     (list firrtl-dbg-current-step str)))
+		 (setq
+		    firrtl-dbg-spurious-lines
+		    (cons line-data firrtl-dbg-spurious-lines))
+		 (incf firrtl-dbg-current-step))))
       t))
 
 (defun firrtl-dbg-show-circuit-low ()
