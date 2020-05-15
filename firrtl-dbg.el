@@ -455,7 +455,20 @@ DATA is the data to store, usually a symbol"
 	      :next (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
 
+(defun firrtl-dbg-read-overview-line (str)
+   ""
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer))
 
+   (let* 
+      (  (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
+	 (step (string-to-number (match-string 1 str)))
+	 (freshness-str (match-string 2 str)))
+   
+      (setq firrtl-dbg-current-freshness freshness-str)
+      (setq firrtl-dbg-current-step step)))
+
+'
 (defun firrtl-dbg-read-overview (spl)
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
@@ -478,7 +491,6 @@ DATA is the data to store, usually a symbol"
 	 (end (match-end 0))
 	 (input-str (substring input-str end)))
       (split-string input-str ",")))
-
 
 (defun firrtl-dbg-act-on-component-str (component-str proc)
    "PROC should take three parms: name, value, and is-valid"
@@ -514,54 +526,110 @@ DATA is the data to store, usually a symbol"
 
    (let
       ((spl (split-string state-string "\n")))
-      ;; IMPROVE ME: Instead, recognize lines by first word, and
-      ;; complain about spurious lines.
+      (dolist (line spl)
+	 (cond
+	    ((string-match "^step" line)
+	       ;; We do nothing with step data yet
+	       )
+	    ;; Blank line, nothing to do
+	    ((string-match "^[ \t]*$" line))
+	    
+	    ((string-match "^CircuitState" line)
+	       (firrtl-dbg-read-overview-line line))
+
+	    ((string-match "^Inputs *: *" line)
+	       (mapcar
+		  #'(lambda (v)
+		       (firrtl-dbg-act-on-component-str
+			  v #'firrtl-dbg-add-input))
+		  (split-string (substring line (match-end 0)) ",")))
+
+	    ((string-match "^Outputs *: *" line)
+	       (mapcar
+		  #'(lambda (v)
+		       (firrtl-dbg-act-on-component-str
+			  v #'firrtl-dbg-add-output))
+		  (split-string (substring line (match-end 0)) ",")))
+
+	    ((string-match "^Registers *: *" line)
+	       (mapcar
+		  #'(lambda (v)
+		       (firrtl-dbg-act-on-component-str
+			  v #'firrtl-dbg-set-register-current))
+		  (split-string (substring line (match-end 0)) ",")))
+
+	    ((string-match "^FutureRegisters *: *" line)
+	       (mapcar
+		  #'(lambda (v)
+		       (firrtl-dbg-act-on-component-str
+			  v #'firrtl-dbg-set-register-next))
+		  (split-string (substring line (match-end 0)) ",")))
+
+	    ((string-match "^Ephemera *: *" line)
+	       (mapcar
+		  #'(lambda (v)
+		       (firrtl-dbg-act-on-component-str
+			  v #'firrtl-dbg-add-ephemeral))
+		  (split-string (substring line (match-end 0)) ",")))
+
+	    ((string-match "^Memories *: *" line)
+	       ;; We do nothing with memories yet
+	       )
+	    (t
+	       ;; IMPROVE ME: Collect these lines, they are probably
+	       ;; debug printing.
+	       (message "Spurious line: %s" line))))
+
+      '(progn
       
-      ;; We do nothing with step data yet
-      (while (string-match "^step" (car spl))
-	 (setq spl (cdr spl)))
+	  ;; We do nothing with step data yet
+	  (while (string-match "^step" (car spl))
+	     (setq spl (cdr spl)))
 
-      ;; Skip blank lines just before the data
-      (while (string-match "^[ \t]*$" (car spl))
-	 (setq spl (cdr spl)))
+	  ;; Skip blank lines just before the data
+	  (while (string-match "^[ \t]*$" (car spl))
+	     (setq spl (cdr spl)))
 
-      ;; Recognize "CircuitState"
-      (firrtl-dbg-read-overview spl)
-      (mapcar
-	 #'(lambda (v)
-	      (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-input))
-	 (firrtl-dbg-split-input-line
-	    (firrtl-dbg-state-strings-inputs spl)
-	    "Inputs: *"))
-      (mapcar
-	 #'(lambda (v)
-	      (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-output))
-	 (firrtl-dbg-split-input-line
-	    (firrtl-dbg-state-strings-outputs spl)
-	    "Outputs: *"))
+	  ;; Recognize "CircuitState"
+	  (firrtl-dbg-read-overview spl)
 
-      (mapcar
-	 #'(lambda (v)
-	      (firrtl-dbg-act-on-component-str v
-		 #'firrtl-dbg-set-register-current))
-	 (firrtl-dbg-split-input-line
-	    (firrtl-dbg-state-strings-registers spl)
-	    "Registers *: *"))
+      
+	  (mapcar
+	     #'(lambda (v)
+		  (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-input))
+	     (firrtl-dbg-split-input-line
+		(firrtl-dbg-state-strings-inputs spl)
+		"Inputs: *"))
+	  (mapcar
+	     #'(lambda (v)
+		  (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-output))
+	     (firrtl-dbg-split-input-line
+		(firrtl-dbg-state-strings-outputs spl)
+		"Outputs: *"))
 
-      (mapcar
-	 #'(lambda (v)
-	      (firrtl-dbg-act-on-component-str v
-		 #'firrtl-dbg-set-register-next))
-	 (firrtl-dbg-split-input-line
-	    (firrtl-dbg-state-strings-future-registers spl)
-	    "FutureRegisters: *"))
+	  (mapcar
+	     #'(lambda (v)
+		  (firrtl-dbg-act-on-component-str v
+		     #'firrtl-dbg-set-register-current))
+	     (firrtl-dbg-split-input-line
+		(firrtl-dbg-state-strings-registers spl)
+		"Registers *: *"))
 
-      (mapcar
-	 #'(lambda (v)
-	      (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
-	 (firrtl-dbg-split-input-line
-	    (firrtl-dbg-state-strings-ephemera spl)
-	    "Ephemera: *"))
+	  (mapcar
+	     #'(lambda (v)
+		  (firrtl-dbg-act-on-component-str v
+		     #'firrtl-dbg-set-register-next))
+	     (firrtl-dbg-split-input-line
+		(firrtl-dbg-state-strings-future-registers spl)
+		"FutureRegisters: *"))
+
+	  (mapcar
+	     #'(lambda (v)
+		  (firrtl-dbg-act-on-component-str v #'firrtl-dbg-add-ephemeral))
+	     (firrtl-dbg-split-input-line
+		(firrtl-dbg-state-strings-ephemera spl)
+		"Ephemera: *"))
+	  )
 
       (when (not firrtl-dbg-have-built-subname-tree)
 	 ;; IMPROVE ME: Sort the newly built subname tree
