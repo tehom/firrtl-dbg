@@ -20,6 +20,10 @@ You probably want to set firrtl-dbg-directory-history and
 firrtl-dbg-repl-name-history to that your current project pops up
 at the top of the history lists when calling firrtl-dbg.
 
+To change an input value, left-click on the button next to it.  This
+only works for input values.  To change how the value is displayed, eg
+to make it a boolean or an enum, hit Alt-Enter on the button.
+
 It doesn't support vpn scripts, but does support a native elisp
 script.  Create it with firrtl-dbg-start-recording-script, do stuff
 in the main buffer, then firrtl-dbg-stop-recording-script when
@@ -31,3 +35,11 @@ and the conversion yourself.
 
 At this point, there are a lot of features still to be added, and I
 can't promise that I will ever get around to adding them.
+
+Troubleshooting:
+
+firrtl-dbg is not designed to catch circuit compilation errors.  On a
+circuit that won't compile, firrtl-dbg will most likely just report
+that it timed out.  It's a good practice to compile the circuit or run
+its REPL at least once in sbt.
+
