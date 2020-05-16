@@ -3,8 +3,10 @@ it, you will need Chisel3 and sbt.  If you don't know what those
 are, you probably don't need this package.
 
 The entry point is 'firrtl-dbg'.  You need to have already set up a
-REPL in Scala.  Experiment on the usual guinea-pig project GCD,
-which already has one.
+REPL in Scala.  Experiment on the usual guinea-pig project GCD, which
+already has a REPL.  By default the correct command for GCD's REPL is
+already at the top of the history list, but you'll have to point it
+towards the right directory (the one that build.sbt lives in)
 
 Instructions for setting up and using the FIRRTL REPL itself can be
 found at
