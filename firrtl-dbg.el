@@ -579,7 +579,7 @@ DATA is the data to store, usually a symbol"
       (when (not firrtl-dbg-have-built-subname-tree)
 	 (firrtl-dbg-mutate-subname-tree full-name sym))))
 
-(defun treadle-dbg-add-object (full-name proc-mutate proc-create)
+(defun treadle-dbg-add-object (full-name proc-mutate)
    ""
    ' ;; Temporarily out
    (unless (eq firrtl-dbg-current-buffer-type 'main)
@@ -592,9 +592,12 @@ DATA is the data to store, usually a symbol"
 	 (sym (or soft-sym (intern full-name treadle-dbg-obarray))))
       (if soft-sym
 	 (funcall proc-mutate (symbol-value sym))
-	 ;; Since it doesn't exist, create it
-	 (set sym (funcall proc-create)))
-
+	 (let* 
+	    ((component
+		(make-treadle-dbg-component :full-name full-name)))
+	    (funcall proc-mutate component)
+	    (set sym component)))
+      
       ' ;; Temporarily out
       (when (not firrtl-dbg-have-built-subname-tree)
 	 (firrtl-dbg-mutate-subname-tree full-name sym))))
@@ -724,15 +727,7 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 	       (treadle-dbg-add-object
 		  (treadle-dbg-state-entry-full-name e)
 		  #'(lambda (component)
-		       (funcall mutator component e))
-		  ;; Proc create
-		  #'(lambda ()
-		       (let* 
-			  ((component
-			      (make-treadle-dbg-component
-				 :full-name (treadle-dbg-state-entry-full-name e))))
-			  (funcall mutator component e)
-			  component))))))))
+		       (funcall mutator component e))))))))
 
 ;; Processes the return string from "show state"
 (defun treadle-dbg-record-state (state-string)
@@ -844,13 +839,8 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 			  ;; WRITE ME
 			  ;; Set type, width, and source.  Complain if
 			  ;; value is different.
-			  )
-		     ;; Proc create ... punt
-		     #'(lambda ()
-			  ;; Creation should just be done in
-			  ;; treadle-dbg-add-object
-			  ))
-		  ))))))
+			  ))))))))
+
 
 
 (defun firrtl-dbg-build-data (state-string)
