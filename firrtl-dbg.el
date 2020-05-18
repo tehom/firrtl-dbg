@@ -1154,7 +1154,7 @@ string
 		  (treadle-dbg-component-current component)
 		  perm-props)
 	       face-of-current)
-	    (list 'to-col firrtl-dbg-value-end-column)
+	    (list 'to-col firrtl-dbg-value-end-column face-of-current)
 	    ;; ADD ME: display "in", "prev", and "in/prev" values if
 	    ;; non-nil, with suitable "<-"
 
