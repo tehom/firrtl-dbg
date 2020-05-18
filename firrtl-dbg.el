@@ -87,7 +87,7 @@
    in/prev
    signed-p
    width
-   io-type ;; '(input output nil)
+   io-type ;; '(input output clock reset nil)
    forced-p ;; Whether it is currently forced.
    )
 
