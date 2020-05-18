@@ -826,19 +826,32 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 	       "\\([^ ]+\\) +\\([A-Za-z]+\\) +\\([A-Za-z]+\\) +\\([0-9]+\\) +\\([0-9]+\\) +\\([^ ]+\\) +\\([0-9]+\\) +@\\[\\([^[]+\\)\\] +\\([0-9]+\\)"
 	       line)
 	    (let* 
-	       ((name (match-string 0))
-		  ;; (bin (match-string 1)) ;; Can't use
-		  (type (match-string 2))
-		  (width (match-string 3))
-		  ;; (slots (match-string 4)) ;; Can't use
-		  ;; (index (match-string 5)) ;; Internal
-		  ;;(depend (match-string 6)) ;; Can't use
-		  (source (match-string 7))
-		  (value (match-string 8)))
+	       ((name (match-string 0 line)) ;; We will already know this
+		  ;; (bin (match-string 1 line)) ;; Can't use
+		  (type (match-string 2 line))
+		  (width (match-string 3 line))
+		  ;; (slots (match-string 4 line)) ;; Can't use
+		  ;; (index (match-string 5 line)) ;; Internal
+		  ;;(depend (match-string 6 line)) ;; Can't use
+		  (source (match-string 7 line))
+		  (value (match-string 8 line))) ;; We will already know this
+	       (unless
+		  ;; Don't use foo/in, foo/prev, etc
+		  (string-match-p ".*/.*" line)
+		  (treadle-dbg-add-object name
+		     ;; Proc mutate
+		     #'(lambda (component)
+			  ;; WRITE ME
+			  ;; Set type, width, and source.  Complain if
+			  ;; value is different.
+			  )
+		     ;; Proc create ... punt
+		     #'(lambda ()
+			  ;; Creation should just be done in
+			  ;; treadle-dbg-add-object
+			  ))
+		  ))))))
 
-	       
-	       )
-	    ))))
 
 (defun firrtl-dbg-build-data (state-string)
    ""
