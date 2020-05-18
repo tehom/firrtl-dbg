@@ -718,20 +718,21 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
    (let*
       ((spl (split-string state-string "\n")))
       (dolist (line spl)
-	 (let* 
-	    ((e (treadle-dbg-str->state-entry line)))
-	    (treadle-dbg-add-object
-	       (treadle-dbg-state-entry-full-name e)
-	       #'(lambda (component)
-		    (funcall mutator component e))
-	       ;; Proc create
-	       #'(lambda ()
-		    (let* 
-		       ((component
-			   (make-treadle-dbg-component
-			      :full-name (treadle-dbg-state-entry-full-name e))))
-		       (funcall mutator component e)
-		       component)))))))
+	 (unless (string-empty-p line)
+	    (let* 
+	       ((e (treadle-dbg-str->state-entry line)))
+	       (treadle-dbg-add-object
+		  (treadle-dbg-state-entry-full-name e)
+		  #'(lambda (component)
+		       (funcall mutator component e))
+		  ;; Proc create
+		  #'(lambda ()
+		       (let* 
+			  ((component
+			      (make-treadle-dbg-component
+				 :full-name (treadle-dbg-state-entry-full-name e))))
+			  (funcall mutator component e)
+			  component))))))))
 
 ;; Processes the return string from "show state"
 (defun treadle-dbg-record-state (state-string)
@@ -752,8 +753,9 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 		    (cond
 		       ((string-equal name "reset") 'reset)
 		       ((string-equal name "clock") 'clock)
-		       (t 'input)))))
-	   (setf (treadle-dbg-component-io-type component) type))))
+		       (t 'input))))
+	      (setf (treadle-dbg-component-io-type component) type)))))
+
 
 (defun treadle-dbg-record-outputs (str)
    "Set the data of components from the result of Treadle 'show outputs'"
@@ -793,8 +795,12 @@ io_pulseOnPerCell_2 0
 
    )
 
-'
-(treadle-dbg-record-state state-string1)
+'(progn
+    (treadle-dbg-record-state state-string1)
+    (treadle-dbg-record-outputs show-outputs-string)
+    (treadle-dbg-record-inputs show-inputs-string)
+    
+    )
 
 (defun firrtl-dbg-build-data (state-string)
    ""
