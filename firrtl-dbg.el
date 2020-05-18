@@ -158,6 +158,20 @@
    "The face for normal values"
    :group 'firrtl-dbg)
 
+(defface treadle-dbg-face-value-input-unset '((t :background "gray"))
+   "The face for poisoned values"
+   :group 'firrtl-dbg)
+
+(defface treadle-dbg-face-forced-noninput-value
+   '((t (:foreground "forest green")))
+   "The face for values set earlier"
+   :group 'firrtl-dbg)
+
+(defface treadle-dbg-face-value-set-by-user-now
+   '((t (:background "LightCyan1")))
+   "The face for values set since the last step"
+   :group 'firrtl-dbg)
+
 ;; It's tempting to make this buffer-local and save it in the working
 ;; directory.  But for now, it's simpler to let it be a normal
 ;; customization.
@@ -1020,6 +1034,30 @@ applied up until that column."
 	       "[invalid]"))
 	 "[no such enum]")))
 
+(defun treadle-dbg-value-fmt (value perm-props face end-col)
+   ""
+   (let* 
+      (
+	 (fmt perm-props)
+	 (text
+	    (case (first fmt)
+	       ((boolean)
+		  ;; ENCAP ME
+		  (case value
+		     (0 "false")
+		     (1 "true")
+		     (otherwise "[invalid]")))
+	       ((enum)
+		  (firrtl-dbg-enum-string fmt value))
+	       
+	       (otherwise
+		  (number-to-string
+		     value)))))
+
+      (list
+	 text
+	 face
+	 end-col)))
 
 (defun firrtl-dbg-field-fmt (cvalue perm-props end-col)
    ""
@@ -1067,6 +1105,54 @@ applied up until that column."
 		  (concat signed-str "(" width-str ")")))
 	 
 	    (list str nil end-col)))))
+
+(defun treadle-dbg-insert-component-aux (component perm-props)
+   ""
+   (let* 
+      ((width-string (number-to-string (treadle-dbg-component-width component)))
+	 (sign-string
+	    (if (treadle-dbg-component-signed-p component) "S" "U"))
+	 (face-of-current
+	    (if
+	       (eq (treadle-dbg-component-io-type component) 'input)
+	       (if (treadle-dbg-component-forced-p component)
+		  treadle-dbg-face-value-set-by-user-now
+		  treadle-dbg-face-value-input-unset)
+	       (if (treadle-dbg-component-forced-p component)
+		  treadle-dbg-face-forced-noninput-value
+		  firrtl-dbg-face-value-default))))
+      
+      ;; PUNT.  We'll build the list to include optionals.
+      (firrtl-dbg-insert-fields
+	 (list
+	    (list
+	       (treadle-dbg-component-full-name component)
+	       nil
+	       firrtl-dbg-value-column)
+	    (treadle-dbg-value-fmt
+	       (treadle-dbg-component-current component)
+	       perm-props
+	       face-of-current
+	       firrtl-dbg-value-end-column)
+	    ;; ADD ME: display "in", "prev", and "in/prev" values if
+	    ;; non-nil.  We need to improve columns for this to work
+	    ;; nicely.
+	    
+	    " "
+	    ;; Display width and signed-p
+	    width-string
+	    sign-string))))
+
+
+(defun treadle-dbg-insert-component (wid)
+   ""
+   (let* 
+      (
+	 (sym (widget-get wid :value))
+	 (v (symbol-value sym))
+	 (perm-props (firrtl-dbg-get-perm-props (symbol-name sym))))
+      (treadle-dbg-insert-component-aux v perm-props)))
+
 
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
