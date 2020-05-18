@@ -1015,7 +1015,7 @@ applied up until that column."
 ;; nasty if we sometimes have a chain in fields and sometimes don't.
 ;;
 ;; Perhaps better: Have separate "insert" and "go-to" instructions.
-' 
+
 (defun treadle-dbg-insert-fields (field-list)
    "FIELD-LIST is a list whose elements are either
 string
@@ -1028,7 +1028,7 @@ string
 	 ((null field))
 	 ((stringp field) (widget-insert field))
 	 ((and (listp field) (eq (car field) 'to-col))
-	    (destructuring-bind (dummy face col) field
+	    (destructuring-bind (dummy col &optional face) field
 	       (firrtl-dbg-pad-to-column col face)))
 	 ((listp field)
 	    (destructuring-bind (text face) field
@@ -1142,20 +1142,19 @@ string
 	       (if (treadle-dbg-component-forced-p component)
 		  treadle-dbg-face-forced-noninput-value
 		  firrtl-dbg-face-value-default))))
-      
-      ;; PUNT.  We'll build the list to include optionals.
-      (firrtl-dbg-insert-fields
+
+      (treadle-dbg-insert-fields
 	 (list
 	    (list
 	       (treadle-dbg-component-full-name component)
 	       nil)
-	    (list 'go-to firrtl-dbg-value-column)
+	    (list 'to-col firrtl-dbg-value-column)
 	    (list
 	       (treadle-dbg-value-text
 		  (treadle-dbg-component-current component)
 		  perm-props)
 	       face-of-current)
-	    (list 'go-to firrtl-dbg-value-end-column)
+	    (list 'to-col firrtl-dbg-value-end-column)
 	    ;; ADD ME: display "in", "prev", and "in/prev" values if
 	    ;; non-nil, with suitable "<-"
 
