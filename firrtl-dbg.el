@@ -563,6 +563,7 @@ DATA is the data to store, usually a symbol"
 
 (defun treadle-dbg-add-object (full-name proc-mutate proc-create)
    ""
+   ' ;; Temporarily out
    (unless (eq firrtl-dbg-current-buffer-type 'main)
       (firrtl-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
@@ -575,7 +576,8 @@ DATA is the data to store, usually a symbol"
 	 (funcall proc-mutate (symbol-value sym))
 	 ;; Since it doesn't exist, create it
 	 (set sym (funcall proc-create)))
-      
+
+      ' ;; Temporarily out
       (when (not firrtl-dbg-have-built-subname-tree)
 	 (firrtl-dbg-mutate-subname-tree full-name sym))))
 
@@ -715,7 +717,24 @@ DATA is the data to store, usually a symbol"
 			      :full-name (treadle-dbg-state-entry-full-name e))))
 		       (treadle-dbg-mutate-component-value component e)
 		       component)))))))
+'
+(setq state-string1
+   "cellVec2_2.timeVec_3.clock 0
+cellVec2_2.timeVec_3.clock/prev 0
+cellVec2_2.timeVec_3.io_writeEnableReachesHere 0
+cellVec2_2.timeVec_3.reset 0
+clock 0
+clock/prev 0
+io_operation 0
+io_operationWhatMyLastDebug 0
+io_pulseOnPerCell_0 0
+io_pulseOnPerCell_1 0
+io_pulseOnPerCell_2 0
+lastOperation 0
+lastOperation/in 0")
 
+'
+(treadle-dbg-build-data state-string1)
 
 (defun firrtl-dbg-build-data (state-string)
    ""
