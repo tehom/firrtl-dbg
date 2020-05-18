@@ -792,15 +792,53 @@ io_pulseOnPerCell_0 0
 io_pulseOnPerCell_1 0
 io_pulseOnPerCell_2 0
 ")
+   (setq symbol-string-lastOperation
+      "Name                                     Bin Type  Width  Slots  Index Depend Info
+lastOperation                            Int UInt      3      1    252I      3  @[dummy.scala 262:30] 0
+lastOperation/in                         Int UInt      3      1    287I      6  @[dummy.scala 262:30] 0
+"
+      )
 
+   (treadle-dbg-record-state state-string1)
+   (treadle-dbg-record-outputs show-outputs-string)
+   (treadle-dbg-record-inputs show-inputs-string)
+   (treadle-dbg-record-symbol-info symbol-string-lastOperation)
+   '
+   (string-match
+	       "\\([^ ]+\\) +\\([A-Za-z]+\\) +\\([A-Za-z]+\\) +\\([0-9]+\\) +\\([0-9]+\\) +\\([^ ]+\\) +\\([0-9]+\\) +@\\[\\([^[]+\\)\\] +\\([0-9]+\\)"
+
+      (second (split-string symbol-string-lastOperation "\n")))
+   
    )
 
-'(progn
-    (treadle-dbg-record-state state-string1)
-    (treadle-dbg-record-outputs show-outputs-string)
-    (treadle-dbg-record-inputs show-inputs-string)
-    
-    )
+(defun treadle-dbg-record-symbol-info (symbol-string)
+   ""
+   (let*
+      ((spl (split-string symbol-string "\n")))
+      (unless (string-match-p
+		 "Name +Bin +Type +Width +Slots +Index +Depend +Info"
+		 (car spl))
+	 (error "This symbol report is not a recognized format"))
+      
+      (dolist (line (cdr spl))
+	 (unless (string-empty-p line)
+	    (string-match
+	       "\\([^ ]+\\) +\\([A-Za-z]+\\) +\\([A-Za-z]+\\) +\\([0-9]+\\) +\\([0-9]+\\) +\\([^ ]+\\) +\\([0-9]+\\) +@\\[\\([^[]+\\)\\] +\\([0-9]+\\)"
+	       line)
+	    (let* 
+	       ((name (match-string 0))
+		  ;; (bin (match-string 1)) ;; Can't use
+		  (type (match-string 2))
+		  (width (match-string 3))
+		  ;; (slots (match-string 4)) ;; Can't use
+		  ;; (index (match-string 5)) ;; Internal
+		  ;;(depend (match-string 6)) ;; Can't use
+		  (source (match-string 7))
+		  (value (match-string 8)))
+
+	       
+	       )
+	    ))))
 
 (defun firrtl-dbg-build-data (state-string)
    ""
