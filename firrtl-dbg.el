@@ -722,7 +722,8 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 	    ((e (treadle-dbg-str->state-entry line)))
 	    (treadle-dbg-add-object
 	       (treadle-dbg-state-entry-full-name e)
-	       mutator
+	       #'(lambda (component)
+		    (funcall mutator component e))
 	       ;; Proc create
 	       #'(lambda ()
 		    (let* 
@@ -736,12 +737,14 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 (defun treadle-dbg-record-state (state-string)
    "Set the data of components from the result of Treadle 'show state'"
    (treadle-dbg-set-data-aux
+      state-string
       #'treadle-dbg-mutate-component-value))
 
 
 (defun treadle-dbg-record-inputs (str)
    "Set the data of components from the result of Treadle 'show inputs'"
    (treadle-dbg-set-data-aux
+      str
       #'(lambda (component entry)
 	   (let* 
 	      ((name (treadle-dbg-state-entry-full-name entry))
@@ -755,6 +758,7 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 (defun treadle-dbg-record-outputs (str)
    "Set the data of components from the result of Treadle 'show outputs'"
    (treadle-dbg-set-data-aux
+      str
       #'(lambda (component entry)
 	   (setf (treadle-dbg-component-io-type component) 'output))))
 
@@ -790,7 +794,7 @@ io_pulseOnPerCell_2 0
    )
 
 '
-(treadle-dbg-build-data state-string1)
+(treadle-dbg-record-state state-string1)
 
 (defun firrtl-dbg-build-data (state-string)
    ""
