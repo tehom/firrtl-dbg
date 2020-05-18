@@ -1010,6 +1010,31 @@ applied up until that column."
 	       (firrtl-dbg-insert-w-face text face)
 	       (firrtl-dbg-pad-to-column end-col face))))))
 
+;; Want to fix the field treatment: pad to start-col with no face.
+;; Insert with face.  Pad with face to end-col if any.  But that's
+;; nasty if we sometimes have a chain in fields and sometimes don't.
+;;
+;; Perhaps better: Have separate "insert" and "go-to" instructions.
+' 
+(defun treadle-dbg-insert-fields (field-list)
+   "FIELD-LIST is a list whose elements are either
+string
+(to-col face col)
+(string face)
+"
+   
+   (dolist (field field-list)
+      (cond
+	 ((null field))
+	 ((stringp field) (widget-insert field))
+	 ((and (listp field) (eq (car field) 'to-col))
+	    (destructuring-bind (dummy face col) field
+	       (firrtl-dbg-pad-to-column col face)))
+	 ((listp field)
+	    (destructuring-bind (text face) field
+	       (firrtl-dbg-insert-w-face text face))))))
+
+
 (defun firrtl-dbg-get-face-by-validity (validity)
    ""
    
@@ -1034,7 +1059,7 @@ applied up until that column."
 	       "[invalid]"))
 	 "[no such enum]")))
 
-(defun treadle-dbg-value-fmt (value perm-props face end-col)
+(defun treadle-dbg-value-text (value perm-props)
    ""
    (let* 
       (
@@ -1053,11 +1078,7 @@ applied up until that column."
 	       (otherwise
 		  (number-to-string
 		     value)))))
-
-      (list
-	 text
-	 face
-	 end-col)))
+      text))
 
 (defun firrtl-dbg-field-fmt (cvalue perm-props end-col)
    ""
@@ -1127,18 +1148,17 @@ applied up until that column."
 	 (list
 	    (list
 	       (treadle-dbg-component-full-name component)
-	       nil
-	       firrtl-dbg-value-column)
-	    (treadle-dbg-value-fmt
-	       (treadle-dbg-component-current component)
-	       perm-props
-	       face-of-current
-	       firrtl-dbg-value-end-column)
+	       nil)
+	    (list 'go-to firrtl-dbg-value-column)
+	    (list
+	       (treadle-dbg-value-text
+		  (treadle-dbg-component-current component)
+		  perm-props)
+	       face-of-current)
+	    (list 'go-to firrtl-dbg-value-end-column)
 	    ;; ADD ME: display "in", "prev", and "in/prev" values if
-	    ;; non-nil.  We need to improve columns for this to work
-	    ;; nicely.
-	    
-	    " "
+	    ;; non-nil, with suitable "<-"
+
 	    ;; Display width and signed-p
 	    width-string
 	    sign-string))))
