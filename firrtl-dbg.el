@@ -695,7 +695,6 @@ DATA is the data to store, usually a symbol"
 ;; Processes the return string from "show state"
 (defun treadle-dbg-build-data (state-string)
    ""
-   ;; treadle-dbg-add-object
    (let*
       ((spl (split-string state-string "\n")))
       (dolist (line spl)
@@ -704,23 +703,19 @@ DATA is the data to store, usually a symbol"
 	    (treadle-dbg-add-object
 	       (treadle-dbg-state-entry-full-name e)
 	       ;; Proc mutate
-	       #'(lambda ()
-		    
-		    )
+	       #'(lambda (component)
+		    (treadle-dbg-mutate-component-value component e)
+		    component)
+	       
 	       ;; Proc create
 	       #'(lambda ()
-		    (make-treadle-dbg-component
-		       :full-name (treadle-dbg-state-entry-full-name e)
-		       )
-		    )
-	       )
-	    )
-	 ;; Consider qualifiers
-	 ;; Add object
+		    (let* 
+		       ((component
+			   (make-treadle-dbg-component
+			      :full-name (treadle-dbg-state-entry-full-name e))))
+		       (treadle-dbg-mutate-component-value component e)
+		       component)))))))
 
-	 )
-      
-      ))
 
 (defun firrtl-dbg-build-data (state-string)
    ""
