@@ -489,12 +489,22 @@ DATA is the data to store, usually a symbol"
 	 (value (string-to-number (match-string 2 str)))
 	 (spl (split-string name-plus "/"))
 	 (full-name (car spl))
-	 (qualifiers '()))
+	 (qualifiers nil))
 
       (dolist (q (cdr spl))
 	 (cond
-	    ((string-equal q "in") (push 'in qualifiers))
-	    ((string-equal q "prev") (push 'prev qualifiers))))
+	    ((string-equal q "in")
+	       (setq qualifiers
+		  (case qualifiers
+		     ((nil) 'in)
+		     ((in)  'in)
+		     ((prev in/prev)  'in/prev))))
+	    ((string-equal q "prev")
+	       (setq qualifiers
+		  (case qualifiers
+		     ((nil) 'prev)
+		     ((in in/prev)  'in/prev)
+		     ((prev)  'prev))))))
       
       (make-treadle-dbg-state-entry
 	 :full-name full-name
@@ -503,6 +513,23 @@ DATA is the data to store, usually a symbol"
 	 :value value)))
 '
 (treadle-dbg-str->state-entry str1)
+
+
+(defun treadle-dbg-mutate-component-value (component e)
+   ""
+
+   (let*
+      ((value (treadle-dbg-state-entry-value e)))
+      (case (treadle-dbg-state-entry-qualifiers e)
+	 ((nil)
+	    (setf (treadle-dbg-component-current component) value))
+	 ((in)
+	    (setf (treadle-dbg-component-in component) value))
+	 ((prev)
+	    (setf (treadle-dbg-component-prev component) value))
+	 ((in/prev)
+	    (setf (treadle-dbg-component-in/prev component) value)))))
+
 
 (defun firrtl-dbg-mutate-subname-tree (full-name data)
    ""
@@ -526,6 +553,24 @@ DATA is the data to store, usually a symbol"
       (
 	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
 	 (sym (or soft-sym (intern full-name firrtl-dbg-obarray))))
+      (if soft-sym
+	 (funcall proc-mutate (symbol-value sym))
+	 ;; Since it doesn't exist, create it
+	 (set sym (funcall proc-create)))
+      
+      (when (not firrtl-dbg-have-built-subname-tree)
+	 (firrtl-dbg-mutate-subname-tree full-name sym))))
+
+(defun treadle-dbg-add-object (full-name proc-mutate proc-create)
+   ""
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (firrtl-dbg-complain-bad-buffer
+	 "Objects are only available in the main buffer"))
+
+   (let* 
+      (
+	 (soft-sym (intern-soft full-name treadle-dbg-obarray))
+	 (sym (or soft-sym (intern full-name treadle-dbg-obarray))))
       (if soft-sym
 	 (funcall proc-mutate (symbol-value sym))
 	 ;; Since it doesn't exist, create it
@@ -647,6 +692,35 @@ DATA is the data to store, usually a symbol"
       (funcall proc
 	 full-name value state)))
 
+;; Processes the return string from "show state"
+(defun treadle-dbg-build-data (state-string)
+   ""
+   ;; treadle-dbg-add-object
+   (let*
+      ((spl (split-string state-string "\n")))
+      (dolist (line spl)
+	 (let* 
+	    ((e (treadle-dbg-str->state-entry line)))
+	    (treadle-dbg-add-object
+	       (treadle-dbg-state-entry-full-name e)
+	       ;; Proc mutate
+	       #'(lambda ()
+		    
+		    )
+	       ;; Proc create
+	       #'(lambda ()
+		    (make-treadle-dbg-component
+		       :full-name (treadle-dbg-state-entry-full-name e)
+		       )
+		    )
+	       )
+	    )
+	 ;; Consider qualifiers
+	 ;; Add object
+
+	 )
+      
+      ))
 
 (defun firrtl-dbg-build-data (state-string)
    ""
