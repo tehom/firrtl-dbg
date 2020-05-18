@@ -26,9 +26,9 @@
 
 ;; IN FLUX.  This will now be aimed at the treadle debugger.
 
-;; This is an emacs interface for the FIRRTL debugger REPL.  To use
-;; it, you will need Chisel3 and sbt.  If you don't know what those
-;; are, you probably don't need this package.
+;; This is an emacs interface for the Treadle debugger REPL for
+;; Chisel.  To use it, you will need Chisel3 and sbt.  If you don't
+;; know what those are, you probably don't need this package.
 
 ;; The entry point is 'firrtl-dbg'.  You need to have already set up
 ;; Treadle in Scala.
@@ -469,7 +469,12 @@ DATA is the data to store, usually a symbol"
 ;; (firrtl-dbg-split-component-name "io_a.b")
 
 '
-(setq str1 "cellVec2_2.timeVec_3.clock/prev 0")
+(progn
+   (setq str1 "cellVec2_2.timeVec_3.clock/prev 0")
+   (setq str-an-output "io_operationWhatMyLastDebug 1")
+   (setq str-an-input "io_operation 0"))
+
+
 
 (defstruct treadle-dbg-state-entry
    ""
@@ -478,6 +483,19 @@ DATA is the data to store, usually a symbol"
    qualifiers
    value
    )
+
+;; Actually not needed, treadle-dbg-str->state-entry does all
+;; (defun treadle-dbg-show-output-result->state-entry (str)
+;;    ""
+;;    (treadle-dbg-str->state-entry str))
+;; (defun treadle-dbg-show-input-result->state-entry (str)
+;;    ""
+;;    (treadle-dbg-str->state-entry str))
+;; '
+;; (treadle-dbg-show-output-result->state-entry str-an-output)
+;; '
+;; (treadle-dbg-show-input-result->state-entry str-an-input)
+
 
 (defun treadle-dbg-str->state-entry (str)
    ""
@@ -717,9 +735,51 @@ DATA is the data to store, usually a symbol"
 			      :full-name (treadle-dbg-state-entry-full-name e))))
 		       (treadle-dbg-mutate-component-value component e)
 		       component)))))))
+
+(defun treadle-dbg-set-data-aux (state-string mutator)
+   "
+MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a treadle-dbg-state-entry"
+   (let*
+      ((spl (split-string state-string "\n")))
+      (dolist (line spl)
+	 (let* 
+	    ((e (treadle-dbg-str->state-entry line)))
+	    (treadle-dbg-add-object
+	       (treadle-dbg-state-entry-full-name e)
+	       mutator
+	       ;; Proc create
+	       #'(lambda ()
+		    (let* 
+		       ((component
+			   (make-treadle-dbg-component
+			      :full-name (treadle-dbg-state-entry-full-name e))))
+		       (funcall mutator component e)
+		       component)))))))
+
+
+(defun treadle-dbg-record-inputs (str)
+   "Set the data of components by the result of Treadle 'show inputs'"
+   (treadle-dbg-set-data-aux
+      #'(lambda (component entry)
+	   (let* 
+	      ((name (treadle-dbg-state-entry-full-name entry))
+		 (type
+		    (cond
+		       ((string-equal name "reset") 'reset)
+		       ((string-equal name "clock") 'clock)
+		       (t 'input)))))
+	   (setf (treadle-dbg-component-io-type component) type))))
+
+(defun treadle-dbg-record-outputs (str)
+   "Set the data of components by the result of Treadle 'show outputs'"
+   (treadle-dbg-set-data-aux
+      #'(lambda (component entry)
+	   (setf (treadle-dbg-component-io-type component) 'output))))
+
 '
-(setq state-string1
-   "cellVec2_2.timeVec_3.clock 0
+(progn
+   (setq state-string1
+      "cellVec2_2.timeVec_3.clock 0
 cellVec2_2.timeVec_3.clock/prev 0
 cellVec2_2.timeVec_3.io_writeEnableReachesHere 0
 cellVec2_2.timeVec_3.reset 0
@@ -732,6 +792,20 @@ io_pulseOnPerCell_1 0
 io_pulseOnPerCell_2 0
 lastOperation 0
 lastOperation/in 0")
+   (setq show-inputs-string
+      "clock 0
+io_operation 0
+reset 0
+"
+      )
+   (setq show-outputs-string
+      "io_operationWhatMyLastDebug 1
+io_pulseOnPerCell_0 0
+io_pulseOnPerCell_1 0
+io_pulseOnPerCell_2 0
+")
+
+   )
 
 '
 (treadle-dbg-build-data state-string1)
