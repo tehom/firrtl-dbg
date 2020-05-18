@@ -296,6 +296,10 @@ Local in the relevant buffers." )
    '()
    "Spurious lines from stepping")
 
+(defvar-local treadle-dbg-obarray
+   (make-vector firrtl-dbg-obarray-default-size nil)
+   "Obarray that holds the current treadle data of FIRRTL components")
+
 (defvar-local firrtl-dbg-obarray
    (make-vector firrtl-dbg-obarray-default-size nil)
    "Obarray that holds the current data of FIRRTL components")
