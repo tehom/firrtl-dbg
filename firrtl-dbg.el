@@ -712,30 +712,6 @@ DATA is the data to store, usually a symbol"
       (funcall proc
 	 full-name value state)))
 
-;; Processes the return string from "show state"
-(defun treadle-dbg-build-data (state-string)
-   ""
-   (let*
-      ((spl (split-string state-string "\n")))
-      (dolist (line spl)
-	 (let* 
-	    ((e (treadle-dbg-str->state-entry line)))
-	    (treadle-dbg-add-object
-	       (treadle-dbg-state-entry-full-name e)
-	       ;; Proc mutate
-	       #'(lambda (component)
-		    (treadle-dbg-mutate-component-value component e)
-		    component)
-	       
-	       ;; Proc create
-	       #'(lambda ()
-		    (let* 
-		       ((component
-			   (make-treadle-dbg-component
-			      :full-name (treadle-dbg-state-entry-full-name e))))
-		       (treadle-dbg-mutate-component-value component e)
-		       component)))))))
-
 (defun treadle-dbg-set-data-aux (state-string mutator)
    "
 MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a treadle-dbg-state-entry"
@@ -756,9 +732,15 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 		       (funcall mutator component e)
 		       component)))))))
 
+;; Processes the return string from "show state"
+(defun treadle-dbg-record-state (state-string)
+   "Set the data of components from the result of Treadle 'show state'"
+   (treadle-dbg-set-data-aux
+      #'treadle-dbg-mutate-component-value))
+
 
 (defun treadle-dbg-record-inputs (str)
-   "Set the data of components by the result of Treadle 'show inputs'"
+   "Set the data of components from the result of Treadle 'show inputs'"
    (treadle-dbg-set-data-aux
       #'(lambda (component entry)
 	   (let* 
@@ -771,7 +753,7 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 	   (setf (treadle-dbg-component-io-type component) type))))
 
 (defun treadle-dbg-record-outputs (str)
-   "Set the data of components by the result of Treadle 'show outputs'"
+   "Set the data of components from the result of Treadle 'show outputs'"
    (treadle-dbg-set-data-aux
       #'(lambda (component entry)
 	   (setf (treadle-dbg-component-io-type component) 'output))))
