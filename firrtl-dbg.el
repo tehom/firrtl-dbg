@@ -821,15 +821,15 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 	       "\\([^ ]+\\) +\\([A-Za-z]+\\) +\\([A-Za-z]+\\) +\\([0-9]+\\) +\\([0-9]+\\) +\\([^ ]+\\) +\\([0-9]+\\) +@\\[\\([^[]+\\)\\] +\\([0-9]+\\)"
 	       line)
 	    (let* 
-	       ((name (match-string 0 line)) ;; We will already know this
-		  ;; (bin-str (match-string 1 line)) ;; Can't use
-		  (type-str (match-string 2 line))
-		  (width-str (match-string 3 line))
-		  ;; (slots-str (match-string 4 line)) ;; Can't use
-		  ;; (index-str (match-string 5 line)) ;; Internal
-		  ;;(depend-str (match-string 6 line)) ;; Can't use
-		  (source-str (match-string 7 line))
-		  (value-str (match-string 8 line))) ;; We will already know this
+	       ((name (match-string 1 line)) ;; We will already know this
+		  ;; (bin-str (match-string 2 line)) ;; Can't use
+		  (type-str (match-string 3 line))
+		  (width-str (match-string 4 line))
+		  ;; (slots-str (match-string 5 line)) ;; Can't use
+		  ;; (index-str (match-string 6 line)) ;; Internal
+		  ;;(depend-str (match-string 7 line)) ;; Can't use
+		  (source-str (match-string 8 line))
+		  (value-str (match-string 9 line))) ;; We will already know this
 	       (unless
 		  ;; Don't use foo/in, foo/prev, etc
 		  (string-match-p ".*/.*" line)
@@ -845,7 +845,7 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 				(width
 				   (string-to-number width-str)))
 			     (unless
-				(eql (treadle-dbg-component-value component)
+				(eql (treadle-dbg-component-current component)
 				   (string-to-number value-str))
 				(message "Values do not match!"))
 			     (setf (treadle-dbg-component-width component)
