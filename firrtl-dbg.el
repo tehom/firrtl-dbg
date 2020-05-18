@@ -24,28 +24,25 @@
 
 ;;;_ , Commentary:
 
+;; IN FLUX.  This will now be aimed at the treadle debugger.
+
 ;; This is an emacs interface for the FIRRTL debugger REPL.  To use
 ;; it, you will need Chisel3 and sbt.  If you don't know what those
 ;; are, you probably don't need this package.
 
-;; The entry point is 'firrtl-dbg'.  You need to have already set up a
-;; REPL in Scala.  Experiment on the usual guinea-pig project GCD,
-;; which already has a REPL.  By default the correct command for GCD's
-;; REPL is already at the top of the history list, but you'll have to
-;; point it towards the right directory (the one that build.sbt lives
-;; in)
+;; The entry point is 'firrtl-dbg'.  You need to have already set up
+;; Treadle in Scala.
 
-;; Instructions for setting up and using the FIRRTL REPL itself can be
-;; found at
-;; https://github.com/freechipsproject/chisel3/wiki/Debugging-with-the-Interpreter-REPL-1
-;; https://github.com/freechipsproject/chisel3/wiki/Debugging-with-the-Interpreter-REPL-2
-;; https://github.com/freechipsproject/chisel3/wiki/Debugging-with-the-Interpreter-REPL-3
-
+;; Instructions for setting up and using Treadle itself can be found
+;; at https://www.chisel-lang.org/treadle/
+;; 
 ;; This is just a more convenient interface to that.
 
-;; You probably want to set firrtl-dbg-directory-history and
-;; firrtl-dbg-repl-name-history to that your current project pops up
-;; at the top of the history lists when calling firrtl-dbg.
+;; You'll have to point it towards the right directory (the one that
+;; build.sbt lives in) You probably want to set
+;; firrtl-dbg-directory-history and firrtl-dbg-repl-name-history to
+;; that your current project pops up at the top of the history lists
+;; when calling firrtl-dbg.
 
 ;; It doesn't support vpn scripts, but does support a native elisp
 ;; script.  Create it with firrtl-dbg-start-recording-script, do stuff
@@ -77,6 +74,22 @@
    state
    ;; Not used yet
    last-time-changed)
+
+;; Now all components are this type
+(defstruct (treadle-dbg-component (:type list))
+   ""
+   full-name
+   source
+   ;; These can be nil if it doesn't do that.
+   current
+   prev
+   in
+   in/prev
+   signed-p
+   width
+   io-type ;; '(input output nil)
+   forced-p ;; Whether it is currently forced.
+   )
 
 (defstruct (firrtl-dbg-component-type (:type list))
    ""
@@ -201,6 +214,10 @@ Local in the relevant buffers." )
    "History list of FIRRTL REPL commands.  Put the full command that you would give sbt to run a FIRRTL debugger on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
    :type '(repeat string)
    :group 'firrtl-dbg)
+
+(defconst treadle-dbg-repl-launch-command
+   "runMain treadle.TreadleRepl"
+   "" )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;Configuration
@@ -441,12 +458,47 @@ DATA is the data to store, usually a symbol"
 ;; (firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("d" "b")
 ;;     'new-data)
 
-
 (defun firrtl-dbg-split-component-name (str)
    ""
    (split-string str "[._]+"))
 
 ;; (firrtl-dbg-split-component-name "io_a.b")
+
+'
+(setq str1 "cellVec2_2.timeVec_3.clock/prev 0")
+
+(defstruct treadle-dbg-state-entry
+   ""
+   full-name
+   split-name
+   qualifiers
+   value
+   )
+
+(defun treadle-dbg-str->state-entry (str)
+   ""
+   (string-match "^\\([^ ]+\\) +\\([0-9]+\\)" str)
+   
+   (let*
+      (
+	 (name-plus (match-string 1 str))
+	 (value (string-to-number (match-string 2 str)))
+	 (spl (split-string name-plus "/"))
+	 (full-name (car spl))
+	 (qualifiers '()))
+
+      (dolist (q (cdr spl))
+	 (cond
+	    ((string-equal q "in") (push 'in qualifiers))
+	    ((string-equal q "prev") (push 'prev qualifiers))))
+      
+      (make-treadle-dbg-state-entry
+	 :full-name full-name
+	 :split-name (firrtl-dbg-split-component-name full-name)
+	 :qualifiers qualifiers
+	 :value value)))
+'
+(treadle-dbg-str->state-entry str1)
 
 (defun firrtl-dbg-mutate-subname-tree (full-name data)
    ""
