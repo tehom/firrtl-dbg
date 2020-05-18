@@ -822,24 +822,39 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 	       line)
 	    (let* 
 	       ((name (match-string 0 line)) ;; We will already know this
-		  ;; (bin (match-string 1 line)) ;; Can't use
-		  (type (match-string 2 line))
-		  (width (match-string 3 line))
-		  ;; (slots (match-string 4 line)) ;; Can't use
-		  ;; (index (match-string 5 line)) ;; Internal
-		  ;;(depend (match-string 6 line)) ;; Can't use
-		  (source (match-string 7 line))
-		  (value (match-string 8 line))) ;; We will already know this
+		  ;; (bin-str (match-string 1 line)) ;; Can't use
+		  (type-str (match-string 2 line))
+		  (width-str (match-string 3 line))
+		  ;; (slots-str (match-string 4 line)) ;; Can't use
+		  ;; (index-str (match-string 5 line)) ;; Internal
+		  ;;(depend-str (match-string 6 line)) ;; Can't use
+		  (source-str (match-string 7 line))
+		  (value-str (match-string 8 line))) ;; We will already know this
 	       (unless
 		  ;; Don't use foo/in, foo/prev, etc
 		  (string-match-p ".*/.*" line)
 		  (treadle-dbg-add-object name
 		     ;; Proc mutate
 		     #'(lambda (component)
-			  ;; WRITE ME
-			  ;; Set type, width, and source.  Complain if
-			  ;; value is different.
-			  ))))))))
+			  (let* 
+			     ((signed-p
+				 (cond
+				    ((string-equal type-str "UInt") nil)
+				    ((string-equal type-str "SInt") t)
+				    (t (message "Unrecognized type-str"))))
+				(width
+				   (string-to-number width-str)))
+			     (unless
+				(eql (treadle-dbg-component-value component)
+				   (string-to-number value-str))
+				(message "Values do not match!"))
+			     (setf (treadle-dbg-component-width component)
+				width)
+			     (setf (treadle-dbg-component-signed-p component)
+				signed-p)
+			     (setf (treadle-dbg-component-source component)
+				source-str))))))))))
+
 
 
 
