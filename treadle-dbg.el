@@ -813,7 +813,9 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 
    ;; Slight cheat: Un-truncated the names for this.
    ;; Redo this for the new format info.
-   (mapcar #'treadle-dbg-test-second-symbol-line
+   (mapcar
+      ;;#'treadle-dbg-test-second-symbol-line
+      #'treadle-dbg-record-symbol-info
       '("Name                                     Bin Type  Width  Slots  Index Depend Info
 cellVec2_2.timeVec_3.clock               Int UInt      1      1    238I     62  0
 ""Name                                     Bin Type  Width  Slots  Index Depend Info
@@ -961,133 +963,48 @@ lastOperation                            Int UInt      3      1    252I      3  
       (dolist (line (cdr spl))
 	 (unless (string-empty-p line)
 	    (let* 
-	       ((info (treadle-dbg-symbol-string->struct line)))
-	       ;; WRITE ME
-	       )
-	    ;;
-	    (let* 
-	       ((pos 0)
-		  (strings (make-symbol-record-strings))
-		  ;; Fields to fill in
-		  trunc-name type-str width-str source-str value-str)
-	       ;; Skip any initial whitespace
-	       (string-match " *" line pos)
-	       (setq pos (match-end 0))
-	       ;; Match truncated name
-	       (string-match "[^ ]+" line pos)
-	       (setf (symbol-record-strings-trunc-name strings)
-		  (substring line pos (match-end 0)))
-	       (setq pos (match-end 0))
-	       ;; Skip whitespace
-	       (string-match " +" line pos)
-	       (setq pos (match-end 0))
-	       ;; Match bin
-	       (string-match "[a-zA-Z]+" line pos)
-	       ;;(setq bin-str (substring line pos (match-end 0)))
-	       (setq pos (match-end 0))
-	       ;; Skip whitespace
-	       (string-match " +" line pos)
-	       (setq pos (match-end 0))
-	       ;; Match type-str
-	       (string-match "[a-zA-Z]+" line pos)
-	       (setf (symbol-record-strings-type-str strings)
-		  (substring line pos (match-end 0)))
-	       (setq pos (match-end 0))
-	       ;; Skip whitespace
-	       (string-match " +" line pos)
-	       (setq pos (match-end 0))
-	       ;; Match width
-	       (string-match "[0-9]+" line pos)
-	       (setf (symbol-record-strings-width-str strings)
-		  (substring line pos (match-end 0)))
-	       (setq pos (match-end 0))
-	       ;; Skip whitespace
-	       (string-match " +" line pos)
-	       (setq pos (match-end 0))
-	       ;; Match slots
-	       (string-match "[0-9]+" line pos)
-	       ;;(setq slots-str (substring line pos (match-end 0)))
-	       (setq pos (match-end 0))
-	       ;; Skip whitespace
-	       (string-match " +" line pos)
-	       (setq pos (match-end 0))
-	       ;; Match index
-	       (string-match "[^ ]+" line pos)
-	       ;;(setq index-str (substring line pos (match-end 0)))
-	       (setq pos (match-end 0))
-	       ;; Skip whitespace
-	       (string-match " +" line pos)
-	       (setq pos (match-end 0))
-	       ;; Match depend
-	       (string-match "[^ ]+" line pos)
-	       ;;(setq depend-str (substring line pos (match-end 0)))
-	       (setq pos (match-end 0))
-	       ;; Skip whitespace
-	       (string-match " +" line pos)
-	       (setq pos (match-end 0))
-	       ;; Match source if available.
-	       ;; Match beginning of source
-	       (string-match "^@\\[" line pos)
-	       (when (match-beginning 0)
-		  (let* 
-		     ((begin (match-end 0)))
-		     ;; Find the end bracket
-		     (string-match "\\]" line pos)
-		     ;; Everything in between is our source.
-		     (setf (symbol-record-strings-source-str strings)
-			(substring line begin (match-end 0)))
-		     (setq pos (match-end 0))
-		     ;; Skip whitespace.  Either way 'pos' will stand
-		     ;; after whitespace.
-		     (string-match " +" line pos)
-		     (setq pos (match-end 0))))
-	       ;; Match value
-	       (string-match "[0-9]+" line pos)
-	       (setf (symbol-record-strings-value-str strings)
-		  (substring line pos (match-end 0)))
-	       (setq pos (match-end 0))
-
-	       )
-	    (string-match
-	       "\\([^ ]+\\) +\\([A-Za-z]+\\) +\\([A-Za-z]+\\) +\\([0-9]+\\) +\\([0-9]+\\) +\\([^ ]+\\) +\\([0-9]+\\) +@\\[\\([^[]+\\)\\] +\\([0-9]+\\)"
-	       line)
-	    (let* 
-	       ((name (match-string 1 line)) ;; We will already know this
-		  ;; (bin-str (match-string 2 line)) ;; Can't use
-		  (type-str (match-string 3 line))
-		  (width-str (match-string 4 line))
-		  ;; (slots-str (match-string 5 line)) ;; Can't use
-		  ;; (index-str (match-string 6 line)) ;; Internal
-		  ;;(depend-str (match-string 7 line)) ;; Can't use
-		  (source-str (match-string 8 line))
-		  (value-str (match-string 9 line))) ;; We will already know this
+	       ((info (treadle-dbg-symbol-string->struct line))
+		  ;; TEMPORARY.  We'll take the real namestring as an arg
+		  (name (symbol-record-strings-trunc-name info)))
+	       
 	       (unless
 		  ;; Don't use foo/in, foo/prev, etc
-		  (string-match-p ".*/.*" line)
+		  (string-match-p ".*/.*"
+		     (symbol-record-strings-trunc-name info))
 		  ;; This bug seems because we expected a source-line piece.
-		  (message "Line is %s, name = %s" line name)
-		  (message "type-str = %s" type-str)
 		  (treadle-dbg-add-object name
 		     ;; Proc mutate
 		     #'(lambda (component)
 			  (let* 
-			     ((signed-p
-				 (cond
-				    ((string-equal type-str "UInt") nil)
-				    ((string-equal type-str "SInt") t)
-				    (t (message "Unrecognized type-str"))))
+			     (
+				(source-str
+				    (symbol-record-strings-source-str info))
+				(type-str
+				    (symbol-record-strings-type-str info))
+				(value-str
+				    (symbol-record-strings-value-str info))
+				(signed-p
+				   (cond
+				      ((string-equal type-str "UInt") nil)
+				      ((string-equal type-str "SInt") t)
+				      (t (message "Unrecognized type-str"))))
 				(width
-				   (string-to-number width-str)))
+				   (string-to-number
+				      (symbol-record-strings-width-str info))))
 			     (unless
 				(eql (treadle-dbg-component-current component)
 				   (string-to-number value-str))
 				(message "Values do not match!"))
-			     (setf (treadle-dbg-component-width component)
+			     (setf
+				(treadle-dbg-component-width component)
 				width)
 			     (setf (treadle-dbg-component-signed-p component)
 				signed-p)
 			     (setf (treadle-dbg-component-source component)
-				source-str))))))))))
+				source-str)))))
+	       )
+	    ;;
+))))
 
 
 
