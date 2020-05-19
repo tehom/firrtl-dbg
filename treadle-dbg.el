@@ -1293,18 +1293,43 @@ string
       (push
 	 (list 'to-col firrtl-dbg-value-column)
 	 field-list-rv)
-      (if (treadle-dbg-component-current component)
+      (when (treadle-dbg-component-current component)
+	 (push
+	    (list
+	       (treadle-dbg-value-text
+		  (treadle-dbg-component-current component)
+		  perm-props)
+	       face-of-current)
+	    field-list-rv))
+      (when (treadle-dbg-component-prev component)
+	 (push " <- " field-list-rv)
 	 (push
 	    (treadle-dbg-value-text
-	       (treadle-dbg-component-current component)
+	       (treadle-dbg-component-prev component)
+	       perm-props)
+	    field-list-rv))
+      (when (treadle-dbg-component-in component)
+	 (push " << " field-list-rv)
+	 (push
+	    (treadle-dbg-value-text
+	       (treadle-dbg-component-in component)
 	       perm-props)
 	    field-list-rv)
-	 (push "??" field-list-rv))
-      ;; ADD ME: display "in", "prev", and "in/prev" values if
-      ;; non-nil, with suitable "<-"
+	 (when (treadle-dbg-component-in/prev component)
+	    (push " <- " field-list-rv)
+	    (push
+	       (treadle-dbg-value-text
+		  (treadle-dbg-component-in/prev component)
+		  perm-props)
+	       field-list-rv)))
+
       (push
-	 (list 'to-col firrtl-dbg-value-end-column face-of-current)
+	 (list 'to-col (1- firrtl-dbg-value-end-column) face-of-current)
 	 field-list-rv)
+      (push
+	 (list 'to-col firrtl-dbg-value-end-column nil)
+	 field-list-rv)
+      
       (push width-string field-list-rv)
       (push sign-string field-list-rv)
 
