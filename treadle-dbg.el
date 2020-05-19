@@ -837,7 +837,11 @@ io_pulseOnPerCell_2                      Int UInt      2      1    229I     -1  
 
 ""Name                                     Bin Type  Width  Slots  Index Depend Info
 lastOperation                            Int UInt      3      1    252I      3  @[dummy.scala 262:30] 0
-")
+"
+"Name                                     Bin Type  Width  Slots  Index Depend Info
+reset                                    Int UInt      1      1    212I      2  0
+"
+	  )
       )
 
    (treadle-dbg-record-state state-string1)
@@ -1275,11 +1279,11 @@ string
 	    (if
 	       (eq (treadle-dbg-component-io-type component) 'input)
 	       (if (treadle-dbg-component-forced-p component)
-		  treadle-dbg-face-value-set-by-user-now
-		  treadle-dbg-face-value-input-unset)
+		  'treadle-dbg-face-value-set-by-user-now
+		  'treadle-dbg-face-value-input-unset)
 	       (if (treadle-dbg-component-forced-p component)
-		  treadle-dbg-face-forced-noninput-value
-		  firrtl-dbg-face-value-default))))
+		  'treadle-dbg-face-forced-noninput-value
+		  'firrtl-dbg-face-value-default))))
 
       (treadle-dbg-insert-fields
 	 (list
@@ -1288,9 +1292,11 @@ string
 	       nil)
 	    (list 'to-col firrtl-dbg-value-column)
 	    (list
-	       (treadle-dbg-value-text
-		  (treadle-dbg-component-current component)
-		  perm-props)
+	       (if (treadle-dbg-component-current component)
+		  (treadle-dbg-value-text
+		     (treadle-dbg-component-current component)
+		     perm-props)
+		  "??")
 	       face-of-current)
 	    (list 'to-col firrtl-dbg-value-end-column face-of-current)
 	    ;; ADD ME: display "in", "prev", and "in/prev" values if
