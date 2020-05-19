@@ -306,27 +306,28 @@ Local in the relevant buffers." )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Data items
-(defvar-local firrtl-dbg-spurious-lines
+;; RE-LOCALIZE ME:  All must become defvar-local again
+(defvar treadle-dbg-spurious-lines
    '()
    "Spurious lines from stepping")
 
-(defvar-local treadle-dbg-obarray
+(defvar treadle-dbg-obarray
    (make-vector firrtl-dbg-obarray-default-size nil)
    "Obarray that holds the current treadle data of FIRRTL components")
-
-(defvar-local firrtl-dbg-obarray
+'
+(defvar firrtl-dbg-obarray
    (make-vector firrtl-dbg-obarray-default-size nil)
    "Obarray that holds the current data of FIRRTL components")
 
-(defvar-local firrtl-dbg-obarray-perm-props
+(defvar treadle-dbg-obarray-perm-props
    (make-vector firrtl-dbg-obarray-default-size nil)
    "Obarray that holds data about FIRRTL components that persists between sessions")
 
-(defvar-local firrtl-dbg-perm-props-alist
+(defvar treadle-dbg-perm-props-alist
    '()
    "Alist that holds data that persists between sessions about FIRRTL components")
 
-(defvar-local firrtl-dbg-subname-tree
+(defvar treadle-dbg-subname-tree
    '()
    "The component-tree of the circuit.
 
@@ -335,45 +336,45 @@ Format: Each node is either:
   (subname-string nil . sym)"
    )
 
-(defvar-local firrtl-dbg-have-built-subname-tree
+(defvar treadle-dbg-have-built-subname-tree
    nil
    "Whether the subname tree has been built yet")
 
-(defvar-local firrtl-dbg-current-step
+(defvar treadle-dbg-current-step
    nil
    "The current step of the circuit")
 
-(defvar-local firrtl-dbg-current-freshness
+(defvar treadle-dbg-current-freshness
    "UNKNOWN"
    "The current freshness of the circuit, as a string")
 
-(defvar-local firrtl-dbg-writing-script-p
+(defvar treadle-dbg-writing-script-p
    nil
    "Whether we are currently writing a script")
 
-(defvar-local firrtl-dbg-current-script-rv
+(defvar treadle-dbg-current-script-rv
    '()
    "The script that we are currently writing, in reverse order")
 
-(defvar-local firrtl-dbg-process-buffer
+(defvar treadle-dbg-process-buffer
    nil
    "The buffer of the FIRRTL REPL process")
 
-(defvar-local firrtl-dbg-main-buffer
+(defvar treadle-dbg-main-buffer
    nil
    "The main interaction buffer")
 
-(defvar-local firrtl-dbg-tq
+(defvar treadle-dbg-tq
    nil
    "The firrtl-dbg transaction queue")
 
-(defvar-local firrtl-dbg-process
+(defvar treadle-dbg-process
    nil
    "The FIRRTL REPL process")
 
 ;;;;;;;;;;;;;;;;;;;;
 
-(defun firrtl-dbg-add-to-subname-tree (tree subname-list data)
+(defun treadle-dbg-add-to-subname-tree (tree subname-list data)
    "
 TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
 
@@ -461,26 +462,26 @@ DATA is the data to store, usually a symbol"
       (cdr current-tag+tree)))
 
 
-;; (firrtl-dbg-add-to-subname-tree '() '("a" "b")
+;; (treadle-dbg-add-to-subname-tree '() '("a" "b")
 ;;    'my-data)
 
 
-;; (firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "b")
+;; (treadle-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "b")
 ;;     'new-data)
 
 
-;; (firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "c")
+;; (treadle-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "c")
 ;;     'new-data)
 
 
-;; (firrtl-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("d" "b")
+;; (treadle-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("d" "b")
 ;;     'new-data)
 
-(defun firrtl-dbg-split-component-name (str)
+(defun treadle-dbg-split-component-name (str)
    ""
    (split-string str "[._]+"))
 
-;; (firrtl-dbg-split-component-name "io_a.b")
+;; (treadle-dbg-split-component-name "io_a.b")
 
 '
 (progn
@@ -540,7 +541,7 @@ DATA is the data to store, usually a symbol"
       
       (make-treadle-dbg-state-entry
 	 :full-name full-name
-	 :split-name (firrtl-dbg-split-component-name full-name)
+	 :split-name (treadle-dbg-split-component-name full-name)
 	 :qualifiers qualifiers
 	 :value value)))
 '
@@ -563,22 +564,24 @@ DATA is the data to store, usually a symbol"
 	    (setf (treadle-dbg-component-in/prev component) value)))))
 
 
-(defun firrtl-dbg-mutate-subname-tree (full-name data)
+(defun treadle-dbg-mutate-subname-tree (full-name data)
    ""
+   ;; Temporarily out
+   '
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
 
    (setq
-      firrtl-dbg-subname-tree
-      (firrtl-dbg-add-to-subname-tree firrtl-dbg-subname-tree
-	 (firrtl-dbg-split-component-name full-name)
+      treadle-dbg-subname-tree
+      (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
+	 (treadle-dbg-split-component-name full-name)
 	 data)))
-
+'
 (defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
 
    (let* 
@@ -590,14 +593,15 @@ DATA is the data to store, usually a symbol"
 	 ;; Since it doesn't exist, create it
 	 (set sym (funcall proc-create)))
       
-      (when (not firrtl-dbg-have-built-subname-tree)
-	 (firrtl-dbg-mutate-subname-tree full-name sym))))
+      (when (not treadle-dbg-have-built-subname-tree)
+	 (treadle-dbg-mutate-subname-tree full-name sym))))
 
 (defun treadle-dbg-add-object (full-name proc-mutate)
    ""
-   ' ;; Temporarily out
+    ;; Temporarily out
+   '
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
 
    (let* 
@@ -612,11 +616,10 @@ DATA is the data to store, usually a symbol"
 	    (funcall proc-mutate component)
 	    (set sym component)))
       
-      ' ;; Temporarily out
-      (when (not firrtl-dbg-have-built-subname-tree)
-	 (firrtl-dbg-mutate-subname-tree full-name sym))))
+      (when (not treadle-dbg-have-built-subname-tree)
+	 (treadle-dbg-mutate-subname-tree full-name sym))))
 
-
+'
 (defun firrtl-dbg-add-ephemeral (full-name value state)
    ""
    (firrtl-dbg-add-object full-name
@@ -628,7 +631,7 @@ DATA is the data to store, usually a symbol"
 	   (make-firrtl-dbg-ephemeral
 	       :current (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
-
+'
 (defun firrtl-dbg-add-input (full-name value state)
    ""
    (firrtl-dbg-add-object full-name
@@ -641,7 +644,7 @@ DATA is the data to store, usually a symbol"
 	       :current (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
 
-
+'
 (defun firrtl-dbg-add-output (full-name value state)
    ""
    (firrtl-dbg-add-object full-name
@@ -653,7 +656,7 @@ DATA is the data to store, usually a symbol"
 	   (make-firrtl-dbg-output
 	       :current (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
-
+'
 (defun firrtl-dbg-set-register-current (full-name value state)
    ""
 
@@ -666,7 +669,7 @@ DATA is the data to store, usually a symbol"
 	   (make-firrtl-dbg-register
 	      :current (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
-
+'
 (defun firrtl-dbg-set-register-next (full-name value state)
    ""
    
@@ -680,22 +683,22 @@ DATA is the data to store, usually a symbol"
 	   (make-firrtl-dbg-register
 	      :next (make-firrtl-dbg-value :v value :state state)
 	      :full-name full-name))))
-
+'
 (defun firrtl-dbg-read-overview-line (str)
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
 
    (let* 
       (  (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
 	 (step (string-to-number (match-string 1 str)))
 	 (freshness-str (match-string 2 str)))
    
-      (setq firrtl-dbg-current-freshness freshness-str)
-      (setq firrtl-dbg-current-step step)))
+      (setq treadle-dbg-current-freshness freshness-str)
+      (setq treadle-dbg-current-step step)))
 
 
-
+'
 (defun firrtl-dbg-split-input-line (input-str prefix-rx)
    ""
    (let* 
@@ -704,7 +707,7 @@ DATA is the data to store, usually a symbol"
 	 (end (match-end 0))
 	 (input-str (substring input-str end)))
       (split-string input-str ",")))
-
+'
 (defun firrtl-dbg-act-on-component-str (component-str proc)
    "PROC should take three parms: name, value, and is-valid"
    (let* 
@@ -772,7 +775,7 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
       str
       #'(lambda (component entry)
 	   (setf (treadle-dbg-component-io-type component) 'output))))
-
+;; Call symbol on ^foo$.  Use the original name, because symbol truncates the longer ones.  FIX ME: Not everything has source lines, so change the regexp to account for that.  Not clear how.
 '
 (progn
    (setq state-string1
@@ -808,6 +811,33 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 "
       )
 
+   ;; Slight cheat: Un-truncated the names for this.
+   ;; Redo this for the new format info.
+   (mapcar #'treadle-dbg-record-symbol-info
+      '("Name                                     Bin Type  Width  Slots  Index Depend Info
+cellVec2_2.timeVec_3.clock               Int UInt      1      1    238I     62  0
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+cellVec2_2.timeVec_3.io_writeEnableReachesHere Int UInt      1      1     45I     61  0
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+cellVec2_2.timeVec_3.reset               Int UInt      1      1    356I     67  0
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+clock                                    Int UInt      1      1    212I      2  0
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+io_operation                             Int UInt      3      1     84I      1  0
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+io_operationWhatMyLastDebug              Int UInt      3      1    230I      4  0
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+io_pulseOnPerCell_0                      Int UInt      2      1    161I     -1  0
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+io_pulseOnPerCell_1                      Int UInt      2      1      9I     -1  0
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+io_pulseOnPerCell_2                      Int UInt      2      1    229I     -1  0
+
+""Name                                     Bin Type  Width  Slots  Index Depend Info
+lastOperation                            Int UInt      3      1    252I      3  @[dummy.scala 262:30] 0
+")
+      )
+
    (treadle-dbg-record-state state-string1)
    (treadle-dbg-record-outputs show-outputs-string)
    (treadle-dbg-record-inputs show-inputs-string)
@@ -820,6 +850,96 @@ lastOperation/in                         Int UInt      3      1    287I      6  
    
    )
 
+(defstruct (symbol-record-strings (:type list))
+   ""
+   trunc-name type-str width-str source-str value-str
+   ;; Not using: bin slots index depend
+   )
+
+(defun treadle-dbg-symbol-string->struct ()
+   ""
+   (let* 
+      ((pos 0)
+	 (strings (make-symbol-record-strings)))
+      ;; Skip any initial whitespace
+      (string-match " *" line pos)
+      (setq pos (match-end 0))
+      ;; Match truncated name
+      (string-match "[^ ]+" line pos)
+      (setf (symbol-record-strings-trunc-name strings)
+	 (substring line pos (match-end 0)))
+      (setq pos (match-end 0))
+      ;; Skip whitespace
+      (string-match " +" line pos)
+      (setq pos (match-end 0))
+      ;; Match bin
+      (string-match "[a-zA-Z]+" line pos)
+      ;;(setq bin-str (substring line pos (match-end 0)))
+      (setq pos (match-end 0))
+      ;; Skip whitespace
+      (string-match " +" line pos)
+      (setq pos (match-end 0))
+      ;; Match type-str
+      (string-match "[a-zA-Z]+" line pos)
+      (setf (symbol-record-strings-type-str strings)
+	 (substring line pos (match-end 0)))
+      (setq pos (match-end 0))
+      ;; Skip whitespace
+      (string-match " +" line pos)
+      (setq pos (match-end 0))
+      ;; Match width
+      (string-match "[0-9]+" line pos)
+      (setf (symbol-record-strings-width-str strings)
+	 (substring line pos (match-end 0)))
+      (setq pos (match-end 0))
+      ;; Skip whitespace
+      (string-match " +" line pos)
+      (setq pos (match-end 0))
+      ;; Match slots
+      (string-match "[0-9]+" line pos)
+      ;;(setq slots-str (substring line pos (match-end 0)))
+      (setq pos (match-end 0))
+      ;; Skip whitespace
+      (string-match " +" line pos)
+      (setq pos (match-end 0))
+      ;; Match index
+      (string-match "[^ ]+" line pos)
+      ;;(setq index-str (substring line pos (match-end 0)))
+      (setq pos (match-end 0))
+      ;; Skip whitespace
+      (string-match " +" line pos)
+      (setq pos (match-end 0))
+      ;; Match depend
+      (string-match "[^ ]+" line pos)
+      ;;(setq depend-str (substring line pos (match-end 0)))
+      (setq pos (match-end 0))
+      ;; Skip whitespace
+      (string-match " +" line pos)
+      (setq pos (match-end 0))
+      ;; Match source if available.
+      ;; Match beginning of source
+      (string-match "^@\\[" line pos)
+      (when (match-beginning 0)
+	 (let* 
+	    ((begin (match-end 0)))
+	    ;; Find the end bracket
+	    (string-match "\\]" line pos)
+	    ;; Everything in between is our source.
+	    (setf (symbol-record-strings-source-str strings)
+	       (substring line begin (match-end 0)))
+	    (setq pos (match-end 0))
+	    ;; Skip whitespace.  Either way 'pos' will stand
+	    ;; after whitespace.
+	    (string-match " +" line pos)
+	    (setq pos (match-end 0))))
+      ;; Match value
+      (string-match "[0-9]+" line pos)
+      (setf (symbol-record-strings-value-str strings)
+	 (substring line pos (match-end 0)))
+      (setq pos (match-end 0))
+
+      strings))
+
 (defun treadle-dbg-record-symbol-info (symbol-string)
    ""
    (let*
@@ -827,10 +947,99 @@ lastOperation/in                         Int UInt      3      1    287I      6  
       (unless (string-match-p
 		 "Name +Bin +Type +Width +Slots +Index +Depend +Info"
 		 (car spl))
-	 (error "This symbol report is not a recognized format"))
+	 (error "This symbol report is not in the expected format: %S"
+	    (car spl)))
       
       (dolist (line (cdr spl))
 	 (unless (string-empty-p line)
+	    (let* 
+	       ((info (treadle-dbg-symbol-string->struct line)))
+	       ;; WRITE ME
+	       )
+	    ;;
+	    (let* 
+	       ((pos 0)
+		  (strings (make-symbol-record-strings))
+		  ;; Fields to fill in
+		  trunc-name type-str width-str source-str value-str)
+	       ;; Skip any initial whitespace
+	       (string-match " *" line pos)
+	       (setq pos (match-end 0))
+	       ;; Match truncated name
+	       (string-match "[^ ]+" line pos)
+	       (setf (symbol-record-strings-trunc-name strings)
+		  (substring line pos (match-end 0)))
+	       (setq pos (match-end 0))
+	       ;; Skip whitespace
+	       (string-match " +" line pos)
+	       (setq pos (match-end 0))
+	       ;; Match bin
+	       (string-match "[a-zA-Z]+" line pos)
+	       ;;(setq bin-str (substring line pos (match-end 0)))
+	       (setq pos (match-end 0))
+	       ;; Skip whitespace
+	       (string-match " +" line pos)
+	       (setq pos (match-end 0))
+	       ;; Match type-str
+	       (string-match "[a-zA-Z]+" line pos)
+	       (setf (symbol-record-strings-type-str strings)
+		  (substring line pos (match-end 0)))
+	       (setq pos (match-end 0))
+	       ;; Skip whitespace
+	       (string-match " +" line pos)
+	       (setq pos (match-end 0))
+	       ;; Match width
+	       (string-match "[0-9]+" line pos)
+	       (setf (symbol-record-strings-width-str strings)
+		  (substring line pos (match-end 0)))
+	       (setq pos (match-end 0))
+	       ;; Skip whitespace
+	       (string-match " +" line pos)
+	       (setq pos (match-end 0))
+	       ;; Match slots
+	       (string-match "[0-9]+" line pos)
+	       ;;(setq slots-str (substring line pos (match-end 0)))
+	       (setq pos (match-end 0))
+	       ;; Skip whitespace
+	       (string-match " +" line pos)
+	       (setq pos (match-end 0))
+	       ;; Match index
+	       (string-match "[^ ]+" line pos)
+	       ;;(setq index-str (substring line pos (match-end 0)))
+	       (setq pos (match-end 0))
+	       ;; Skip whitespace
+	       (string-match " +" line pos)
+	       (setq pos (match-end 0))
+	       ;; Match depend
+	       (string-match "[^ ]+" line pos)
+	       ;;(setq depend-str (substring line pos (match-end 0)))
+	       (setq pos (match-end 0))
+	       ;; Skip whitespace
+	       (string-match " +" line pos)
+	       (setq pos (match-end 0))
+	       ;; Match source if available.
+	       ;; Match beginning of source
+	       (string-match "^@\\[" line pos)
+	       (when (match-beginning 0)
+		  (let* 
+		     ((begin (match-end 0)))
+		     ;; Find the end bracket
+		     (string-match "\\]" line pos)
+		     ;; Everything in between is our source.
+		     (setf (symbol-record-strings-source-str strings)
+			(substring line begin (match-end 0)))
+		     (setq pos (match-end 0))
+		     ;; Skip whitespace.  Either way 'pos' will stand
+		     ;; after whitespace.
+		     (string-match " +" line pos)
+		     (setq pos (match-end 0))))
+	       ;; Match value
+	       (string-match "[0-9]+" line pos)
+	       (setf (symbol-record-strings-value-str strings)
+		  (substring line pos (match-end 0)))
+	       (setq pos (match-end 0))
+
+	       )
 	    (string-match
 	       "\\([^ ]+\\) +\\([A-Za-z]+\\) +\\([A-Za-z]+\\) +\\([0-9]+\\) +\\([0-9]+\\) +\\([^ ]+\\) +\\([0-9]+\\) +@\\[\\([^[]+\\)\\] +\\([0-9]+\\)"
 	       line)
@@ -847,6 +1056,9 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 	       (unless
 		  ;; Don't use foo/in, foo/prev, etc
 		  (string-match-p ".*/.*" line)
+		  ;; This bug seems because we expected a source-line piece.
+		  (message "Line is %s, name = %s" line name)
+		  (message "type-str = %s" type-str)
 		  (treadle-dbg-add-object name
 		     ;; Proc mutate
 		     #'(lambda (component)
@@ -871,12 +1083,13 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 
 
 
-
+;; ADAPT AND UPDATE ME  This was the only thing, but Treadle-dbg does more.
+'
 (defun firrtl-dbg-build-data (state-string)
    ""
 
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Building the data only makes sense in a circuit buffer"))
 
    (let
@@ -939,47 +1152,47 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 	       ;; debug printing.
 	       (message "Spurious line: %s" line))))
 
-      (when (not firrtl-dbg-have-built-subname-tree)
+      (when (not treadle-dbg-have-built-subname-tree)
 	 ;; IMPROVE ME: Sort the newly built subname tree
 	 )
 
-      (setq firrtl-dbg-have-built-subname-tree t)))
+      (setq treadle-dbg-have-built-subname-tree t)))
 
-
+;; ADAPT ME
 (defun firrtl-dbg-clear ()
    "Clear all the values; ready to start again"
    (interactive)
 
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Clearing the data only makes sense in a circuit buffer"))
 
-   (setq firrtl-dbg-have-built-subname-tree nil)
-   (setq firrtl-dbg-subname-tree '())
+   (setq treadle-dbg-have-built-subname-tree nil)
+   (setq treadle-dbg-subname-tree '())
    (setq firrtl-dbg-obarray
       (make-vector firrtl-dbg-obarray-default-size nil))
-   (setq firrtl-dbg-spurious-lines '()))
+   (setq treadle-dbg-spurious-lines '()))
 
-
+;; ADAPT ME
 (defun firrtl-dbg-shutdown ()
    ""
    
    (interactive)
 
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Shutting down only makes sense in a circuit buffer"))
 
    (firrtl-dbg-clear)
    
-   (when firrtl-dbg-tq
-      (tq-close firrtl-dbg-tq))
-   (when firrtl-dbg-process-buffer
-      (kill-buffer firrtl-dbg-process-buffer))
-   (setq firrtl-dbg-process-buffer nil)
+   (when treadle-dbg-tq
+      (tq-close treadle-dbg-tq))
+   (when treadle-dbg-process-buffer
+      (kill-buffer treadle-dbg-process-buffer))
+   (setq treadle-dbg-process-buffer nil)
    (kill-buffer (current-buffer)))
 
-(defun firrtl-dbg-pad-to-column (column face)
+(defun treadle-dbg-pad-to-column (column face)
    ""
    
    (let*
@@ -988,14 +1201,14 @@ lastOperation/in                         Int UInt      3      1    287I      6  
       (while (< (current-column) column)
 	 (widget-insert space))))
 
-(defun firrtl-dbg-insert-w-face (str face)
+(defun treadle-dbg-insert-w-face (str face)
    ""
    
    (let*
       ((str (if face (propertize str 'face face) str)))
 
       (widget-insert str)))
-
+'
 (defun firrtl-dbg-insert-fields (field-list)
    "FIELD-LIST is a list of ((text face end-col) ...)
 
@@ -1007,8 +1220,8 @@ applied up until that column."
 	 (if (stringp field)
 	    (widget-insert field)
 	    (destructuring-bind (text face end-col) field
-	       (firrtl-dbg-insert-w-face text face)
-	       (firrtl-dbg-pad-to-column end-col face))))))
+	       (treadle-dbg-insert-w-face text face)
+	       (treadle-dbg-pad-to-column end-col face))))))
 
 ;; Want to fix the field treatment: pad to start-col with no face.
 ;; Insert with face.  Pad with face to end-col if any.  But that's
@@ -1029,12 +1242,12 @@ string
 	 ((stringp field) (widget-insert field))
 	 ((and (listp field) (eq (car field) 'to-col))
 	    (destructuring-bind (dummy col &optional face) field
-	       (firrtl-dbg-pad-to-column col face)))
+	       (treadle-dbg-pad-to-column col face)))
 	 ((listp field)
 	    (destructuring-bind (text face) field
-	       (firrtl-dbg-insert-w-face text face))))))
+	       (treadle-dbg-insert-w-face text face))))))
 
-
+'
 (defun firrtl-dbg-get-face-by-validity (validity)
    ""
    
@@ -1045,7 +1258,7 @@ string
       (ok 'firrtl-dbg-face-value-default)
       (t nil)))
 
-(defun firrtl-dbg-enum-string (fmt index)
+(defun treadle-dbg-enum-string (fmt index)
    ""
    
    (let*
@@ -1073,13 +1286,13 @@ string
 		     (1 "true")
 		     (otherwise "[invalid]")))
 	       ((enum)
-		  (firrtl-dbg-enum-string fmt value))
+		  (treadle-dbg-enum-string fmt value))
 	       
 	       (otherwise
 		  (number-to-string
 		     value)))))
       text))
-
+'
 (defun firrtl-dbg-field-fmt (cvalue perm-props end-col)
    ""
    (let* 
@@ -1106,7 +1319,7 @@ string
 	 text
 	 face
 	 end-col)))
-
+'
 (defun firrtl-dbg-type-fmt (component end-col)
    ""
    
@@ -1169,10 +1382,10 @@ string
       (
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym))
-	 (perm-props (firrtl-dbg-get-perm-props (symbol-name sym))))
+	 (perm-props (treadle-dbg-get-perm-props (symbol-name sym))))
       (treadle-dbg-insert-component-aux v perm-props)))
 
-
+'
 (defun firrtl-dbg-insert-ephemeral-component (wid)
    "Insert an ephemeral component"
    (let* 
@@ -1185,13 +1398,13 @@ string
 	    (list (firrtl-dbg-ephemeral-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-ephemeral-current v)
-	       (firrtl-dbg-get-perm-props (symbol-name sym))
+	       (treadle-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)
 	    " "
 	    (firrtl-dbg-type-fmt
 	       v
 	       firrtl-dbg-type-end-column)))))
-
+'
 (defun firrtl-dbg-insert-input-component (wid)
    "Insert an input component"
    (let* 
@@ -1204,7 +1417,7 @@ string
 	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-input-current v)
-	       (firrtl-dbg-get-perm-props (symbol-name sym))
+	       (treadle-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)
 	    " "
 	    (firrtl-dbg-type-fmt
@@ -1212,7 +1425,7 @@ string
 	       firrtl-dbg-type-end-column)))))
 
 
-
+'
 (defun firrtl-dbg-insert-output-component (wid)
    "Insert an output component"
    (let* 
@@ -1225,13 +1438,13 @@ string
 	    (list (firrtl-dbg-output-full-name v) nil firrtl-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-output-current v)
-	       (firrtl-dbg-get-perm-props (symbol-name sym))
+	       (treadle-dbg-get-perm-props (symbol-name sym))
 	       firrtl-dbg-value-end-column)
 	    " "
 	    (firrtl-dbg-type-fmt
 	       v
 	       firrtl-dbg-type-end-column)))))
-
+'
 (defun firrtl-dbg-insert-register-component (wid)
    "Insert a register component"
    (let* 
@@ -1239,7 +1452,7 @@ string
 	 (sym (widget-get wid :value))
 	 (v (symbol-value sym))
 	 (perm-props
-	    (firrtl-dbg-get-perm-props (symbol-name sym))))
+	    (treadle-dbg-get-perm-props (symbol-name sym))))
       
       (firrtl-dbg-insert-fields
 	 (list
@@ -1259,7 +1472,7 @@ string
 	    (firrtl-dbg-type-fmt
 	       v
 	       firrtl-dbg-type-end-column)))))
-
+'
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
       (if (second cell)
@@ -1307,28 +1520,123 @@ string
 		      ,#'firrtl-dbg-insert-register-component
 		      :alt-action ,#'firrtl-dbg-edit-properties
 		      )))))))
-
+'
 (defun firrtl-dbg-tree-expand (tree)
    (or (widget-get tree :args)
       (let
 	 ((alist (widget-get (tree-widget-node tree) :value)))
 	 (mapcar #'firrtl-dbg-tree-widget alist))))
 
+(defun treadle-dbg-tree-widget (cell)
+   (let ()
+      (if (second cell)
+	 `(tree-widget
+	     :node (push-button
+		      :value ,(cddr cell)
+		      :tag ,(car cell)
+		      :format "%[%t%]\n"
+		      ;; Nothing to do yet for inner nodes
+		      :alt-action ,#'ignore)
+	     :dynargs treadle-dbg-tree-expand)
+	 (let*
+	    ((sym (cddr cell)))
+	    `(const
+		:format "%v\n"
+		:value ,sym
+		:value-create ,#'treadle-dbg-insert-component
+		;; UPDATE ME
+		:alt-action ,#'firrtl-dbg-edit-properties)))))
+
+(defun treadle-dbg-tree-expand (tree)
+   (or (widget-get tree :args)
+      (let
+	 ((alist (widget-get (tree-widget-node tree) :value)))
+	 (mapcar #'treadle-dbg-tree-widget alist))))
+
+
+(defun treadle-dbg-create-widgets ()
+   '  ;; REENABLE ME
+   (unless (eq firrtl-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer
+	 "Creating the widgets only makes sense in a circuit buffer"))
+
+   (widget-insert "FIRRTL debugger interface\n\n")
+   '
+   (setq firrtl-dbg-widget-of-step-num
+      (widget-create 'const
+	 :value treadle-dbg-current-step
+	 :format "Step %v"))
+   
+   (widget-insert " ")
+   '
+   (setq firrtl-dbg-widget-of-freshness
+      (widget-create 'const
+	 :value treadle-dbg-current-freshness
+	 :format "(%v)"))
+
+   (widget-insert "\n\n")
+
+   '
+   (widget-create 'push-button
+      :notify (lambda (&rest ignore)
+		 (firrtl-dbg-step-circuit))
+      "Step")
+
+   (widget-insert "   ")
+   '
+   (widget-create 'push-button
+      :notify (lambda (&rest ignore)
+		 (unless (eq firrtl-dbg-current-buffer-type 'main)
+		    (treadle-dbg-complain-bad-buffer
+		       "Rebuilding the widgets only makes sense in a circuit buffer"))
+
+		 (let
+		    ((inhibit-read-only t))
+		    (erase-buffer))
+		 (firrtl-dbg-create-widgets))
+      "Rebuild buffer")
+
+   (widget-insert "   ")
+   '
+   (widget-create 'push-button
+      :notify
+      (lambda (&rest ignore)
+	 (unless (eq firrtl-dbg-current-buffer-type 'main)
+	    (treadle-dbg-complain-bad-buffer))
+	 (firrtl-dbg-shutdown))
+      "Done")
+   
+   ;; IMPROVE ME: Add other buttons: Reset, (Done), Poison, Randomize,
+   ;; Start/stop recording script, etc
+   (widget-insert "\n\n")
+
+   (widget-apply-action
+      (widget-create (treadle-dbg-tree-widget
+			(cons "root" treadle-dbg-subname-tree))))
+   (if (require 'tree-mode nil t)
+      (tree-minor-mode t)
+      (widget-insert "\n\n"))
+   (use-local-map widget-keymap)
+   '
+   (local-set-key "\M-\r"
+      #'firrtl-dbg-do-alt-interaction))
+
+'
 (defun firrtl-dbg-create-widgets ()
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
    (widget-insert "FIRRTL debugger interface\n\n")
    (setq firrtl-dbg-widget-of-step-num
       (widget-create 'const
-	 :value firrtl-dbg-current-step
+	 :value treadle-dbg-current-step
 	 :format "Step %v"))
    
    (widget-insert " ")
    (setq firrtl-dbg-widget-of-freshness
       (widget-create 'const
-	 :value firrtl-dbg-current-freshness
+	 :value treadle-dbg-current-freshness
 	 :format "(%v)"))
 
    (widget-insert "\n\n")
@@ -1343,7 +1651,7 @@ string
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
 		 (unless (eq firrtl-dbg-current-buffer-type 'main)
-		    (firrtl-dbg-complain-bad-buffer
+		    (treadle-dbg-complain-bad-buffer
 		       "Rebuilding the widgets only makes sense in a circuit buffer"))
 
 		 (let
@@ -1358,7 +1666,7 @@ string
       :notify
       (lambda (&rest ignore)
 	 (unless (eq firrtl-dbg-current-buffer-type 'main)
-	    (firrtl-dbg-complain-bad-buffer))
+	    (treadle-dbg-complain-bad-buffer))
 	 (firrtl-dbg-shutdown))
       "Done")
    
@@ -1368,7 +1676,7 @@ string
 
    (widget-apply-action
       (widget-create (firrtl-dbg-tree-widget
-			(cons "root" firrtl-dbg-subname-tree))))
+			(cons "root" treadle-dbg-subname-tree))))
    (if (require 'tree-mode nil t)
       (tree-minor-mode t)
       (widget-insert "\n\n"))
@@ -1378,11 +1686,13 @@ string
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ADAPT ME
+'
 (defun firrtl-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
 
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Calling edit-properties only makes sense in the main buffer, although it creates a customize buffer"))
 
    (let* 
@@ -1390,10 +1700,10 @@ string
 	 (sym (widget-get widget :value))
 	 (name (symbol-name sym))
 	 (perm-sym-soft
-	    (intern-soft name firrtl-dbg-obarray-perm-props))
+	    (intern-soft name treadle-dbg-obarray-perm-props))
 	 (perm-sym
 	    (or perm-sym-soft
-	       (intern name firrtl-dbg-obarray-perm-props))))
+	       (intern name treadle-dbg-obarray-perm-props))))
 
       (unless perm-sym-soft
 	 (custom-declare-variable perm-sym
@@ -1414,7 +1724,7 @@ string
 	       (list (list perm-sym 'custom-variable))
 	       ;; The parm "description" doesn't do anything
 	       nil)
-	    (setq firrtl-dbg-main-buffer main-buf)
+	    (setq treadle-dbg-main-buffer main-buf)
 
 	    (fset (make-local-variable 'Custom-save)
 	       #'firrtl-dbg-save-perms)
@@ -1423,63 +1733,71 @@ string
 	  
 	 (pop-to-buffer-same-window buf))))
 
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-copy-alist-to-perms ()
    ""
    
    (interactive)
-   (dolist (cell firrtl-dbg-perm-props-alist)
+   (dolist (cell treadle-dbg-perm-props-alist)
       (let* 
 	 ((name (car cell))
 	    (value (cdr cell))
-	    (sym (intern name firrtl-dbg-obarray-perm-props)))
+	    (sym (intern name treadle-dbg-obarray-perm-props)))
 	 (set sym value))))
 
 
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-copy-perms-to-alist ()
    ""
 
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer
+      (treadle-dbg-complain-bad-buffer
 	 "Copying to the perm alist only makes sense in the main buffer"))
 
-   (setq firrtl-dbg-perm-props-alist '())
+   (setq treadle-dbg-perm-props-alist '())
    (mapatoms
       #'(lambda (sym)
 	   (when sym
 	      (push
 		 (cons (symbol-name sym) (symbol-value sym))
-		 firrtl-dbg-perm-props-alist)))
-      firrtl-dbg-obarray-perm-props))
+		 treadle-dbg-perm-props-alist)))
+      treadle-dbg-obarray-perm-props))
 
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-save-perms (&rest ignore)
    ""
    ;; This takes the place of Custom-save
 
-   ;; CHECK ME: Do we need to copy perms to firrtl-dbg-perm-props-alist?
+   ;; CHECK ME: Do we need to copy perms to treadle-dbg-perm-props-alist?
 
-   ;; Quick&dirty: Just save firrtl-dbg-perm-props-alist.  We don't
+   ;; Quick&dirty: Just save treadle-dbg-perm-props-alist.  We don't
    ;; save firrtl-dbg-custom-enums because that's useful globally
    ;; (though providing both local and global would be nice).  We
    ;; don't try to track what's dirty, nor treat an extensible set of
    ;; variables
    (add-dir-local-variable 'firrtl-dbg-mode
-      'firrtl-dbg-perm-props-alist
-      firrtl-dbg-perm-props-alist))
+      'treadle-dbg-perm-props-alist
+      treadle-dbg-perm-props-alist))
 
 
-(defun firrtl-dbg-get-perm-props (str)
+(defun treadle-dbg-get-perm-props (str)
    "Get the permanent props for the component named STR.
 Return nil if component has no permanent props."
    
    (let*
       (
 	 (perm-prop-sym
-	    (intern-soft str firrtl-dbg-obarray-perm-props)))
+	    (intern-soft str treadle-dbg-obarray-perm-props)))
       (if perm-prop-sym (symbol-value perm-prop-sym) nil)))
 
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-custom-variable-save (widget)
    "Save value of variable edited by widget WIDGET."
@@ -1489,25 +1807,27 @@ Return nil if component has no permanent props."
 	 ((sym (widget-get widget :value)))
 
 	 ;; Customize buffer knows a particular widgets buffer
-	 (with-current-buffer firrtl-dbg-main-buffer
+	 (with-current-buffer treadle-dbg-main-buffer
 	    (unless (eq firrtl-dbg-current-buffer-type 'main)
-	       (firrtl-dbg-complain-bad-buffer))
+	       (treadle-dbg-complain-bad-buffer))
 
-	    ;; Copy this sym to firrtl-dbg-perm-props-alist
-	    (setq firrtl-dbg-perm-props-alist
+	    ;; Copy this sym to treadle-dbg-perm-props-alist
+	    (setq treadle-dbg-perm-props-alist
 	       (cons
 		  (cons (symbol-name sym) (symbol-value sym))
 		  (delete-if
 		     #'(lambda (a)
 			  (string-equal (first a) (symbol-name sym)))
-		     firrtl-dbg-perm-props-alist)))
+		     treadle-dbg-perm-props-alist)))
 	    ;; IMPROVE ME: Nice to save the file automatically and not
 	    ;; necessarily see the buffer in a window.
 	    (add-dir-local-variable 'firrtl-dbg-mode
-	       'firrtl-dbg-perm-props-alist
-	       firrtl-dbg-perm-props-alist))))
+	       'treadle-dbg-perm-props-alist
+	       treadle-dbg-perm-props-alist))))
    
    (custom-variable-state-set-and-redraw widget))
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-make-custom-variable-menu ()
    ""
@@ -1532,10 +1852,15 @@ Return nil if component has no permanent props."
 	    (push entry our-menu)))
       (nreverse our-menu)))
 
+;; ADAPT ME
+'
+
 ;; Needs to be after firrtl-dbg-make-custom-variable-menu
 (defconst firrtl-dbg-custom-variable-menu
    (firrtl-dbg-make-custom-variable-menu)
    "" )
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-do-alt-interaction (pos &optional event)
    "Do the alternate widget interaction at pos"
@@ -1556,25 +1881,30 @@ Return nil if component has no permanent props."
 	 (let ((command (lookup-key widget-global-map (this-command-keys))))
 	    (when (commandp command)
 	       (call-interactively command))))))
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-step-circuit ()
    "Step the circuit"
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
    (widget-value-set
       firrtl-dbg-widget-of-freshness
       "Stepping")
 
-   (when firrtl-dbg-writing-script-p
-      (push '(step) firrtl-dbg-current-script-rv))
+   (when treadle-dbg-writing-script-p
+      (push '(step) treadle-dbg-current-script-rv))
 
    (firrtl-dbg-step-circuit-low)
    (firrtl-dbg-show-circuit-low))
 
+;; ADAPT ME
+'
+
 (defun firrtl-dbg-record-spurious-response-lines (str step-num)
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
 
    (let
       ((spl (split-string str "\n"))
@@ -1593,35 +1923,39 @@ Return nil if component has no permanent props."
       (let
 	 ((line-data
 	     (list step-num (nreverse collected-lines))))
-	 (push line-data firrtl-dbg-spurious-lines))))
+	 (push line-data treadle-dbg-spurious-lines))))
 
 
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-step-circuit-low ()
    "Step the circuit"
 
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
-   (tq-enqueue firrtl-dbg-tq
+      (treadle-dbg-complain-bad-buffer))
+   (tq-enqueue treadle-dbg-tq
       "step\n"
-      firrtl-dbg-tq-regexp
+      treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
 	      (firrtl-dbg-record-spurious-response-lines
-		 str firrtl-dbg-current-step)
-	      (incf firrtl-dbg-current-step)))
+		 str treadle-dbg-current-step)
+	      (incf treadle-dbg-current-step)))
       
       t))
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-show-circuit-low ()
    "Get the current component values"
 
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
-   (tq-enqueue firrtl-dbg-tq
+      (treadle-dbg-complain-bad-buffer))
+   (tq-enqueue treadle-dbg-tq
       "show\n"
-      firrtl-dbg-tq-regexp
+      treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
@@ -1632,16 +1966,20 @@ Return nil if component has no permanent props."
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-redraw-widgets)))
       t))
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-remove-prompt-suffix (str)
    ""
 
    (let*
       (
-	 (start-legit (string-match firrtl-dbg-tq-prompt-string str)))
+	 (start-legit (string-match treadle-dbg-tq-prompt-string str)))
       (when (null start-legit)
 	 (error "No FIRRTL prompt found"))
       (substring str 0 start-legit)))
+;; ADAPT ME
+'
 
 (defun firrtl-dbg-parse-component-type-string (str)
    ""
@@ -1664,21 +2002,23 @@ Return nil if component has no permanent props."
 ;;    (firrtl-dbg-remove-prompt-suffix "type x 3.PU<4>
 ;; firrtl>> "))
 ;;     
+;; Superseded in Treadle
+'
 
 (defun firrtl-dbg-init-component-type (name)
    "Set the type of component NAME according to the REPL"
 
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
    
    (let*
       ((command (concat "type " name "\n")))
-      (tq-enqueue firrtl-dbg-tq command firrtl-dbg-tq-regexp
+      (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
 	 (list (current-buffer) name)
 	 #'(lambda (data str)
 	      (with-current-buffer (first data)
 		 (unless (eq firrtl-dbg-current-buffer-type 'main)
-		    (firrtl-dbg-complain-bad-buffer))
+		    (treadle-dbg-complain-bad-buffer))
 		 (let* 
 		    ((str (firrtl-dbg-remove-prompt-suffix str))
 		       (type (firrtl-dbg-parse-component-type-string str))
@@ -1692,11 +2032,13 @@ Return nil if component has no permanent props."
 			     type))))))
 	 t)))
 
+;; Superseded in Treadle
+'
 (defun firrtl-dbg-init-all-component-types ()
    ""
    
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
    (mapatoms
       #'(lambda (sym)
 	   (when sym
@@ -1706,7 +2048,7 @@ Return nil if component has no permanent props."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
 
-(defun firrtl-dbg-for-all-buttons (proc)
+(defun treadle-dbg-for-all-buttons (proc)
    ""
 
    (let
@@ -1729,18 +2071,20 @@ Return nil if component has no permanent props."
 			(funcall proc button))))
 	       (setq done t))))))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-redraw-widgets ()
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
    (widget-value-set
       firrtl-dbg-widget-of-step-num
-      firrtl-dbg-current-step)
+      treadle-dbg-current-step)
    (widget-value-set
       firrtl-dbg-widget-of-freshness
-      firrtl-dbg-current-freshness)
+      treadle-dbg-current-freshness)
 
-   (firrtl-dbg-for-all-buttons
+   (treadle-dbg-for-all-buttons
       #'(lambda (widget)
 	   (let* 
 	      ((widget (widget-get widget :node)))
@@ -1750,6 +2094,8 @@ Return nil if component has no permanent props."
 		    (widget-value widget)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ADAPT ME
+'
 (defun firrtl-dbg-read-new-boolean-val (prompt old-val)
    "Return it as list of (number text)"
 
@@ -1776,6 +2122,8 @@ Return nil if component has no permanent props."
 	    0)
 	 (t (error "Not a boolean")))))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-read-new-decimal-val (prompt old-val)
    ""
    ;; IMPROVE ME: Using type info, check new-val for bit width and
@@ -1792,6 +2140,8 @@ Return nil if component has no permanent props."
 		  nil))))
       new-val))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-find-index-in-list (key str-list)
    "Return the index or nil"
    
@@ -1813,6 +2163,8 @@ Return nil if component has no permanent props."
 ;; (firrtl-dbg-find-index-in-list "b" '(("b")("a")))
 ;; (firrtl-dbg-find-index-in-list "a" '(("b")("a")))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-read-new-enum-val (prompt fmt)
    ""
 
@@ -1839,6 +2191,8 @@ Return nil if component has no permanent props."
 	 (error "No such enum: %s" key))))
 
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-read-new-val (prompt old-val perm-props)
    ""
    (let
@@ -1854,13 +2208,15 @@ Return nil if component has no permanent props."
 	 (otherwise
 	    (firrtl-dbg-read-new-decimal-val prompt old-val)))))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-poke-value (sym new-val
 				&optional extra-proc extra-data)
    "Poke NEW-VAL into the component named by SYM
 Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
 
    (let* 
       (  
@@ -1871,14 +2227,14 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		 (number-to-string new-val) "\n")))
       
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
-      (tq-enqueue firrtl-dbg-tq
+      (tq-enqueue treadle-dbg-tq
 	 msg
-	 firrtl-dbg-tq-regexp
+	 treadle-dbg-tq-regexp
 	 (list current new-val extra-proc extra-data)
 	 #'(lambda (data str)
 	      (let* 
 		 ((had-problem
-		     (firrtl-dbg-parse-response-maybe-complain str))
+		     (treadle-dbg-parse-response-maybe-complain str))
 		    (current (first data))
 		    (new-val (second data))
 		    (extra-proc (third data))
@@ -1893,10 +2249,12 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		       (apply extra-proc extra-data)))))
 	 t)))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
    ;; Can replace most of it with this:
    '(firrtl-dbg-poke-value
        sym new-val
@@ -1911,7 +2269,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	 (component-name (firrtl-dbg-input-full-name component))
 	 (current (firrtl-dbg-input-current component))
 	 (perm-props
-	    (firrtl-dbg-get-perm-props (symbol-name sym)))
+	    (treadle-dbg-get-perm-props (symbol-name sym)))
 	 (new-val (firrtl-dbg-read-new-val
 		     (format "New value for %s: " component-name)
 		     current
@@ -1919,24 +2277,24 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	 (msg (concat "poke " component-name " "
 		 (number-to-string new-val) "\n")))
 
-      (when firrtl-dbg-writing-script-p
+      (when treadle-dbg-writing-script-p
 	 (push
 	    `(poke ,component-name ,new-val)
-	    firrtl-dbg-current-script-rv))
-      (setq firrtl-dbg-current-freshness "STALE")
+	    treadle-dbg-current-script-rv))
+      (setq treadle-dbg-current-freshness "STALE")
       (widget-value-set
 	 firrtl-dbg-widget-of-freshness
 	 "STALE")
 
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
-      (tq-enqueue firrtl-dbg-tq
+      (tq-enqueue treadle-dbg-tq
 	 msg
-	 firrtl-dbg-tq-regexp
+	 treadle-dbg-tq-regexp
 	 (list current widget new-val (current-buffer))
 	 #'(lambda (data str)
 	      (let* 
 		 ((had-problem
-		     (firrtl-dbg-parse-response-maybe-complain str))
+		     (treadle-dbg-parse-response-maybe-complain str))
 		    (current (first data))
 		    (widget (second data))
 		    (new-val (third data))
@@ -1951,6 +2309,8 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		       (widget-value-set widget (widget-value widget))))))
 	 t)))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-run-script (script)
    "Run SCRIPT.
 Script should be a list whose entries are in on of the forms:
@@ -1958,7 +2318,7 @@ Script should be a list whose entries are in on of the forms:
  (step)"
    
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
 
    (widget-value-set
       firrtl-dbg-widget-of-freshness
@@ -1987,43 +2347,49 @@ Script should be a list whose entries are in on of the forms:
 ;; (firrtl-dbg-run-script
 ;;    '((step)))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-start-recording-script ()
    ""
 
    (interactive)
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
-   (setq firrtl-dbg-current-script-rv '())
-   (setq firrtl-dbg-writing-script-p t))
+      (treadle-dbg-complain-bad-buffer))
+   (setq treadle-dbg-current-script-rv '())
+   (setq treadle-dbg-writing-script-p t))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-stop-recording-script ()
    ""
    
    (interactive)
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
-   (setq firrtl-dbg-writing-script-p nil))
+      (treadle-dbg-complain-bad-buffer))
+   (setq treadle-dbg-writing-script-p nil))
 
+;; ADAPT ME
+'
 (defun firrtl-dbg-get-script ()
    ""
    
    (interactive)
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
    (with-output-to-temp-buffer "*FIRRTL script*"
       (princ ";;User-generated script\n")
       (princ ";;Call as '(firrtl-dbg-run-script SCRIPT)'\n")
       (princ "\n")
       (prin1
-	 (reverse firrtl-dbg-current-script-rv))))
+	 (reverse treadle-dbg-current-script-rv))))
 
 
-(defun firrtl-dbg-parse-response-maybe-complain (str)
+(defun treadle-dbg-parse-response-maybe-complain (str)
    "Return non-nil if str caused an error message"
    
    (let*
       (
-	 (legit-rx (concat " *" firrtl-dbg-tq-prompt-string))
+	 (legit-rx (concat " *" treadle-dbg-tq-prompt-string))
 	 (start-legit (string-match legit-rx str)))
       ;; Show any error that we get back
       (when (or (null start-legit) (> start-legit 0))
@@ -2043,76 +2409,77 @@ Script should be a list whose entries are in on of the forms:
 ;; 	(message "For the last time: %s" msg))
 ;;    (list "Aloha!"))
 
-(defstruct (firrtl-dbg-timer-data (:type list))
+(defstruct (treadle-dbg-timer-data (:type list))
    ""
    seconds-to-wait
    timer)
 
 
-(defun firrtl-dbg-call-until-done-w/timeout
+(defun treadle-dbg-call-until-done-w/timeout
    (num-seconds proc args &optional timed-out-proc timed-out-args)
    "
 PROC should return non-nil if it has finished its work"
    (let
-      ((data (make-firrtl-dbg-timer-data :seconds-to-wait num-seconds)))
-      (setf (firrtl-dbg-timer-data-timer data)
+      ((data (make-treadle-dbg-timer-data :seconds-to-wait num-seconds)))
+      (setf (treadle-dbg-timer-data-timer data)
 	 (run-at-time t 1
 	    #'(lambda (data proc args timed-out-proc timed-out-args)
 		 ;; Manage timeout
-		 (if (<= (firrtl-dbg-timer-data-seconds-to-wait data) 0)
+		 (if (<= (treadle-dbg-timer-data-seconds-to-wait data) 0)
 		    (progn
-		       (cancel-timer (firrtl-dbg-timer-data-timer data))
+		       (cancel-timer (treadle-dbg-timer-data-timer data))
 		       (when timed-out-proc
 			  (apply timed-out-proc timed-out-args)))
 		    (let
 		       ((done (apply proc args)))
 		       (if done
-			  (cancel-timer (firrtl-dbg-timer-data-timer data))
-			  (decf (firrtl-dbg-timer-data-seconds-to-wait data))))))
+			  (cancel-timer (treadle-dbg-timer-data-timer data))
+			  (decf (treadle-dbg-timer-data-seconds-to-wait data))))))
 	    data
 	    proc args
 	    timed-out-proc timed-out-args))))
 
-(defun firrtl-dbg-process-is-ready-p (process)
-   "True if the firrtl-dbg process is ready, meaning that it has arrived at its initial prompt.  This may take a while."
+(defun treadle-dbg-process-is-ready-p (process)
+   "True if the treadle-dbg process is ready, meaning that it has arrived at its initial prompt.  This may take a while."
    (with-current-buffer (process-buffer process)
       (goto-char (point-min))
-      (search-forward firrtl-dbg-tq-prompt-string nil t)))
-
+      (search-forward treadle-dbg-tq-prompt-string nil t)))
+;; ADAPT ME
+'
 (defun firrtl-dbg-initial-load ()
    ""
    (unless (eq firrtl-dbg-current-buffer-type 'main)
-      (firrtl-dbg-complain-bad-buffer))
+      (treadle-dbg-complain-bad-buffer))
    ;; 'firrtl-dbg-init-all-component-types' doesn't immediately show
    ;; results because it is waiting for the FIRRTL REPL to answer,
    ;; many times.  Could solve this with timers and dirty flags, but
    ;; it's not a serious problem.
-   (tq-enqueue firrtl-dbg-tq "show\n" firrtl-dbg-tq-regexp
+   (tq-enqueue treadle-dbg-tq "show\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
 	      (unless (eq firrtl-dbg-current-buffer-type 'main)
-		 (firrtl-dbg-complain-bad-buffer))
+		 (treadle-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-init-all-component-types)
 	      (firrtl-dbg-create-widgets)))
       t))
 
-(define-derived-mode firrtl-dbg-mode
-   special-mode "Firrtl-Dbg"
-   "Major mode for FIRRTL debugger interface"
+(define-derived-mode treadle-dbg-mode
+   special-mode "Treadle-Dbg"
+   "Major mode for Treadle debugger interface"
    :group 'treadle-dbg
    (progn
-      (set-keymap-parent firrtl-dbg-mode-map widget-keymap)
-      (define-key firrtl-dbg-mode-map  "\M-\r"
+      (set-keymap-parent treadle-dbg-mode-map widget-keymap)
+      (define-key treadle-dbg-mode-map  "\M-\r"
 	 #'firrtl-dbg-do-alt-interaction)))
 
 
-(defun firrtl-dbg-complain-bad-buffer (&optional msg)
+(defun treadle-dbg-complain-bad-buffer (&optional msg)
    ""
    (error (or msg "This operation only makes sense in main buffer")))
 
-
+'
 (defmacro firrtl-dbg-local-defvar (name value docstring)
    "Define VAR as a buffer-local variable with default value VAL.
 This is different than defvar-local in that it doesn't define the variable in other buffers."
@@ -2120,7 +2487,8 @@ This is different than defvar-local in that it doesn't define the variable in ot
    `(progn
        (set (make-local-variable ',name) ,value)
        (put ',name 'variable-documentation ,docstring)))
-
+;; ADAPT ME
+'
 (defun firrtl-dbg (working-directory repl-launch-command)
    ""
    (interactive
@@ -2138,25 +2506,25 @@ This is different than defvar-local in that it doesn't define the variable in ot
 	 (main-buf
 	    (generate-new-buffer buf-name)))
       (with-current-buffer main-buf
-	 (firrtl-dbg-mode)
+	 (treadle-dbg-mode)
 	 (setq default-directory working-directory)
 	 ;; Set up most of the local variables.  Some are set further
 	 ;; down as their objects are created.
 	 (set (make-local-variable 'firrtl-dbg-current-buffer-type)
 	    'main)
 
-	 (setq firrtl-dbg-process-buffer
-	    (generate-new-buffer firrtl-dbg-process-buffer-name))
+	 (setq treadle-dbg-process-buffer
+	    (generate-new-buffer treadle-dbg-process-buffer-name))
 
-	 (with-current-buffer firrtl-dbg-process-buffer
+	 (with-current-buffer treadle-dbg-process-buffer
 	    (setq default-directory working-directory)
-	    (setq firrtl-dbg-main-buffer main-buf))
+	    (setq treadle-dbg-main-buffer main-buf))
 
-	 (setq firrtl-dbg-process
+	 (setq treadle-dbg-process
 	    (let ((default-directory working-directory))
 	       (start-process
-		  firrtl-dbg-process-name
-		  firrtl-dbg-process-buffer
+		  treadle-dbg-process-name
+		  treadle-dbg-process-buffer
 		  firrtl-dbg-executable
 		  ;; Quoting this string with shell-quote-argument
 		  ;; actually messes us up.
@@ -2165,21 +2533,21 @@ This is different than defvar-local in that it doesn't define the variable in ot
 	 (hack-dir-local-variables-non-file-buffer)
 	 (firrtl-dbg-copy-alist-to-perms)
 	 
-	 (firrtl-dbg-call-until-done-w/timeout
+	 (treadle-dbg-call-until-done-w/timeout
 	    40
 	    #'(lambda (process main-buf)
 		 (when
-		    (firrtl-dbg-process-is-ready-p process)
+		    (treadle-dbg-process-is-ready-p process)
 		    (message "Debugger process is ready")
 		    (let* 
 		       ((tq (tq-create process)))
 		       (with-current-buffer main-buf
-			  (setq firrtl-dbg-tq tq)
+			  (setq treadle-dbg-tq tq)
 			  (firrtl-dbg-initial-load)))
 		    (pop-to-buffer main-buf)
 		    ;; Indicate that we have succeeded
 		    t))
-	    (list firrtl-dbg-process main-buf)
+	    (list treadle-dbg-process main-buf)
 	    #'(lambda ()
 		 (message "Debugger process timed out"))
 	    '()))))
