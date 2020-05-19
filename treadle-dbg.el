@@ -842,6 +842,8 @@ lastOperation                            Int UInt      3      1    252I      3  
    (treadle-dbg-record-outputs show-outputs-string)
    (treadle-dbg-record-inputs show-inputs-string)
    (treadle-dbg-record-symbol-info symbol-string-lastOperation)
+   (treadle-dbg-test-second-symbol-line symbol-string-lastOperation)
+
    '
    (string-match
 	       "\\([^ ]+\\) +\\([A-Za-z]+\\) +\\([A-Za-z]+\\) +\\([0-9]+\\) +\\([0-9]+\\) +\\([^ ]+\\) +\\([0-9]+\\) +@\\[\\([^[]+\\)\\] +\\([0-9]+\\)"
@@ -855,8 +857,14 @@ lastOperation                            Int UInt      3      1    252I      3  
    trunc-name type-str width-str source-str value-str
    ;; Not using: bin slots index depend
    )
+(defun treadle-dbg-test-second-symbol-line (symbol-string)
+   ""
+   
+   (let*
+      ((spl (split-string symbol-string "\n")))
+      (treadle-dbg-symbol-string->struct (second spl))))
 
-(defun treadle-dbg-symbol-string->struct ()
+(defun treadle-dbg-symbol-string->struct (line)
    ""
    (let* 
       ((pos 0)
