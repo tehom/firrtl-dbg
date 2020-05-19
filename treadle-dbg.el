@@ -1283,28 +1283,33 @@ string
 		  'treadle-dbg-face-value-input-unset)
 	       (if (treadle-dbg-component-forced-p component)
 		  'treadle-dbg-face-forced-noninput-value
-		  'firrtl-dbg-face-value-default))))
-
-      (treadle-dbg-insert-fields
+		  'firrtl-dbg-face-value-default)))
+	 (field-list-rv '()))
+      (push
 	 (list
-	    (list
-	       (treadle-dbg-component-full-name component)
-	       nil)
-	    (list 'to-col firrtl-dbg-value-column)
-	    (list
-	       (if (treadle-dbg-component-current component)
-		  (treadle-dbg-value-text
-		     (treadle-dbg-component-current component)
-		     perm-props)
-		  "??")
-	       face-of-current)
-	    (list 'to-col firrtl-dbg-value-end-column face-of-current)
-	    ;; ADD ME: display "in", "prev", and "in/prev" values if
-	    ;; non-nil, with suitable "<-"
+	    (treadle-dbg-component-full-name component)
+	    nil)
+	 field-list-rv)
+      (push
+	 (list 'to-col firrtl-dbg-value-column)
+	 field-list-rv)
+      (if (treadle-dbg-component-current component)
+	 (push
+	    (treadle-dbg-value-text
+	       (treadle-dbg-component-current component)
+	       perm-props)
+	    field-list-rv)
+	 (push "??" field-list-rv))
+      ;; ADD ME: display "in", "prev", and "in/prev" values if
+      ;; non-nil, with suitable "<-"
+      (push
+	 (list 'to-col firrtl-dbg-value-end-column face-of-current)
+	 field-list-rv)
+      (push width-string field-list-rv)
+      (push sign-string field-list-rv)
 
-	    ;; Display width and signed-p
-	    width-string
-	    sign-string))))
+      (treadle-dbg-insert-fields (nreverse field-list-rv))))
+
 
 
 (defun treadle-dbg-insert-component (wid)
