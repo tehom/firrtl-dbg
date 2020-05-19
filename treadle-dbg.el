@@ -1,4 +1,4 @@
-;;;_ firrtl-dbg.el --- FIRRTL debugger interface
+;;;_ treadle-dbg.el --- Treadle debugger interface
 
 ;;;_. Headers
 ;;;_ , License
@@ -142,35 +142,35 @@
 
 (defface firrtl-dbg-face-value-poison '((t :background "gray"))
    "The face for poisoned values"
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defface firrtl-dbg-face-value-set-by-user-earlier
    '((t (:foreground "forest green")))
    "The face for values set earlier"
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defface firrtl-dbg-face-value-set-by-user-now
    '((t (:background "LightCyan1")))
    "The face for values set since the last step"
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defface firrtl-dbg-face-value-default '()
    "The face for normal values"
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defface treadle-dbg-face-value-input-unset '((t :background "gray"))
    "The face for poisoned values"
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defface treadle-dbg-face-forced-noninput-value
    '((t (:foreground "forest green")))
    "The face for values set earlier"
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defface treadle-dbg-face-value-set-by-user-now
    '((t (:background "LightCyan1")))
    "The face for values set since the last step"
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 ;; It's tempting to make this buffer-local and save it in the working
 ;; directory.  But for now, it's simpler to let it be a normal
@@ -184,7 +184,7 @@
    :type '(repeat
 	     (group string
 		(repeat string)))
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defconst firrtl-dbg-component-perm-spec
    '(choice
@@ -221,13 +221,13 @@ Local in the relevant buffers." )
    '()
    "History list of working directories.  Put the directory that you would run sbt in for your project on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
    :type '(repeat directory)
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defcustom firrtl-dbg-repl-name-history
    '("test:runMain gcd.GCDRepl")
    "History list of FIRRTL REPL commands.  Put the full command that you would give sbt to run a FIRRTL debugger on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
    :type '(repeat string)
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defconst treadle-dbg-repl-launch-command
    "runMain treadle.TreadleRepl"
@@ -240,7 +240,7 @@ Local in the relevant buffers." )
    "sbt"
    "Name of the actual executable that helps launch the debugger REPL"
    :type 'string
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 
 (defconst firrtl-dbg-process-name
@@ -258,7 +258,7 @@ Local in the relevant buffers." )
    "firrtl>>"
    "The REPL's prompt string"
    :type 'string
-   :group 'firrtl-dbg)
+   :group 'treadle-dbg)
 
 (defconst firrtl-dbg-type-regexp
    "type \\([^ ]+\\) \\([0-9]+\\).\\([A-Z]+\\)<\\([0-9]+\\)>"
@@ -2101,7 +2101,7 @@ PROC should return non-nil if it has finished its work"
 (define-derived-mode firrtl-dbg-mode
    special-mode "Firrtl-Dbg"
    "Major mode for FIRRTL debugger interface"
-   :group 'firrtl-dbg
+   :group 'treadle-dbg
    (progn
       (set-keymap-parent firrtl-dbg-mode-map widget-keymap)
       (define-key firrtl-dbg-mode-map  "\M-\r"
@@ -2190,7 +2190,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
 ;;;_. Footers
 ;;;_ , Provides
 
-(provide 'firrtl-dbg)
+(provide 'treadle-dbg)
 
 ;;;_ * Local emacs vars.
 ;;;_  + Local variables:
@@ -2198,4 +2198,4 @@ This is different than defvar-local in that it doesn't define the variable in ot
 ;;;_  + End:
 
 ;;;_ , End
-;;; firrtl-dbg.el ends here
+;;; treadle-dbg.el ends here
