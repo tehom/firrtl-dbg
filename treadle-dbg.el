@@ -813,7 +813,7 @@ lastOperation/in                         Int UInt      3      1    287I      6  
 
    ;; Slight cheat: Un-truncated the names for this.
    ;; Redo this for the new format info.
-   (mapcar #'treadle-dbg-record-symbol-info
+   (mapcar #'treadle-dbg-test-second-symbol-line
       '("Name                                     Bin Type  Width  Slots  Index Depend Info
 cellVec2_2.timeVec_3.clock               Int UInt      1      1    238I     62  0
 ""Name                                     Bin Type  Width  Slots  Index Depend Info
