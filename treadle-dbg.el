@@ -410,9 +410,13 @@ DATA is the data to store, usually a symbol"
 
 (defun treadle-dbg-split-component-name (str)
    ""
-   (split-string str "[._]+"))
+   (if
+      (eql (elt str 0) ?/)
+      (cons "/" (split-string (substring str 1) "[._]+"))
+      (split-string str "[._]+")))
 
 ;; (treadle-dbg-split-component-name "io_a.b")
+;; (treadle-dbg-split-component-name "/print0")
 
 '
 (progn
@@ -445,6 +449,7 @@ DATA is the data to store, usually a symbol"
 
 (defun treadle-dbg-str->state-entry (str)
    ""
+   ;; IMPROVE ME:  Use ignore-errors and let caller abort on nil.
    (string-match "^\\([^ ]+\\) +\\([0-9]+\\)" str)
    
    (let*
@@ -539,12 +544,9 @@ DATA is the data to store, usually a symbol"
 (defun treadle-dbg-set-data-aux (state-string mutator)
    "
 MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a treadle-dbg-state-entry"
-   (message "In treadle-dbg-set-data-aux")
    (let*
       ((spl (split-string state-string "\n")))
-      (message "Have split string")
       (dolist (line spl)
-	 (message "Line %s" line)
 	 (unless (string-blank-p line)
 	    ;; FIX ME: Handle the "/printX" components correctly, and
 	    ;; any other slashes.
@@ -554,7 +556,6 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 	       (when (string-blank-p full-name)
 		  (message "Got a blank name in line %s") line)
 	       (unless (string-blank-p full-name)
-		  (message "Adding %s" full-name)
 		  (treadle-dbg-add-object
 		     full-name
 		     #'(lambda (component)
@@ -1883,7 +1884,6 @@ PROC should return non-nil if it has finished its work"
    (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
-	   (message "Results of show state")
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
@@ -1892,14 +1892,12 @@ PROC should return non-nil if it has finished its work"
 		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
 			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-state str1)))
-	   (message "Results of show state done"))
+		 (treadle-dbg-record-state str1))))
       t)
 
    (tq-enqueue treadle-dbg-tq "show inputs\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
-	   (message "Results of show inputs")
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
@@ -1908,14 +1906,11 @@ PROC should return non-nil if it has finished its work"
 		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
 			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-inputs str1)))
-	   (message "Results of show inputs done")
-	   )
+		 (treadle-dbg-record-inputs str1))))
       t)
    (tq-enqueue treadle-dbg-tq "show outputs\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
-	   (message "Results of show outputs")
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
@@ -1924,9 +1919,7 @@ PROC should return non-nil if it has finished its work"
 		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
 			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-outputs str1)))
-	   (message "Results of show outputs done")
-	   )
+		 (treadle-dbg-record-outputs str1))))
       t)
 
    ;; Call symbol on every name
@@ -1938,14 +1931,11 @@ PROC should return non-nil if it has finished its work"
    (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
-	   (message "Results of blank to draw widgets")
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      (treadle-dbg-create-widgets))
-	   (pop-to-buffer (first data))
-	   (message "Results of blank to draw widgets done")
-	   )
+	   (pop-to-buffer (first data)))
       t))
 
 
@@ -1977,9 +1967,10 @@ PROC should return non-nil if it has finished its work"
 	       (list (current-buffer) (symbol-name sym))
 	       #'(lambda (data str)
 		    (with-current-buffer (first data)
-		       ;; (unless (eq treadle-dbg-current-buffer-type 'main)
-		       ;; 	 (treadle-dbg-complain-bad-buffer))
-		       (message "Got %s" str)
+		       '
+		       (unless (eq treadle-dbg-current-buffer-type 'main)
+			  (treadle-dbg-complain-bad-buffer))
+		       ;;(message "Got %s" str)
 		       (treadle-dbg-record-symbol-info
 			  (second data)
 			  str)))
