@@ -1091,8 +1091,8 @@ reset                                    Int UInt      1      1    212I      2  
       (make-vector firrtl-dbg-obarray-default-size nil))
    (setq treadle-dbg-spurious-lines '()))
 
-;; ADAPT ME
-(defun firrtl-dbg-shutdown ()
+
+(defun treadle-dbg-shutdown ()
    ""
    
    (interactive)
@@ -1553,7 +1553,7 @@ string
       (lambda (&rest ignore)
 	 (unless (eq treadle-dbg-current-buffer-type 'main)
 	    (treadle-dbg-complain-bad-buffer))
-	 (firrtl-dbg-shutdown))
+	 (treadle-dbg-shutdown))
       "Done")
    
    ;; IMPROVE ME: Add other buttons: Reset, (Done), Poison, Randomize,
@@ -1617,7 +1617,7 @@ string
       (lambda (&rest ignore)
 	 (unless (eq treadle-dbg-current-buffer-type 'main)
 	    (treadle-dbg-complain-bad-buffer))
-	 (firrtl-dbg-shutdown))
+	 (treadle-dbg-shutdown))
       "Done")
    
    ;; IMPROVE ME: Add other buttons: Reset, (Done), Poison, Randomize,
