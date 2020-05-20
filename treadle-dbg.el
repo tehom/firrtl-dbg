@@ -1911,9 +1911,6 @@ PROC should return non-nil if it has finished its work"
       treadle-dbg-obarray)
 
    ;; When it's all done and received, draw the widgets and go.
-   ;; The blank string trick doesn't seem to work.
-   ;; RE-ENABLE ME
-   '
    (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
@@ -1922,8 +1919,8 @@ PROC should return non-nil if it has finished its work"
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      (treadle-dbg-create-widgets))
 	   (pop-to-buffer (first data)))
-      t)
-   )
+      t))
+
 
 
 (defun treadle-dbg-load-fir-file (fir-file)
