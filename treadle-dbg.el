@@ -242,6 +242,11 @@ Local in the relevant buffers." )
    :type 'string
    :group 'treadle-dbg)
 
+(defcustom treadle-dbg-timeout
+   40
+   "How long to wait for the external process to start"
+   :type 'integer
+   :group 'treadle-dbg)
 
 (defconst treadle-dbg-process-name
    "firrtl-dbg-process"
@@ -2607,7 +2612,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
 	 (treadle-dbg-copy-alist-to-perms)
 	 ' ;; RE-ENABLE ME
 	 (treadle-dbg-call-until-done-w/timeout
-	    40
+	    treadle-dbg-timeout
 	    #'(lambda (process main-buf)
 		 (when
 		    (treadle-dbg-process-is-ready-p process)
