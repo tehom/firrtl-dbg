@@ -2468,24 +2468,36 @@ PROC should return non-nil if it has finished its work"
 
 (defun treadle-dbg-get-symbol-data (sym)
    ""
-   
-   (let*
-      ((command (concat "symbol " (symbol-name sym) "\n")))
-      (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
-	 (list (current-buffer))
-	 #'(lambda (data str)
-	      (with-current-buffer (first data)
-		 ;; (unless (eq treadle-dbg-current-buffer-type 'main)
-		 ;; 	 (treadle-dbg-complain-bad-buffer))
-		 (treadle-dbg-record-symbol-info
-		    (symbol-name sym)
-		    str)))
-	 t)))
+   (when sym
+      (let*
+	 ((command (concat "symbol ^" (symbol-name sym) "$\n")))
+	 (message "Command = %s" command)
+	 (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
+	    (list (current-buffer))
+	    #'(lambda (data str)
+		 (with-current-buffer (first data)
+		    ;; (unless (eq treadle-dbg-current-buffer-type 'main)
+		    ;; 	 (treadle-dbg-complain-bad-buffer))
+		    (message "Got %s" str)
+		    (treadle-dbg-record-symbol-info
+		       (symbol-name sym)
+		       str)))
+	    t))))
 
+;; BUG: How are we getting "##" as a component name?
 ;; Run with treadle running.  This may also want a queue launch.
 '
 (mapatoms
    #'treadle-dbg-get-symbol-data
+   treadle-dbg-obarray)
+
+;; Showing
+'
+(mapatoms
+   #'(lambda (sym)
+	(when sym
+	   (message "Sym %S" sym))
+	)
    treadle-dbg-obarray)
 
 
