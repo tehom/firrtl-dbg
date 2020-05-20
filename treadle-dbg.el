@@ -206,7 +206,7 @@
    '(decimal)
    "The standard value for components perm-spec")
 
-(defvar firrtl-dbg-current-buffer-type nil
+(defvar treadle-dbg-current-buffer-type nil
    "What type of buffer the current buffer is.  
 Possible values are (nil 'main 'custom 'process).
 Local in the relevant buffers." )
@@ -236,18 +236,18 @@ Local in the relevant buffers." )
 ;;;;;;;;;;;;;;;;;;;;
 ;;Configuration
 
-(defcustom firrtl-dbg-executable
+(defcustom treadle-dbg-executable
    "sbt"
    "Name of the actual executable that helps launch the debugger REPL"
    :type 'string
    :group 'treadle-dbg)
 
 
-(defconst firrtl-dbg-process-name
+(defconst treadle-dbg-process-name
    "firrtl-dbg-process"
    "Name for the process that communicates with the debugger REPL" )
 
-(defconst firrtl-dbg-process-buffer-name
+(defconst treadle-dbg-process-buffer-name
    "*Firrtl-dbg process*"
    "Name of the process buffer" )
 
@@ -568,7 +568,7 @@ DATA is the data to store, usually a symbol"
    ""
    ;; Temporarily out
    '
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
 
@@ -580,7 +580,7 @@ DATA is the data to store, usually a symbol"
 '
 (defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
    ""
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
 
@@ -600,7 +600,7 @@ DATA is the data to store, usually a symbol"
    ""
     ;; Temporarily out
    '
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
 
@@ -686,7 +686,7 @@ DATA is the data to store, usually a symbol"
 '
 (defun firrtl-dbg-read-overview-line (str)
    ""
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
    (let* 
@@ -1017,7 +1017,7 @@ reset                                    Int UInt      1      1    212I      2  
 (defun firrtl-dbg-build-data (state-string)
    ""
 
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Building the data only makes sense in a circuit buffer"))
 
@@ -1092,7 +1092,7 @@ reset                                    Int UInt      1      1    212I      2  
    "Clear all the values; ready to start again"
    (interactive)
 
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Clearing the data only makes sense in a circuit buffer"))
 
@@ -1108,7 +1108,7 @@ reset                                    Int UInt      1      1    212I      2  
    
    (interactive)
 
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Shutting down only makes sense in a circuit buffer"))
 
@@ -1517,7 +1517,7 @@ string
 
 (defun treadle-dbg-create-widgets ()
    '  ;; REENABLE ME
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
@@ -1547,7 +1547,7 @@ string
    '
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		 (unless (eq firrtl-dbg-current-buffer-type 'main)
+		 (unless (eq treadle-dbg-current-buffer-type 'main)
 		    (treadle-dbg-complain-bad-buffer
 		       "Rebuilding the widgets only makes sense in a circuit buffer"))
 
@@ -1562,7 +1562,7 @@ string
    (widget-create 'push-button
       :notify
       (lambda (&rest ignore)
-	 (unless (eq firrtl-dbg-current-buffer-type 'main)
+	 (unless (eq treadle-dbg-current-buffer-type 'main)
 	    (treadle-dbg-complain-bad-buffer))
 	 (firrtl-dbg-shutdown))
       "Done")
@@ -1584,7 +1584,7 @@ string
 
 '
 (defun firrtl-dbg-create-widgets ()
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
@@ -1611,7 +1611,7 @@ string
 
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		 (unless (eq firrtl-dbg-current-buffer-type 'main)
+		 (unless (eq treadle-dbg-current-buffer-type 'main)
 		    (treadle-dbg-complain-bad-buffer
 		       "Rebuilding the widgets only makes sense in a circuit buffer"))
 
@@ -1626,7 +1626,7 @@ string
    (widget-create 'push-button
       :notify
       (lambda (&rest ignore)
-	 (unless (eq firrtl-dbg-current-buffer-type 'main)
+	 (unless (eq treadle-dbg-current-buffer-type 'main)
 	    (treadle-dbg-complain-bad-buffer))
 	 (firrtl-dbg-shutdown))
       "Done")
@@ -1652,7 +1652,7 @@ string
 (defun firrtl-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
 
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Calling edit-properties only makes sense in the main buffer, although it creates a customize buffer"))
 
@@ -1694,10 +1694,7 @@ string
 	  
 	 (pop-to-buffer-same-window buf))))
 
-;; ADAPT ME
-'
-
-(defun firrtl-dbg-copy-alist-to-perms ()
+(defun treadle-dbg-copy-alist-to-perms ()
    ""
    
    (interactive)
@@ -1715,7 +1712,7 @@ string
 (defun firrtl-dbg-copy-perms-to-alist ()
    ""
 
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Copying to the perm alist only makes sense in the main buffer"))
 
@@ -1769,7 +1766,7 @@ Return nil if component has no permanent props."
 
 	 ;; Customize buffer knows a particular widgets buffer
 	 (with-current-buffer treadle-dbg-main-buffer
-	    (unless (eq firrtl-dbg-current-buffer-type 'main)
+	    (unless (eq treadle-dbg-current-buffer-type 'main)
 	       (treadle-dbg-complain-bad-buffer))
 
 	    ;; Copy this sym to treadle-dbg-perm-props-alist
@@ -1847,7 +1844,7 @@ Return nil if component has no permanent props."
 
 (defun firrtl-dbg-step-circuit ()
    "Step the circuit"
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (widget-value-set
       firrtl-dbg-widget-of-freshness
@@ -1864,7 +1861,7 @@ Return nil if component has no permanent props."
 
 (defun firrtl-dbg-record-spurious-response-lines (str step-num)
    ""
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
    (let
@@ -1893,7 +1890,7 @@ Return nil if component has no permanent props."
 (defun firrtl-dbg-step-circuit-low ()
    "Step the circuit"
 
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (tq-enqueue treadle-dbg-tq
       "step\n"
@@ -1912,7 +1909,7 @@ Return nil if component has no permanent props."
 (defun firrtl-dbg-show-circuit-low ()
    "Get the current component values"
 
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (tq-enqueue treadle-dbg-tq
       "show\n"
@@ -1969,7 +1966,7 @@ Return nil if component has no permanent props."
 (defun firrtl-dbg-init-component-type (name)
    "Set the type of component NAME according to the REPL"
 
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    
    (let*
@@ -1978,7 +1975,7 @@ Return nil if component has no permanent props."
 	 (list (current-buffer) name)
 	 #'(lambda (data str)
 	      (with-current-buffer (first data)
-		 (unless (eq firrtl-dbg-current-buffer-type 'main)
+		 (unless (eq treadle-dbg-current-buffer-type 'main)
 		    (treadle-dbg-complain-bad-buffer))
 		 (let* 
 		    ((str (firrtl-dbg-remove-prompt-suffix str))
@@ -1998,7 +1995,7 @@ Return nil if component has no permanent props."
 (defun firrtl-dbg-init-all-component-types ()
    ""
    
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (mapatoms
       #'(lambda (sym)
@@ -2036,7 +2033,7 @@ Return nil if component has no permanent props."
 '
 (defun firrtl-dbg-redraw-widgets ()
    ""
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (widget-value-set
       firrtl-dbg-widget-of-step-num
@@ -2176,7 +2173,7 @@ Return nil if component has no permanent props."
    "Poke NEW-VAL into the component named by SYM
 Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
    (let* 
@@ -2214,7 +2211,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 '
 (defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    ;; Can replace most of it with this:
    '(firrtl-dbg-poke-value
@@ -2278,7 +2275,7 @@ Script should be a list whose entries are in on of the forms:
  (poke component-name-string val)
  (step)"
    
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
    (widget-value-set
@@ -2314,7 +2311,7 @@ Script should be a list whose entries are in on of the forms:
    ""
 
    (interactive)
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (setq treadle-dbg-current-script-rv '())
    (setq treadle-dbg-writing-script-p t))
@@ -2325,7 +2322,7 @@ Script should be a list whose entries are in on of the forms:
    ""
    
    (interactive)
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (setq treadle-dbg-writing-script-p nil))
 
@@ -2335,7 +2332,7 @@ Script should be a list whose entries are in on of the forms:
    ""
    
    (interactive)
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (with-output-to-temp-buffer "*FIRRTL script*"
       (princ ";;User-generated script\n")
@@ -2409,7 +2406,7 @@ PROC should return non-nil if it has finished its work"
 '
 (defun firrtl-dbg-initial-load ()
    ""
-   (unless (eq firrtl-dbg-current-buffer-type 'main)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    ;; 'firrtl-dbg-init-all-component-types' doesn't immediately show
    ;; results because it is waiting for the FIRRTL REPL to answer,
@@ -2419,7 +2416,7 @@ PROC should return non-nil if it has finished its work"
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      (unless (eq firrtl-dbg-current-buffer-type 'main)
+	      (unless (eq treadle-dbg-current-buffer-type 'main)
 		 (treadle-dbg-complain-bad-buffer))
 	      (firrtl-dbg-build-data str)
 	      (firrtl-dbg-init-all-component-types)
@@ -2532,7 +2529,57 @@ This is different than defvar-local in that it doesn't define the variable in ot
 		  nil best-file)))
 	 (list wd ff)))
    
-   (list working-directory fir-file))
+
+   (let*
+      (
+	 (buf-name "*TREADLE*")
+	 (main-buf
+	    (generate-new-buffer buf-name)))
+      (with-current-buffer main-buf
+	 (treadle-dbg-mode)
+	 (setq default-directory working-directory)
+	 ;; Set up most of the local variables.  Some are set further
+	 ;; down as their objects are created.
+	 (setq treadle-dbg-current-buffer-type 'main)
+
+	 (setq treadle-dbg-process-buffer
+	    (generate-new-buffer treadle-dbg-process-buffer-name))
+
+	 (with-current-buffer treadle-dbg-process-buffer
+	    (setq default-directory working-directory)
+	    (setq treadle-dbg-main-buffer main-buf))
+
+	 (setq treadle-dbg-process
+	    (let ((default-directory working-directory))
+	       (start-process
+		  treadle-dbg-process-name
+		  treadle-dbg-process-buffer
+		  treadle-dbg-executable
+		  ;; Quoting this string with shell-quote-argument
+		  ;; actually messes us up.
+		  treadle-dbg-repl-launch-command)))
+
+	 (hack-dir-local-variables-non-file-buffer)
+	 (treadle-dbg-copy-alist-to-perms)
+	 '
+	 (treadle-dbg-call-until-done-w/timeout
+	    40
+	    #'(lambda (process main-buf)
+		 (when
+		    (treadle-dbg-process-is-ready-p process)
+		    (message "Debugger process is ready")
+		    (let* 
+		       ((tq (tq-create process)))
+		       (with-current-buffer main-buf
+			  (setq treadle-dbg-tq tq)
+			  (firrtl-dbg-initial-load)))
+		    (pop-to-buffer main-buf)
+		    ;; Indicate that we have succeeded
+		    t))
+	    (list treadle-dbg-process main-buf)
+	    #'(lambda ()
+		 (message "Debugger process timed out"))
+	    '()))))
 
 ;; ADAPT ME
 '
@@ -2557,7 +2604,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
 	 (setq default-directory working-directory)
 	 ;; Set up most of the local variables.  Some are set further
 	 ;; down as their objects are created.
-	 (set (make-local-variable 'firrtl-dbg-current-buffer-type)
+	 (set (make-local-variable 'treadle-dbg-current-buffer-type)
 	    'main)
 
 	 (setq treadle-dbg-process-buffer
@@ -2572,13 +2619,13 @@ This is different than defvar-local in that it doesn't define the variable in ot
 	       (start-process
 		  treadle-dbg-process-name
 		  treadle-dbg-process-buffer
-		  firrtl-dbg-executable
+		  treadle-dbg-executable
 		  ;; Quoting this string with shell-quote-argument
 		  ;; actually messes us up.
 		  repl-launch-command)))
 
 	 (hack-dir-local-variables-non-file-buffer)
-	 (firrtl-dbg-copy-alist-to-perms)
+	 (treadle-dbg-copy-alist-to-perms)
 	 
 	 (treadle-dbg-call-until-done-w/timeout
 	    40
