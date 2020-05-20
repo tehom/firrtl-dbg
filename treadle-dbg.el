@@ -40,7 +40,7 @@
 
 ;; You'll have to point it towards the right directory (the one that
 ;; build.sbt lives in) You probably want to set
-;; firrtl-dbg-directory-history and firrtl-dbg-repl-name-history to
+;; treadle-dbg-directory-history and firrtl-dbg-repl-name-history to
 ;; that your current project pops up at the top of the history lists
 ;; when calling firrtl-dbg.
 
@@ -217,7 +217,7 @@ Local in the relevant buffers." )
 ;;;;;;;;;;;;;;;;;;;;
 ;; History lists
 
-(defcustom firrtl-dbg-directory-history
+(defcustom treadle-dbg-directory-history
    '()
    "History list of working directories.  Put the directory that you would run sbt in for your project on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
    :type '(repeat directory)
@@ -2448,6 +2448,70 @@ This is different than defvar-local in that it doesn't define the variable in ot
    `(progn
        (set (make-local-variable ',name) ,value)
        (put ',name 'variable-documentation ,docstring)))
+
+(defun treadle-dbg-compare-file-attributes-most-recent-mod (a b)
+   ""
+
+   
+   (let* 
+      ((a-time (seventh a))
+	 (b-time (seventh b))
+	 (done nil)
+	 (result nil))
+      (while (not done)
+	 (let* 
+	    ((a-1 (car-safe a-time))
+	       (b-1 (car-safe b-time)))
+	    (cond
+	       ((or (not a-1) (not b-1))
+		  ;; Ran out of data to compare
+		  (setq done t))
+	       ((eql a-1 b-1)
+		  ;; The same, so use the next ones
+		  (progn
+		     (setq a-time (cdr-safe a-time))
+		     (setq b-time (cdr-safe b-time))))
+	       (t
+		  (setq done t)
+		  (setq result (> a-1 b-1))))))
+      result))
+
+
+(defun treadle-dbg-guess-best-fir-file (start-dir)
+   ""
+   
+   (let*
+      (  (test-run-dir
+	    (file-name-as-directory
+	       (concat
+		  (file-name-as-directory start-dir)
+		  "test_run_dir")))
+	 ;; Exclude ".." and "."
+	 (testrun-subdirs
+	    ;; Regexp:  Exclude dot files.
+	    (directory-files-and-attributes test-run-dir
+	       t "^[^\\.]")))
+      
+      (unless (null testrun-subdirs)
+	 (let* 
+	    (
+	       (best-dir
+		  (car
+		     (sort testrun-subdirs
+			#'treadle-dbg-compare-file-attributes-most-recent-mod)))
+	       (dir-name (car best-dir))
+	       (dir (file-name-as-directory dir-name))
+	       (list-in-dir
+		  (directory-files dir t ".*\.fir$" t))
+	       ;; IMPROVE ME:  Check unless null list-in-dir
+	       (best-file-abs
+		  (car list-in-dir)))
+	    best-file-abs))))
+
+'
+(treadle-dbg-guess-best-fir-file
+   "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/")
+
 ;; ADAPT ME
 '
 (defun firrtl-dbg (working-directory repl-launch-command)
@@ -2455,7 +2519,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
    (interactive
       (list
 	 (let
-	    ((file-name-history firrtl-dbg-directory-history))
+	    ((file-name-history treadle-dbg-directory-history))
 	    (read-directory-name "Working directory: "))
 	 (read-string "FIRRTL REPL in Scala: " nil
 	    'firrtl-dbg-repl-name-history)))
