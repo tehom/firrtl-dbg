@@ -149,7 +149,7 @@ Local in the relevant buffers." )
 
 (defcustom treadle-dbg-directory-history
    '()
-   "History list of working directories.  Put the directory that you would run sbt in for your project on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
+   "History list of working directories.  Put the directory that you would run sbt in for your project on this list.  Then 'treadle-dbg' will see it as a history item"
    :type '(repeat directory)
    :group 'treadle-dbg)
 
@@ -173,11 +173,11 @@ Local in the relevant buffers." )
    :group 'treadle-dbg)
 
 (defconst treadle-dbg-process-name
-   "firrtl-dbg-process"
+   "treadle-dbg-process"
    "Name for the process that communicates with the debugger REPL" )
 
 (defconst treadle-dbg-process-buffer-name
-   "*Firrtl-dbg process*"
+   "*Treadle-dbg process*"
    "Name of the process buffer" )
 
 ;;;;;;;;;;;;;;;;;;;;
