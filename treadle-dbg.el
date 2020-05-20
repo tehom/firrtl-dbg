@@ -2416,7 +2416,15 @@ PROC should return non-nil if it has finished its work"
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      (message str)
+	      (let* 
+		 (  (begin-prompt-line
+		       (string-match treadle-dbg-tq-prompt-string str))
+		    (str1 (substring str 0 begin-prompt-line)))
+		 (message str1)
+		 ;; 
+		 ;; Call treadle-dbg-record-state
+		 )
+	      ;; Have to remove prompt suffix
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      ;; (firrtl-dbg-build-data str)
