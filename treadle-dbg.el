@@ -1873,6 +1873,7 @@ PROC should return non-nil if it has finished its work"
    (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
+	   (message "Results of show state")
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
@@ -1881,12 +1882,14 @@ PROC should return non-nil if it has finished its work"
 		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
 			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-state str1))))
+		 (treadle-dbg-record-state str1)))
+	   (message "Results of show state done"))
       t)
 
    (tq-enqueue treadle-dbg-tq "show inputs\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
+	   (message "Results of show inputs")
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
@@ -1895,11 +1898,14 @@ PROC should return non-nil if it has finished its work"
 		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
 			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-inputs str1))))
+		 (treadle-dbg-record-inputs str1)))
+	   (message "Results of show inputs done")
+	   )
       t)
    (tq-enqueue treadle-dbg-tq "show outputs\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
+	   (message "Results of show outputs")
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
@@ -1908,7 +1914,9 @@ PROC should return non-nil if it has finished its work"
 		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
 			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-outputs str1))))
+		 (treadle-dbg-record-outputs str1)))
+	   (message "Results of show outputs done")
+	   )
       t)
 
    ;; Call symbol on every name
@@ -1920,11 +1928,14 @@ PROC should return non-nil if it has finished its work"
    (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
+	   (message "Results of blank to draw widgets")
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      (treadle-dbg-create-widgets))
-	   (pop-to-buffer (first data)))
+	   (pop-to-buffer (first data))
+	   (message "Results of blank to draw widgets done")
+	   )
       t))
 
 
