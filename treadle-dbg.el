@@ -88,8 +88,13 @@
 (defgroup treadle-dbg nil "Customizations for Firrtl-dbg"
    :group 'applications)
 
+(defface treadle-dbg-face-value-default nil
+   "The default face for values"
+   :group 'treadle-dbg)
+
+
 (defface treadle-dbg-face-value-input-unset '((t :background "gray"))
-   "The face for poisoned values"
+   "The face for input values we never set"
    :group 'treadle-dbg)
 
 (defface treadle-dbg-face-forced-noninput-value
@@ -499,24 +504,6 @@ DATA is the data to store, usually a symbol"
       (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
 	 (treadle-dbg-split-component-name full-name)
 	 data)))
-'
-(defun firrtl-dbg-add-object (full-name proc-mutate proc-create)
-   ""
-   (unless (eq treadle-dbg-current-buffer-type 'main)
-      (treadle-dbg-complain-bad-buffer
-	 "Objects are only available in the main buffer"))
-
-   (let* 
-      (
-	 (soft-sym (intern-soft full-name firrtl-dbg-obarray))
-	 (sym (or soft-sym (intern full-name firrtl-dbg-obarray))))
-      (if soft-sym
-	 (funcall proc-mutate (symbol-value sym))
-	 ;; Since it doesn't exist, create it
-	 (set sym (funcall proc-create)))
-      
-      (when (not treadle-dbg-have-built-subname-tree)
-	 (treadle-dbg-mutate-subname-tree full-name sym))))
 
 (defun treadle-dbg-add-object (full-name proc-mutate)
    ""
@@ -540,119 +527,6 @@ DATA is the data to store, usually a symbol"
       
       (when (not treadle-dbg-have-built-subname-tree)
 	 (treadle-dbg-mutate-subname-tree full-name sym))))
-
-'
-(defun firrtl-dbg-add-ephemeral (full-name value state)
-   ""
-   (firrtl-dbg-add-object full-name
-      ;; Later, we'll check equality and set a timestamp.
-      #'(lambda (object)
-	   (setf (firrtl-dbg-ephemeral-current object)
-	      (make-firrtl-dbg-value :v value :state state)))
-      #'(lambda ()
-	   (make-firrtl-dbg-ephemeral
-	       :current (make-firrtl-dbg-value :v value :state state)
-	      :full-name full-name))))
-'
-(defun firrtl-dbg-add-input (full-name value state)
-   ""
-   (firrtl-dbg-add-object full-name
-      ;; Later, we'll check equality and set a timestamp.
-      #'(lambda (object)
-	   (setf (firrtl-dbg-input-current object)
-	      (make-firrtl-dbg-value :v value :state state)))
-      #'(lambda ()
-	   (make-firrtl-dbg-input
-	       :current (make-firrtl-dbg-value :v value :state state)
-	      :full-name full-name))))
-
-'
-(defun firrtl-dbg-add-output (full-name value state)
-   ""
-   (firrtl-dbg-add-object full-name
-      ;; Later, we'll check equality and set a timestamp.
-      #'(lambda (object)
-	   (setf (firrtl-dbg-output-current object)
-	      (make-firrtl-dbg-value :v value :state state)))
-      #'(lambda ()
-	   (make-firrtl-dbg-output
-	       :current (make-firrtl-dbg-value :v value :state state)
-	      :full-name full-name))))
-'
-(defun firrtl-dbg-set-register-current (full-name value state)
-   ""
-
-   (firrtl-dbg-add-object full-name
-      ;; Later, we'll check equality and set a timestamp.
-      #'(lambda (object)
-	   (setf (firrtl-dbg-register-current object)
-	      (make-firrtl-dbg-value :v value :state state)))
-      #'(lambda ()
-	   (make-firrtl-dbg-register
-	      :current (make-firrtl-dbg-value :v value :state state)
-	      :full-name full-name))))
-'
-(defun firrtl-dbg-set-register-next (full-name value state)
-   ""
-   
-   (firrtl-dbg-add-object full-name
-      ;; IMPROVE ME: check equality with existing value and set a
-      ;; timestamp if it changed.
-      #'(lambda (object)
-	   (setf (firrtl-dbg-register-next object)
-	      (make-firrtl-dbg-value :v value :state state)))
-      #'(lambda ()
-	   (make-firrtl-dbg-register
-	      :next (make-firrtl-dbg-value :v value :state state)
-	      :full-name full-name))))
-'
-(defun firrtl-dbg-read-overview-line (str)
-   ""
-   (unless (eq treadle-dbg-current-buffer-type 'main)
-      (treadle-dbg-complain-bad-buffer))
-
-   (let* 
-      (  (m (string-match "CircuitState \\([0-9]+\\) (\\([A-Z]+\\))" str))
-	 (step (string-to-number (match-string 1 str)))
-	 (freshness-str (match-string 2 str)))
-   
-      (setq treadle-dbg-current-freshness freshness-str)
-      (setq treadle-dbg-current-step step)))
-
-
-'
-(defun firrtl-dbg-split-input-line (input-str prefix-rx)
-   ""
-   (let* 
-      (
-	 (m (string-match prefix-rx input-str))
-	 (end (match-end 0))
-	 (input-str (substring input-str end)))
-      (split-string input-str ",")))
-'
-(defun firrtl-dbg-act-on-component-str (component-str proc)
-   "PROC should take three parms: name, value, and is-valid"
-   (let* 
-      (
-	 (m (string-match
-	       "^ *\\([^=]+\\)=\\(☠?\\) *\\([-0-9]+\\)\\(☠?\\)"
-	       component-str))
-	 (full-name (match-string 1 component-str))
-	 (valid-p (string-empty-p (match-string 2 component-str)))
-	 (state
-	    (if
-	       (string-empty-p (match-string 2 component-str))
-	       'ok
-	       'poisoned))
-	 (value (string-to-number (match-string 3 component-str))))
-      
-      ;; strings 2 and 4 should be the same
-      (assert (string-equal
-		 (match-string 2 component-str)
-		 (match-string 4 component-str) ))
-
-      (funcall proc
-	 full-name value state)))
 
 (defun treadle-dbg-set-data-aux (state-string mutator)
    "
@@ -919,81 +793,6 @@ reset                                    Int UInt      1      1    212I      2  
 			     (setf (treadle-dbg-component-source component)
 				source-str))))))))))
 
-;; ADAPT AND UPDATE ME  This was the only thing, but Treadle-dbg does more.
-'
-(defun firrtl-dbg-build-data (state-string)
-   ""
-
-   (unless (eq treadle-dbg-current-buffer-type 'main)
-      (treadle-dbg-complain-bad-buffer
-	 "Building the data only makes sense in a circuit buffer"))
-
-   (let
-      ((spl (split-string state-string "\n")))
-      (dolist (line spl)
-	 (cond
-	    ((string-match "^step" line)
-	       ;; We do nothing with step data yet
-	       )
-	    ;; Blank line, nothing to do
-	    ((string-match "^[ \t]*$" line))
-	    
-	    ((string-match "^CircuitState" line)
-	       (firrtl-dbg-read-overview-line line))
-
-	    ((string-match "^Inputs *: *" line)
-	       (mapcar
-		  #'(lambda (v)
-		       (firrtl-dbg-act-on-component-str
-			  v #'firrtl-dbg-add-input))
-		  (split-string (substring line (match-end 0)) ",")))
-
-	    ((string-match "^Outputs *: *" line)
-	       (mapcar
-		  #'(lambda (v)
-		       (firrtl-dbg-act-on-component-str
-			  v #'firrtl-dbg-add-output))
-		  (split-string (substring line (match-end 0)) ",")))
-
-	    ((string-match "^Registers *: *" line)
-	       (mapcar
-		  #'(lambda (v)
-		       (firrtl-dbg-act-on-component-str
-			  v #'firrtl-dbg-set-register-current))
-		  (split-string (substring line (match-end 0)) ",")))
-
-	    ((string-match "^FutureRegisters *: *" line)
-	       (mapcar
-		  #'(lambda (v)
-		       (firrtl-dbg-act-on-component-str
-			  v #'firrtl-dbg-set-register-next))
-		  (split-string (substring line (match-end 0)) ",")))
-
-	    ((string-match "^Ephemera *: *" line)
-	       (mapcar
-		  #'(lambda (v)
-		       (firrtl-dbg-act-on-component-str
-			  v #'firrtl-dbg-add-ephemeral))
-		  (split-string (substring line (match-end 0)) ",")))
-
-	    ((string-match "^Memories *:? *" line)
-	       ;; We do nothing with memories yet
-	       )
-	    ((string-match treadle-dbg-prompt-line-regexp line)
-	       ;; That's the prompt line, it's not part of the actual
-	       ;; response.  Ignore it.
-	       )
-	    (t
-	       ;; IMPROVE ME: Collect these lines, they are probably
-	       ;; debug printing.
-	       (message "Spurious line: %s" line))))
-
-      (when (not treadle-dbg-have-built-subname-tree)
-	 ;; IMPROVE ME: Sort the newly built subname tree
-	 )
-
-      (setq treadle-dbg-have-built-subname-tree t)))
-
 (defun treadle-dbg-clear ()
    "Clear all the values; ready to start again"
    (interactive)
@@ -1004,7 +803,7 @@ reset                                    Int UInt      1      1    212I      2  
 
    (setq treadle-dbg-have-built-subname-tree nil)
    (setq treadle-dbg-subname-tree '())
-   (setq firrtl-dbg-obarray
+   (setq treadle-dbg-obarray
       (make-vector treadle-dbg-obarray-default-size nil))
    (setq treadle-dbg-spurious-lines '()))
 
@@ -1043,26 +842,6 @@ reset                                    Int UInt      1      1    212I      2  
       ((str (if face (propertize str 'face face) str)))
 
       (widget-insert str)))
-'
-(defun firrtl-dbg-insert-fields (field-list)
-   "FIELD-LIST is a list of ((text face end-col) ...)
-
-END-COL is the column to start the next field at.  Face is
-applied up until that column."
-   
-   (dolist (field field-list)
-      (when field
-	 (if (stringp field)
-	    (widget-insert field)
-	    (destructuring-bind (text face end-col) field
-	       (treadle-dbg-insert-w-face text face)
-	       (treadle-dbg-pad-to-column end-col face))))))
-
-;; Want to fix the field treatment: pad to start-col with no face.
-;; Insert with face.  Pad with face to end-col if any.  But that's
-;; nasty if we sometimes have a chain in fields and sometimes don't.
-;;
-;; Perhaps better: Have separate "insert" and "go-to" instructions.
 
 (defun treadle-dbg-insert-fields (field-list)
    "FIELD-LIST is a list whose elements are either
@@ -1081,17 +860,6 @@ string
 	 ((listp field)
 	    (destructuring-bind (text face) field
 	       (treadle-dbg-insert-w-face text face))))))
-
-'
-(defun firrtl-dbg-get-face-by-validity (validity)
-   ""
-   
-   (case validity
-      (poisoned 'firrtl-dbg-face-value-poison)
-      (set-by-user-now 'firrtl-dbg-face-value-set-by-user-now)
-      (set-by-user-earlier 'firrtl-dbg-face-value-set-by-user-earlier)
-      (ok 'firrtl-dbg-face-value-default)
-      (t nil)))
 
 (defun treadle-dbg-enum-string (fmt index)
    ""
@@ -1127,53 +895,7 @@ string
 		  (number-to-string
 		     value)))))
       text))
-'
-(defun firrtl-dbg-field-fmt (cvalue perm-props end-col)
-   ""
-   (let* 
-      ((face
-	  (firrtl-dbg-get-face-by-validity
-	     (firrtl-dbg-value-state cvalue)))
-	 (fmt perm-props)
-	 (text
-	    (case (first fmt)
-	       ((boolean)
-		  ;; ENCAP ME
-		  (case (firrtl-dbg-value-v cvalue)
-		     (0 "false")
-		     (1 "true")
-		     (otherwise "[invalid]")))
-	       ((enum)
-		  (firrtl-dbg-enum-string fmt (firrtl-dbg-value-v cvalue)))
-	       
-	       (otherwise
-		  (number-to-string
-		     (firrtl-dbg-value-v cvalue))))))
 
-      (list
-	 text
-	 face
-	 end-col)))
-'
-(defun firrtl-dbg-type-fmt (component end-col)
-   ""
-   
-   (let*
-      ((type (firrtl-dbg-component-type component)))
-      (if (null type)
-	 (list "??" nil end-col)
-	 (let* 
-	    ((signed-str
-		(if (firrtl-dbg-component-type-signed-p type)
-		   "SInt"
-		   "UInt"))
-	       (width-str
-		  (number-to-string
-		     (firrtl-dbg-component-type-width type)))
-	       (str
-		  (concat signed-str "(" width-str ")")))
-	 
-	    (list str nil end-col)))))
 
 (defun treadle-dbg-insert-component-aux (component perm-props)
    ""
@@ -1189,7 +911,7 @@ string
 		  'treadle-dbg-face-value-input-unset)
 	       (if (treadle-dbg-component-forced-p component)
 		  'treadle-dbg-face-forced-noninput-value
-		  'firrtl-dbg-face-value-default)))
+		  'treadle-dbg-face-value-default)))
 	 (field-list-rv '()))
       (push
 	 (list
@@ -1252,93 +974,7 @@ string
 	 (perm-props (treadle-dbg-get-perm-props (symbol-name sym))))
       (treadle-dbg-insert-component-aux v perm-props)))
 
-'
-(defun firrtl-dbg-insert-ephemeral-component (wid)
-   "Insert an ephemeral component"
-   (let* 
-      (
-	 (sym (widget-get wid :value))
-	 (v (symbol-value sym)))
 
-      (firrtl-dbg-insert-fields
-	 (list
-	    (list (firrtl-dbg-ephemeral-full-name v) nil treadle-dbg-value-column)
-	    (firrtl-dbg-field-fmt
-	       (firrtl-dbg-ephemeral-current v)
-	       (treadle-dbg-get-perm-props (symbol-name sym))
-	       treadle-dbg-value-end-column)
-	    " "
-	    (firrtl-dbg-type-fmt
-	       v
-	       treadle-dbg-type-end-column)))))
-'
-(defun firrtl-dbg-insert-input-component (wid)
-   "Insert an input component"
-   (let* 
-      (
-	 (sym (widget-get wid :value))
-	 (v (symbol-value sym)))
-
-      (firrtl-dbg-insert-fields
-	 (list
-	    (list (firrtl-dbg-input-full-name v) nil treadle-dbg-value-column)
-	    (firrtl-dbg-field-fmt
-	       (firrtl-dbg-input-current v)
-	       (treadle-dbg-get-perm-props (symbol-name sym))
-	       treadle-dbg-value-end-column)
-	    " "
-	    (firrtl-dbg-type-fmt
-	       v
-	       treadle-dbg-type-end-column)))))
-
-
-'
-(defun firrtl-dbg-insert-output-component (wid)
-   "Insert an output component"
-   (let* 
-      (
-	 (sym (widget-get wid :value))
-	 (v (symbol-value sym)))
-      
-      (firrtl-dbg-insert-fields
-	 (list
-	    (list (firrtl-dbg-output-full-name v) nil treadle-dbg-value-column)
-	    (firrtl-dbg-field-fmt
-	       (firrtl-dbg-output-current v)
-	       (treadle-dbg-get-perm-props (symbol-name sym))
-	       treadle-dbg-value-end-column)
-	    " "
-	    (firrtl-dbg-type-fmt
-	       v
-	       treadle-dbg-type-end-column)))))
-'
-(defun firrtl-dbg-insert-register-component (wid)
-   "Insert a register component"
-   (let* 
-      (
-	 (sym (widget-get wid :value))
-	 (v (symbol-value sym))
-	 (perm-props
-	    (treadle-dbg-get-perm-props (symbol-name sym))))
-      
-      (firrtl-dbg-insert-fields
-	 (list
-	    (list (firrtl-dbg-register-full-name v)
-	       nil
-	       treadle-dbg-value-column)
-	    (firrtl-dbg-field-fmt
-	       (firrtl-dbg-register-current v)
-	       perm-props
-	       treadle-dbg-value-end-column)
-	    " -> "
-	    (firrtl-dbg-field-fmt
-	       (firrtl-dbg-register-next v)
-	       perm-props
-	       treadle-dbg-next-value-end-column)
-	    " "
-	    (firrtl-dbg-type-fmt
-	       v
-	       treadle-dbg-type-end-column)))))
 '
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
