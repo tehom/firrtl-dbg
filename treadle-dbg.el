@@ -1937,8 +1937,7 @@ PROC should return non-nil if it has finished its work"
 			  str)))
 	       t)))))
 
-;; BUG: How are we getting "##" as a component name?
-;; Run with treadle running.  This may also want a queue launch.
+;; Run with treadle running.
 '
 (mapatoms
    #'treadle-dbg-get-symbol-data
