@@ -534,7 +534,7 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
    (let*
       ((spl (split-string state-string "\n")))
       (dolist (line spl)
-	 (unless (string-empty-p line)
+	 (unless (string-blank-p line)
 	    (let* 
 	       ((e (treadle-dbg-str->state-entry line)))
 	       (treadle-dbg-add-object
