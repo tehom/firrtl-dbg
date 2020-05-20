@@ -1841,10 +1841,12 @@ PROC should return non-nil if it has finished its work"
       (search-forward treadle-dbg-tq-prompt-string nil t)))
 
 
-(defun treadle-dbg-initial-load ()
+(defun treadle-dbg-initial-load (fir-file)
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
+
+   (treadle-dbg-load-fir-file fir-file)
 
    (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
       (list (current-buffer))
@@ -1885,10 +1887,11 @@ PROC should return non-nil if it has finished its work"
       t)
 
    ;; Call symbol on every name
-   ;; This requires passing the actual name, which we didn't before.
+   (mapatoms
+      #'treadle-dbg-get-symbol-data
+      treadle-dbg-obarray)
 
-   ;; When it's all done and received, call
-   ;; (treadle-dbg-create-widgets)
+   ;; When it's all done and received, draw the widgets and go.
    '
    (tq-enqueue treadle-dbg-tq "" ""
       (list (current-buffer))
@@ -2081,10 +2084,10 @@ PROC should return non-nil if it has finished its work"
 
 	 (hack-dir-local-variables-non-file-buffer)
 	 (treadle-dbg-copy-alist-to-perms)
-	 ' ;; RE-ENABLE ME
+
 	 (treadle-dbg-call-until-done-w/timeout
 	    treadle-dbg-timeout
-	    #'(lambda (process main-buf)
+	    #'(lambda (process main-buf fir-file)
 		 (when
 		    (treadle-dbg-process-is-ready-p process)
 		    (message "Debugger process is ready")
@@ -2092,13 +2095,12 @@ PROC should return non-nil if it has finished its work"
 		       ((tq (tq-create process)))
 		       (with-current-buffer main-buf
 			  (setq treadle-dbg-tq tq)
-			  ;; WRITE ME
-			  ;; Pass fir-file
-			  (treadle-dbg-initial-load)))
+			  ;; RE-ENABLE ME Not quite yet
+			  '(treadle-dbg-initial-load fir-file)))
 		    ;; Indicate that we have succeeded
 		    t))
 	    ;; Pass fir-file
-	    (list treadle-dbg-process main-buf)
+	    (list treadle-dbg-process main-buf fir-file)
 	    #'(lambda ()
 		 (message "Debugger process timed out"))
 	    '()))))
