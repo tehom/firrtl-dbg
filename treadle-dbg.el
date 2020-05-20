@@ -1911,6 +1911,7 @@ PROC should return non-nil if it has finished its work"
       treadle-dbg-obarray)
 
    ;; When it's all done and received, draw the widgets and go.
+   ;; Does the blank string trick work?
    '
    (tq-enqueue treadle-dbg-tq "" ""
       (list (current-buffer))
@@ -2114,8 +2115,7 @@ PROC should return non-nil if it has finished its work"
 		       ((tq (tq-create process)))
 		       (with-current-buffer main-buf
 			  (setq treadle-dbg-tq tq)
-			  ;; RE-ENABLE ME Not quite yet
-			  '(treadle-dbg-initial-load fir-file)))
+			  (treadle-dbg-initial-load fir-file)))
 		    ;; Indicate that we have succeeded
 		    t))
 	    ;; Pass fir-file
