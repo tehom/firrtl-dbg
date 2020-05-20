@@ -806,7 +806,8 @@ reset                                    Int UInt      1      1    212I      2  
 				(setf (treadle-dbg-component-signed-p component)
 				   signed-p)
 				(setf (treadle-dbg-component-source component)
-				   source-str)))))))))))
+				   source-str))))
+		     (setq found t))))))))
 
 (defun treadle-dbg-clear ()
    "Clear all the values; ready to start again"
