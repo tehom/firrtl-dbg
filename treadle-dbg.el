@@ -755,7 +755,7 @@ reset                                    Int UInt      1      1    212I      2  
 	    (car spl)))
       
       (dolist (line (cdr spl))
-	 (unless (string-empty-p line)
+	 (unless (string-blank-p line)
 	    (let* 
 	       ((info (treadle-dbg-symbol-string->struct line)))
 	       (unless
@@ -1921,7 +1921,7 @@ PROC should return non-nil if it has finished its work"
 (defun treadle-dbg-get-symbol-data (sym)
    ""
    (when sym
-      (unless (string-empty-p (symbol-name sym))
+      (unless (string-blank-p (symbol-name sym))
 	 (let*
 	    ((command (concat "symbol ^" (symbol-name sym) "$\n")))
 	    (message "Command = %s" command)
