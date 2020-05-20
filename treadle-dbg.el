@@ -147,7 +147,7 @@ Possible values are (nil 'main 'custom 'process).
 Local in the relevant buffers." )
 
 (defconst treadle-dbg-obarray-default-size 257
-   "The default size of an obarry" )
+   "The default size of an obarray" )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; History lists
