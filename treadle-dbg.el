@@ -199,7 +199,11 @@ Local in the relevant buffers." )
    "Regexp matching any response from the REPL" )
 
 (defconst treadle-dbg-prompt-line-regexp
-   (concat "\n[0-9]* *" treadle-dbg-tq-prompt-string " *")
+   (concat "[0-9]* *" treadle-dbg-tq-prompt-string " *")
+   "Regexp matching a bare prompt line from the REPL" )
+
+(defconst treadle-dbg-prompt-line-regexp-leading-cr
+   (concat "\n" treadle-dbg-prompt-line-regexp)
    "Regexp matching a bare prompt line from the REPL" )
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -747,7 +751,8 @@ reset                                    Int UInt      1      1    212I      2  
 (defun treadle-dbg-record-symbol-info (name symbol-string)
    ""
    (let*
-      ((spl (split-string symbol-string "\n")))
+      ((spl (split-string symbol-string "\n"))
+	 (found nil))
       (unless (string-match-p
 		 "Name +Bin +Type +Width +Slots +Index +Depend +Info"
 		 (car spl))
@@ -755,43 +760,53 @@ reset                                    Int UInt      1      1    212I      2  
 	    (car spl)))
       
       (dolist (line (cdr spl))
-	 (unless (string-blank-p line)
-	    (let* 
-	       ((info (treadle-dbg-symbol-string->struct line)))
-	       (unless
-		  ;; Don't use foo/in, foo/prev, etc
-		  (string-match-p ".*/.*"
-		     (symbol-record-strings-trunc-name info))
-		  (treadle-dbg-add-object name
-		     ;; Proc mutate
-		     #'(lambda (component)
-			  (let* 
-			     (
-				(source-str
-				    (symbol-record-strings-source-str info))
-				(type-str
-				    (symbol-record-strings-type-str info))
-				(value-str
-				    (symbol-record-strings-value-str info))
-				(signed-p
-				   (cond
-				      ((string-equal type-str "UInt") nil)
-				      ((string-equal type-str "SInt") t)
-				      (t (message "Unrecognized type-str"))))
-				(width
-				   (string-to-number
-				      (symbol-record-strings-width-str info))))
-			     (unless
-				(eql (treadle-dbg-component-current component)
-				   (string-to-number value-str))
-				(message "Values do not match!"))
-			     (setf
-				(treadle-dbg-component-width component)
-				width)
-			     (setf (treadle-dbg-component-signed-p component)
-				signed-p)
-			     (setf (treadle-dbg-component-source component)
-				source-str))))))))))
+	 (cond
+	    ;; If we've already found it we're done
+	    (found)
+	    ;; The prompt.  Nothing to do.
+	    ((string-match-p treadle-dbg-prompt-line-regexp line))
+	    ;; Blank line.  Nothing to do.
+	    ((string-blank-p line))
+	    (t
+	       (let* 
+		  ((info (treadle-dbg-symbol-string->struct line)))
+		  (unless
+		     ;; Don't use foo/in, foo/prev, etc
+		     (string-match-p ".*/.*"
+			(symbol-record-strings-trunc-name info))
+		     (treadle-dbg-add-object name
+			;; Proc mutate
+			#'(lambda (component)
+			     (let* 
+				(
+				   (source-str
+				      (symbol-record-strings-source-str info))
+				   (type-str
+				      (symbol-record-strings-type-str info))
+				   (value-str
+				      (symbol-record-strings-value-str info))
+				   (signed-p
+				      (cond
+					 ((string-equal type-str "UInt") nil)
+					 ((string-equal type-str "SInt") t)
+					 (t (message
+					       "Unrecognized type-str '%s' from line %s"
+					       type-str
+					       line))))
+				   (width
+				      (string-to-number
+					 (symbol-record-strings-width-str info))))
+				(unless
+				   (eql (treadle-dbg-component-current component)
+				      (string-to-number value-str))
+				   (message "Values do not match!"))
+				(setf
+				   (treadle-dbg-component-width component)
+				   width)
+				(setf (treadle-dbg-component-signed-p component)
+				   signed-p)
+				(setf (treadle-dbg-component-source component)
+				   source-str)))))))))))
 
 (defun treadle-dbg-clear ()
    "Clear all the values; ready to start again"
@@ -1856,7 +1871,8 @@ PROC should return non-nil if it has finished its work"
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      (let* 
 		 (  (begin-prompt-line
-		       (string-match treadle-dbg-prompt-line-regexp str))
+		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
+			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
 		 (treadle-dbg-record-state str1))))
       t)
@@ -1869,7 +1885,8 @@ PROC should return non-nil if it has finished its work"
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      (let* 
 		 (  (begin-prompt-line
-		       (string-match treadle-dbg-prompt-line-regexp str))
+		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
+			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
 		 (treadle-dbg-record-inputs str1))))
       t)
@@ -1881,7 +1898,8 @@ PROC should return non-nil if it has finished its work"
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      (let* 
 		 (  (begin-prompt-line
-		       (string-match treadle-dbg-prompt-line-regexp str))
+		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
+			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
 		 (treadle-dbg-record-outputs str1))))
       t)
