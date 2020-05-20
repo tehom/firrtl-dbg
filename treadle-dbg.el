@@ -201,22 +201,22 @@ Local in the relevant buffers." )
 ;; Print columns
 
 
-(defconst firrtl-dbg-value-column 15
+(defconst treadle-dbg-value-column 15
    "Column that values should print at" )
 
-(defconst firrtl-dbg-value-end-column 25
+(defconst treadle-dbg-value-end-column 25
    "Column that values should end at" )
 
-(defconst firrtl-dbg-next-value-begin-column
-   (+ 4 firrtl-dbg-value-end-column)
+(defconst treadle-dbg-next-value-begin-column
+   (+ 4 treadle-dbg-value-end-column)
    "Column that values should end at" )
 
-(defconst firrtl-dbg-next-value-end-column
-   (+ 20 firrtl-dbg-next-value-begin-column)
+(defconst treadle-dbg-next-value-end-column
+   (+ 20 treadle-dbg-next-value-begin-column)
    "Column that next-value should end at" )
 
-(defconst firrtl-dbg-type-end-column
-   (+ 20 firrtl-dbg-next-value-end-column)
+(defconst treadle-dbg-type-end-column
+   (+ 20 treadle-dbg-next-value-end-column)
    "Column that type should end at" )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1200,7 +1200,7 @@ string
 	    nil)
 	 field-list-rv)
       (push
-	 (list 'to-col firrtl-dbg-value-column)
+	 (list 'to-col treadle-dbg-value-column)
 	 field-list-rv)
       (when (treadle-dbg-component-current component)
 	 (push
@@ -1233,10 +1233,10 @@ string
 	       field-list-rv)))
 
       (push
-	 (list 'to-col (1- firrtl-dbg-value-end-column) face-of-current)
+	 (list 'to-col (1- treadle-dbg-value-end-column) face-of-current)
 	 field-list-rv)
       (push
-	 (list 'to-col firrtl-dbg-value-end-column nil)
+	 (list 'to-col treadle-dbg-value-end-column nil)
 	 field-list-rv)
       
       (push width-string field-list-rv)
@@ -1265,15 +1265,15 @@ string
 
       (firrtl-dbg-insert-fields
 	 (list
-	    (list (firrtl-dbg-ephemeral-full-name v) nil firrtl-dbg-value-column)
+	    (list (firrtl-dbg-ephemeral-full-name v) nil treadle-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-ephemeral-current v)
 	       (treadle-dbg-get-perm-props (symbol-name sym))
-	       firrtl-dbg-value-end-column)
+	       treadle-dbg-value-end-column)
 	    " "
 	    (firrtl-dbg-type-fmt
 	       v
-	       firrtl-dbg-type-end-column)))))
+	       treadle-dbg-type-end-column)))))
 '
 (defun firrtl-dbg-insert-input-component (wid)
    "Insert an input component"
@@ -1284,15 +1284,15 @@ string
 
       (firrtl-dbg-insert-fields
 	 (list
-	    (list (firrtl-dbg-input-full-name v) nil firrtl-dbg-value-column)
+	    (list (firrtl-dbg-input-full-name v) nil treadle-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-input-current v)
 	       (treadle-dbg-get-perm-props (symbol-name sym))
-	       firrtl-dbg-value-end-column)
+	       treadle-dbg-value-end-column)
 	    " "
 	    (firrtl-dbg-type-fmt
 	       v
-	       firrtl-dbg-type-end-column)))))
+	       treadle-dbg-type-end-column)))))
 
 
 '
@@ -1305,15 +1305,15 @@ string
       
       (firrtl-dbg-insert-fields
 	 (list
-	    (list (firrtl-dbg-output-full-name v) nil firrtl-dbg-value-column)
+	    (list (firrtl-dbg-output-full-name v) nil treadle-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-output-current v)
 	       (treadle-dbg-get-perm-props (symbol-name sym))
-	       firrtl-dbg-value-end-column)
+	       treadle-dbg-value-end-column)
 	    " "
 	    (firrtl-dbg-type-fmt
 	       v
-	       firrtl-dbg-type-end-column)))))
+	       treadle-dbg-type-end-column)))))
 '
 (defun firrtl-dbg-insert-register-component (wid)
    "Insert a register component"
@@ -1328,20 +1328,20 @@ string
 	 (list
 	    (list (firrtl-dbg-register-full-name v)
 	       nil
-	       firrtl-dbg-value-column)
+	       treadle-dbg-value-column)
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-register-current v)
 	       perm-props
-	       firrtl-dbg-value-end-column)
+	       treadle-dbg-value-end-column)
 	    " -> "
 	    (firrtl-dbg-field-fmt
 	       (firrtl-dbg-register-next v)
 	       perm-props
-	       firrtl-dbg-next-value-end-column)
+	       treadle-dbg-next-value-end-column)
 	    " "
 	    (firrtl-dbg-type-fmt
 	       v
-	       firrtl-dbg-type-end-column)))))
+	       treadle-dbg-type-end-column)))))
 '
 (defun firrtl-dbg-tree-widget (cell)
    (let ()
