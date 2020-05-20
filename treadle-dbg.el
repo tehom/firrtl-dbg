@@ -1441,54 +1441,6 @@ Return nil if component has no permanent props."
 	 :signed-p signed-p
 	 :width width)))
 
-
-;; (firrtl-dbg-parse-component-type-string
-;;    (firrtl-dbg-remove-prompt-suffix "type x 3.PU<4>
-;; firrtl>> "))
-;;     
-;; Superseded in Treadle
-'
-
-(defun firrtl-dbg-init-component-type (name)
-   "Set the type of component NAME according to the REPL"
-
-   (unless (eq treadle-dbg-current-buffer-type 'main)
-      (treadle-dbg-complain-bad-buffer))
-   
-   (let*
-      ((command (concat "type " name "\n")))
-      (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
-	 (list (current-buffer) name)
-	 #'(lambda (data str)
-	      (with-current-buffer (first data)
-		 (unless (eq treadle-dbg-current-buffer-type 'main)
-		    (treadle-dbg-complain-bad-buffer))
-		 (let* 
-		    ((str (firrtl-dbg-remove-prompt-suffix str))
-		       (type (firrtl-dbg-parse-component-type-string str))
-		       (full-name (second data))
-		       (sym (intern-soft full-name firrtl-dbg-obarray)))
-		    (when sym
-		       (let* 
-			  ((component (symbol-value sym)))
-			  (setf
-			     (firrtl-dbg-component-type component)
-			     type))))))
-	 t)))
-
-;; Superseded in Treadle
-'
-(defun firrtl-dbg-init-all-component-types ()
-   ""
-   
-   (unless (eq treadle-dbg-current-buffer-type 'main)
-      (treadle-dbg-complain-bad-buffer))
-   (mapatoms
-      #'(lambda (sym)
-	   (when sym
-	      (firrtl-dbg-init-component-type (symbol-name sym))))
-      firrtl-dbg-obarray))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
 
@@ -2011,14 +1963,7 @@ PROC should return non-nil if it has finished its work"
    ""
    (error (or msg "This operation only makes sense in main buffer")))
 
-'
-(defmacro firrtl-dbg-local-defvar (name value docstring)
-   "Define VAR as a buffer-local variable with default value VAL.
-This is different than defvar-local in that it doesn't define the variable in other buffers."
-   
-   `(progn
-       (set (make-local-variable ',name) ,value)
-       (put ',name 'variable-documentation ,docstring)))
+
 
 (defun treadle-dbg-compare-file-attributes-most-recent-mod (a b)
    ""
@@ -2157,74 +2102,6 @@ This is different than defvar-local in that it doesn't define the variable in ot
 	    #'(lambda ()
 		 (message "Debugger process timed out"))
 	    '()))))
-
-;; ADAPT ME
-'
-(defun firrtl-dbg (working-directory repl-launch-command)
-   ""
-   (interactive
-      (list
-	 (let
-	    ((file-name-history treadle-dbg-directory-history))
-	    (read-directory-name "Working directory: "))
-	 (read-string "FIRRTL REPL in Scala: " nil
-	    'firrtl-dbg-repl-name-history)))
-   
-   
-   (let*
-      (
-	 (buf-name (concat "*FIRRTL " repl-launch-command "*" ) )
-	 (main-buf
-	    (generate-new-buffer buf-name)))
-      (with-current-buffer main-buf
-	 (treadle-dbg-mode)
-	 (setq default-directory working-directory)
-	 ;; Set up most of the local variables.  Some are set further
-	 ;; down as their objects are created.
-	 (set (make-local-variable 'treadle-dbg-current-buffer-type)
-	    'main)
-
-	 (setq treadle-dbg-process-buffer
-	    (generate-new-buffer treadle-dbg-process-buffer-name))
-
-	 (with-current-buffer treadle-dbg-process-buffer
-	    (setq default-directory working-directory)
-	    (setq treadle-dbg-main-buffer main-buf))
-
-	 (setq treadle-dbg-process
-	    (let ((default-directory working-directory))
-	       (start-process
-		  treadle-dbg-process-name
-		  treadle-dbg-process-buffer
-		  treadle-dbg-executable
-		  ;; Quoting this string with shell-quote-argument
-		  ;; actually messes us up.
-		  repl-launch-command)))
-
-	 (hack-dir-local-variables-non-file-buffer)
-	 (treadle-dbg-copy-alist-to-perms)
-	 
-	 (treadle-dbg-call-until-done-w/timeout
-	    40
-	    #'(lambda (process main-buf)
-		 (when
-		    (treadle-dbg-process-is-ready-p process)
-		    (message "Debugger process is ready")
-		    (let* 
-		       ((tq (tq-create process)))
-		       (with-current-buffer main-buf
-			  (setq treadle-dbg-tq tq)
-			  (treadle-dbg-initial-load)))
-		    (pop-to-buffer main-buf)
-		    ;; Indicate that we have succeeded
-		    t))
-	    (list treadle-dbg-process main-buf)
-	    #'(lambda ()
-		 (message "Debugger process timed out"))
-	    '()))))
-
-
-
 
 ;;;_. Footers
 ;;;_ , Provides
