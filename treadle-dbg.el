@@ -454,6 +454,10 @@ DATA is the data to store, usually a symbol"
 	 (spl (split-string name-plus "/"))
 	 (full-name (car spl))
 	 (qualifiers nil))
+      ;; It's possible for it to begin with "/" eg for "/print0 0"
+      ;; which is different than splitting off "/in" etc.
+      (when (string-blank-p full-name)
+	 (setq full-name name-plus))
 
       (dolist (q (cdr spl))
 	 (cond
@@ -535,16 +539,22 @@ DATA is the data to store, usually a symbol"
 (defun treadle-dbg-set-data-aux (state-string mutator)
    "
 MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a treadle-dbg-state-entry"
+   (message "In treadle-dbg-set-data-aux")
    (let*
       ((spl (split-string state-string "\n")))
+      (message "Have split string")
       (dolist (line spl)
+	 (message "Line %s" line)
 	 (unless (string-blank-p line)
+	    ;; FIX ME: Handle the "/printX" components correctly, and
+	    ;; any other slashes.
 	    (let* 
 	       ((e (treadle-dbg-str->state-entry line))
 		  (full-name (treadle-dbg-state-entry-full-name e)))
 	       (when (string-blank-p full-name)
 		  (message "Got a blank name in line %s") line)
 	       (unless (string-blank-p full-name)
+		  (message "Adding %s" full-name)
 		  (treadle-dbg-add-object
 		     full-name
 		     #'(lambda (component)
