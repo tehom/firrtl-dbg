@@ -817,10 +817,8 @@ lastOperation/in                         Int UInt      3      1    287I      6  
       )
 
    ;; Slight cheat: Un-truncated the names for this.
-   ;; Redo this for the new format info.
    (mapcar
-      ;;#'treadle-dbg-test-second-symbol-line
-      #'treadle-dbg-record-symbol-info
+      #'treadle-dbg-test-second-symbol-line
       '("Name                                     Bin Type  Width  Slots  Index Depend Info
 cellVec2_2.timeVec_3.clock               Int UInt      1      1    238I     62  0
 ""Name                                     Bin Type  Width  Slots  Index Depend Info
@@ -853,22 +851,18 @@ reset                                    Int UInt      1      1    212I      2  
    (treadle-dbg-record-outputs show-outputs-string)
    (treadle-dbg-record-inputs show-inputs-string)
    (treadle-dbg-record-symbol-info symbol-string-lastOperation)
-   (treadle-dbg-test-second-symbol-line symbol-string-lastOperation)
+   (treadle-dbg-test-second-symbol-line
+      "lastOperation"
+      symbol-string-lastOperation)
+)
 
-   '
-   (string-match
-	       "\\([^ ]+\\) +\\([A-Za-z]+\\) +\\([A-Za-z]+\\) +\\([0-9]+\\) +\\([0-9]+\\) +\\([^ ]+\\) +\\([0-9]+\\) +@\\[\\([^[]+\\)\\] +\\([0-9]+\\)"
-
-      (second (split-string symbol-string-lastOperation "\n")))
-   
-   )
 
 (defstruct (symbol-record-strings (:type list))
    ""
    trunc-name type-str width-str source-str value-str
    ;; Not using: bin slots index depend
    )
-(defun treadle-dbg-test-second-symbol-line (symbol-string)
+(defun treadle-dbg-test-second-symbol-line (name symbol-string)
    ""
    
    (let*
@@ -959,7 +953,7 @@ reset                                    Int UInt      1      1    212I      2  
 
       strings))
 
-(defun treadle-dbg-record-symbol-info (symbol-string)
+(defun treadle-dbg-record-symbol-info (name symbol-string)
    ""
    (let*
       ((spl (split-string symbol-string "\n")))
@@ -972,15 +966,11 @@ reset                                    Int UInt      1      1    212I      2  
       (dolist (line (cdr spl))
 	 (unless (string-empty-p line)
 	    (let* 
-	       ((info (treadle-dbg-symbol-string->struct line))
-		  ;; TEMPORARY.  We'll take the real namestring as an arg
-		  (name (symbol-record-strings-trunc-name info)))
-	       
+	       ((info (treadle-dbg-symbol-string->struct line)))
 	       (unless
 		  ;; Don't use foo/in, foo/prev, etc
 		  (string-match-p ".*/.*"
 		     (symbol-record-strings-trunc-name info))
-		  ;; This bug seems because we expected a source-line piece.
 		  (treadle-dbg-add-object name
 		     ;; Proc mutate
 		     #'(lambda (component)
@@ -1010,12 +1000,7 @@ reset                                    Int UInt      1      1    212I      2  
 			     (setf (treadle-dbg-component-signed-p component)
 				signed-p)
 			     (setf (treadle-dbg-component-source component)
-				source-str)))))
-	       )
-	    ;;
-))))
-
-
+				source-str))))))))))
 
 ;; ADAPT AND UPDATE ME  This was the only thing, but Treadle-dbg does more.
 '
@@ -2363,7 +2348,7 @@ Script should be a list whose entries are in on of the forms:
 ;;;;;;;;;;;;;;;;;;;;
 
 ;; Example:
-;; (firrtl-dbg-call-until-done-w/timeout 4
+;; (treadle-dbg-call-until-done-w/timeout 4
 ;;    #'(lambda (msg)
 ;; 	(message msg) nil)
    
@@ -2387,7 +2372,6 @@ PROC should return non-nil if it has finished its work"
       (setf (treadle-dbg-timer-data-timer data)
 	 (run-at-time t 1
 	    #'(lambda (data proc args timed-out-proc timed-out-args)
-		 ;; Manage timeout
 		 (if (<= (treadle-dbg-timer-data-seconds-to-wait data) 0)
 		    (progn
 		       (cancel-timer (treadle-dbg-timer-data-timer data))
@@ -2455,8 +2439,17 @@ PROC should return non-nil if it has finished its work"
    ;; Call symbol on every name
    ;; This requires passing the actual name, which we didn't before.
 
-   ;; When it's all done, call
+   ;; When it's all done and received, call
    ;; (treadle-dbg-create-widgets)
+   '
+   (tq-enqueue treadle-dbg-tq "" ""
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
+	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
+	      ;; 	 (treadle-dbg-complain-bad-buffer))
+	      (treadle-dbg-create-widgets)))
+      t)
    )
 
 
@@ -2471,6 +2464,30 @@ PROC should return non-nil if it has finished its work"
 ;; In buffer.  This works.
 '(treadle-dbg-load-fir-file
     "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/test_run_dir/triggerPulses.indirect3.TriggerPulses.ReplDummy483381288/TriggerPulsesCktDummy.fir")
+
+
+(defun treadle-dbg-get-symbol-data (sym)
+   ""
+   
+   (let*
+      ((command (concat "symbol " (symbol-name sym) "\n")))
+      (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
+	 (list (current-buffer))
+	 #'(lambda (data str)
+	      (with-current-buffer (first data)
+		 ;; (unless (eq treadle-dbg-current-buffer-type 'main)
+		 ;; 	 (treadle-dbg-complain-bad-buffer))
+		 (treadle-dbg-record-symbol-info
+		    (symbol-name sym)
+		    str)))
+	 t)))
+
+;; Run with treadle running.  This may also want a queue launch.
+'
+(mapatoms
+   #'treadle-dbg-get-symbol-data
+   treadle-dbg-obarray)
+
 
 (define-derived-mode treadle-dbg-mode
    special-mode "Treadle-Dbg"
