@@ -85,26 +85,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customizations and constants
 
-(defgroup firrtl-dbg nil "Customizations for Firrtl-dbg"
+(defgroup treadle-dbg nil "Customizations for Firrtl-dbg"
    :group 'applications)
-
-(defface firrtl-dbg-face-value-poison '((t :background "gray"))
-   "The face for poisoned values"
-   :group 'treadle-dbg)
-
-(defface firrtl-dbg-face-value-set-by-user-earlier
-   '((t (:foreground "forest green")))
-   "The face for values set earlier"
-   :group 'treadle-dbg)
-
-(defface firrtl-dbg-face-value-set-by-user-now
-   '((t (:background "LightCyan1")))
-   "The face for values set since the last step"
-   :group 'treadle-dbg)
-
-(defface firrtl-dbg-face-value-default '()
-   "The face for normal values"
-   :group 'treadle-dbg)
 
 (defface treadle-dbg-face-value-input-unset '((t :background "gray"))
    "The face for poisoned values"
@@ -123,7 +105,7 @@
 ;; It's tempting to make this buffer-local and save it in the working
 ;; directory.  But for now, it's simpler to let it be a normal
 ;; customization.
-(defcustom firrtl-dbg-custom-enums
+(defcustom treadle-dbg-custom-enums
    '()
    "Customization for enumerated values"
    ;; The first string is the name of the enum.  The repeated strings
@@ -169,12 +151,6 @@ Local in the relevant buffers." )
    '()
    "History list of working directories.  Put the directory that you would run sbt in for your project on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
    :type '(repeat directory)
-   :group 'treadle-dbg)
-
-(defcustom firrtl-dbg-repl-name-history
-   '("test:runMain gcd.GCDRepl")
-   "History list of FIRRTL REPL commands.  Put the full command that you would give sbt to run a FIRRTL debugger on this list.  Then 'firrtl-dbg-startup' will see it as a history item"
-   :type '(repeat string)
    :group 'treadle-dbg)
 
 (defconst treadle-dbg-repl-launch-command
@@ -1129,7 +1105,7 @@ string
    
    (let*
       (  (key (second fmt))
-	 (found (assoc key firrtl-dbg-custom-enums)))
+	 (found (assoc key treadle-dbg-custom-enums)))
       (if found
 	 (let* 
 	    ((strings (second found)))
@@ -1672,7 +1648,7 @@ string
    ;; CHECK ME: Do we need to copy perms to treadle-dbg-perm-props-alist?
 
    ;; Quick&dirty: Just save treadle-dbg-perm-props-alist.  We don't
-   ;; save firrtl-dbg-custom-enums because that's useful globally
+   ;; save treadle-dbg-custom-enums because that's useful globally
    ;; (though providing both local and global would be nice).  We
    ;; don't try to track what's dirty, nor treat an extensible set of
    ;; variables
@@ -2065,7 +2041,7 @@ Return nil if component has no permanent props."
 
    (let*
       (  (key (second fmt))
-	 (found (assoc key firrtl-dbg-custom-enums)))
+	 (found (assoc key treadle-dbg-custom-enums)))
       (if found
 	 (let* 
 	    (  (strings (second found))
