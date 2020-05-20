@@ -540,11 +540,15 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
       (dolist (line spl)
 	 (unless (string-blank-p line)
 	    (let* 
-	       ((e (treadle-dbg-str->state-entry line)))
-	       (treadle-dbg-add-object
-		  (treadle-dbg-state-entry-full-name e)
-		  #'(lambda (component)
-		       (funcall mutator component e))))))))
+	       ((e (treadle-dbg-str->state-entry line))
+		  (full-name (treadle-dbg-state-entry-full-name e)))
+	       (when (string-blank-p full-name)
+		  (message "Got a blank name in line %s") line)
+	       (unless (string-blank-p full-name)
+		  (treadle-dbg-add-object
+		     full-name
+		     #'(lambda (component)
+			  (funcall mutator component e)))))))))
 
 ;; Processes the return string from "show state"
 (defun treadle-dbg-record-state (state-string)
@@ -799,7 +803,9 @@ reset                                    Int UInt      1      1    212I      2  
 				(unless
 				   (eql (treadle-dbg-component-current component)
 				      (string-to-number value-str))
-				   (message "Values do not match!"))
+				   (message "Values do not match! %s != %s"
+				      (treadle-dbg-component-current component)
+				      (string-to-number value-str)))
 				(setf
 				   (treadle-dbg-component-width component)
 				   width)
