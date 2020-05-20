@@ -2408,30 +2408,51 @@ PROC should return non-nil if it has finished its work"
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   ;; 'firrtl-dbg-init-all-component-types' doesn't immediately show
-   ;; results because it is waiting for the FIRRTL REPL to answer,
-   ;; many times.  Could solve this with timers and dirty flags, but
-   ;; it's not a serious problem.
+
    (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
+	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
+	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      (let* 
 		 (  (begin-prompt-line
 		       (string-match treadle-dbg-prompt-line-regexp str))
 		    (str1 (substring str 0 begin-prompt-line)))
-		 (message str1)
-		 ;; 
-		 ;; Call treadle-dbg-record-state
-		 )
-	      ;; Have to remove prompt suffix
+		 (treadle-dbg-record-state str1))))
+      t)
+
+   (tq-enqueue treadle-dbg-tq "show inputs\n" treadle-dbg-tq-regexp
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
-	      ;; (firrtl-dbg-build-data str)
-	      ;; (firrtl-dbg-init-all-component-types)
-	      ;; (firrtl-dbg-create-widgets)
-	      ))
-      t))
+	      (let* 
+		 (  (begin-prompt-line
+		       (string-match treadle-dbg-prompt-line-regexp str))
+		    (str1 (substring str 0 begin-prompt-line)))
+		 (treadle-dbg-record-inputs str1))))
+      t)
+   (tq-enqueue treadle-dbg-tq "show outputs\n" treadle-dbg-tq-regexp
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
+	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
+	      ;; 	 (treadle-dbg-complain-bad-buffer))
+	      (let* 
+		 (  (begin-prompt-line
+		       (string-match treadle-dbg-prompt-line-regexp str))
+		    (str1 (substring str 0 begin-prompt-line)))
+		 (treadle-dbg-record-outputs str1))))
+      t)
+
+   ;; Call symbol on every name
+   ;; This requires passing the actual name, which we didn't before.
+
+   ;; When it's all done, call
+   ;; (treadle-dbg-create-widgets)
+   )
 
 
 (defun treadle-dbg-load-fir-file (fir-file)
