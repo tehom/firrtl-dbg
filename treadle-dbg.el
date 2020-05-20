@@ -1911,9 +1911,10 @@ PROC should return non-nil if it has finished its work"
       treadle-dbg-obarray)
 
    ;; When it's all done and received, draw the widgets and go.
-   ;; Does the blank string trick work?
+   ;; The blank string trick doesn't seem to work.
+   ;; RE-ENABLE ME
    '
-   (tq-enqueue treadle-dbg-tq "" ""
+   (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
@@ -1937,6 +1938,9 @@ PROC should return non-nil if it has finished its work"
 '(treadle-dbg-load-fir-file
     "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/test_run_dir/triggerPulses.indirect3.TriggerPulses.ReplDummy483381288/TriggerPulsesCktDummy.fir")
 
+'(treadle-dbg-initial-load
+    "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/test_run_dir/triggerPulses.indirect3.TriggerPulses.ReplDummy483381288/TriggerPulsesCktDummy.fir"
+    )
 
 (defun treadle-dbg-get-symbol-data (sym)
    ""
