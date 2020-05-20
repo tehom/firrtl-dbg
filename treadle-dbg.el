@@ -1926,14 +1926,14 @@ PROC should return non-nil if it has finished its work"
 	    ((command (concat "symbol ^" (symbol-name sym) "$\n")))
 	    (message "Command = %s" command)
 	    (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
-	       (list (current-buffer))
+	       (list (current-buffer) (symbol-name sym))
 	       #'(lambda (data str)
 		    (with-current-buffer (first data)
 		       ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 		       ;; 	 (treadle-dbg-complain-bad-buffer))
 		       (message "Got %s" str)
 		       (treadle-dbg-record-symbol-info
-			  (symbol-name sym)
+			  (second data)
 			  str)))
 	       t)))))
 
