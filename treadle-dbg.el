@@ -141,7 +141,7 @@
 Possible values are (nil 'main 'custom 'process).
 Local in the relevant buffers." )
 
-(defconst firrtl-dbg-obarray-default-size 257
+(defconst treadle-dbg-obarray-default-size 257
    "The default size of an obarry" )
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -188,10 +188,6 @@ Local in the relevant buffers." )
    "The REPL's prompt string"
    :type 'string
    :group 'treadle-dbg)
-'
-(defconst firrtl-dbg-type-regexp
-   "type \\([^ ]+\\) \\([0-9]+\\).\\([A-Z]+\\)<\\([0-9]+\\)>"
-   "Regexp matching the string returned by the 'type' command" )
 
 (defconst treadle-dbg-tq-regexp
    (concat ".*" treadle-dbg-tq-prompt-string " *")
@@ -241,15 +237,15 @@ Local in the relevant buffers." )
    "Spurious lines from stepping")
 
 (defvar treadle-dbg-obarray
-   (make-vector firrtl-dbg-obarray-default-size nil)
+   (make-vector treadle-dbg-obarray-default-size nil)
    "Obarray that holds the current treadle data of FIRRTL components")
 '
 (defvar firrtl-dbg-obarray
-   (make-vector firrtl-dbg-obarray-default-size nil)
+   (make-vector treadle-dbg-obarray-default-size nil)
    "Obarray that holds the current data of FIRRTL components")
 
 (defvar treadle-dbg-obarray-perm-props
-   (make-vector firrtl-dbg-obarray-default-size nil)
+   (make-vector treadle-dbg-obarray-default-size nil)
    "Obarray that holds data about FIRRTL components that persists between sessions")
 
 (defvar treadle-dbg-perm-props-alist
@@ -1012,7 +1008,7 @@ reset                                    Int UInt      1      1    212I      2  
    (setq treadle-dbg-have-built-subname-tree nil)
    (setq treadle-dbg-subname-tree '())
    (setq firrtl-dbg-obarray
-      (make-vector firrtl-dbg-obarray-default-size nil))
+      (make-vector treadle-dbg-obarray-default-size nil))
    (setq treadle-dbg-spurious-lines '()))
 
 
