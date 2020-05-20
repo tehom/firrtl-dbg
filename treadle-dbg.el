@@ -1896,7 +1896,8 @@ PROC should return non-nil if it has finished its work"
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
-	      (treadle-dbg-create-widgets)))
+	      (treadle-dbg-create-widgets))
+	   (pop-to-buffer (first data)))
       t)
    )
 
@@ -2094,7 +2095,6 @@ PROC should return non-nil if it has finished its work"
 			  ;; WRITE ME
 			  ;; Pass fir-file
 			  (treadle-dbg-initial-load)))
-		    (pop-to-buffer main-buf)
 		    ;; Indicate that we have succeeded
 		    t))
 	    ;; Pass fir-file
