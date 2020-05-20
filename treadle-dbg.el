@@ -1077,8 +1077,7 @@ reset                                    Int UInt      1      1    212I      2  
 
       (setq treadle-dbg-have-built-subname-tree t)))
 
-;; ADAPT ME
-(defun firrtl-dbg-clear ()
+(defun treadle-dbg-clear ()
    "Clear all the values; ready to start again"
    (interactive)
 
@@ -1102,7 +1101,7 @@ reset                                    Int UInt      1      1    212I      2  
       (treadle-dbg-complain-bad-buffer
 	 "Shutting down only makes sense in a circuit buffer"))
 
-   (firrtl-dbg-clear)
+   (treadle-dbg-clear)
    
    (when treadle-dbg-tq
       (tq-close treadle-dbg-tq))
