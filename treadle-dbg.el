@@ -944,7 +944,10 @@ string
 (defun treadle-dbg-insert-component-aux (component perm-props)
    ""
    (let* 
-      ((width-string (number-to-string (treadle-dbg-component-width component)))
+      ((width-string
+	  (if (treadle-dbg-component-width component)
+	     (number-to-string (treadle-dbg-component-width component))
+	     "??"))
 	 (sign-string
 	    (if (treadle-dbg-component-signed-p component) "S" "U"))
 	 (face-of-current
