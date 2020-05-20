@@ -2512,6 +2512,28 @@ This is different than defvar-local in that it doesn't define the variable in ot
 (treadle-dbg-guess-best-fir-file
    "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/")
 
+(defun treadle-dbg (working-directory fir-file)
+   ""
+   
+   (interactive
+      (let* 
+	 ((wd
+	     (let
+		((file-name-history treadle-dbg-directory-history))
+		(read-directory-name "Working directory: ")))
+	    (best-file
+	       (file-relative-name
+		  (treadle-dbg-guess-best-fir-file wd)
+		  wd))
+	    (ff
+	       (read-file-name
+		  "FIRRTL file: "
+		  wd best-file
+		  nil best-file)))
+	 (list wd ff)))
+   
+   (list working-directory fir-file))
+
 ;; ADAPT ME
 '
 (defun firrtl-dbg (working-directory repl-launch-command)
