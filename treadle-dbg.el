@@ -793,11 +793,13 @@ reset                                    Int UInt      1      1    212I      2  
 	    ((string-blank-p line))
 	    (t
 	       (let* 
-		  ((info (treadle-dbg-symbol-string->struct line)))
+		  ((info (treadle-dbg-symbol-string->struct line))
+		     (name (symbol-record-strings-trunc-name info)))
 		  (unless
 		     ;; Don't use foo/in, foo/prev, etc
-		     (string-match-p ".*/.*"
-			(symbol-record-strings-trunc-name info))
+		     (or
+			(string-match-p ".+/in" name)
+			(string-match-p ".+/prev" name))
 		     (treadle-dbg-add-object name
 			;; Proc mutate
 			#'(lambda (component)
