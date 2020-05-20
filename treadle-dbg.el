@@ -974,62 +974,6 @@ string
 	 (perm-props (treadle-dbg-get-perm-props (symbol-name sym))))
       (treadle-dbg-insert-component-aux v perm-props)))
 
-
-'
-(defun firrtl-dbg-tree-widget (cell)
-   (let ()
-      (if (second cell)
-	 `(tree-widget
-	     :node (push-button
-		      :value ,(cddr cell)
-		      :tag ,(car cell)
-		      :format "%[%t%]\n"
-		      ;; Nothing to do yet for inner nodes
-		      :alt-action ,#'ignore)
-	     :dynargs firrtl-dbg-tree-expand)
-	 (let*
-	    ((sym (cddr cell)))
-
-	    (etypecase (symbol-value sym)
-	       (firrtl-dbg-ephemeral
-		  `(const
-		      :format "%v\n"
-		      :value ,sym
-		      :value-create ,#'firrtl-dbg-insert-ephemeral-component
-		      :alt-action ,#'firrtl-dbg-edit-properties
-		      ))
-	       (firrtl-dbg-input
-		  `(const
-		      :format "%v\n"
-		      :value ,sym
-		      :value-create ,#'firrtl-dbg-insert-input-component
-		      :notify
-		      ,#'firrtl-dbg-do-integer-edit&poke
-		      :alt-action ,#'firrtl-dbg-edit-properties
-		      ))
-	       
-	       (firrtl-dbg-output
-		  `(const
-		      :format "%v\n"
-		      :value ,sym
-		      :value-create ,#'firrtl-dbg-insert-output-component
-		      :alt-action ,#'firrtl-dbg-edit-properties
-		      ))
-	       (firrtl-dbg-register
-		  `(const
-		      :format "%v\n"
-		      :value ,sym
-		      :value-create
-		      ,#'firrtl-dbg-insert-register-component
-		      :alt-action ,#'firrtl-dbg-edit-properties
-		      )))))))
-'
-(defun firrtl-dbg-tree-expand (tree)
-   (or (widget-get tree :args)
-      (let
-	 ((alist (widget-get (tree-widget-node tree) :value)))
-	 (mapcar #'firrtl-dbg-tree-widget alist))))
-
 (defun treadle-dbg-tree-widget (cell)
    (let ()
       (if (second cell)
@@ -1063,7 +1007,7 @@ string
       (treadle-dbg-complain-bad-buffer
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
-   (widget-insert "FIRRTL debugger interface\n\n")
+   (widget-insert "Treadle debugger interface\n\n")
    '
    (setq firrtl-dbg-widget-of-step-num
       (widget-create 'const
