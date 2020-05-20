@@ -254,22 +254,22 @@ Local in the relevant buffers." )
 ;;;;;;;;;;;;;;;;;;;;
 ;; Regexps
 
-(defcustom firrtl-dbg-tq-prompt-string
-   "firrtl>>"
+(defcustom treadle-dbg-tq-prompt-string
+   "treadle>>"
    "The REPL's prompt string"
    :type 'string
    :group 'treadle-dbg)
-
+'
 (defconst firrtl-dbg-type-regexp
    "type \\([^ ]+\\) \\([0-9]+\\).\\([A-Z]+\\)<\\([0-9]+\\)>"
    "Regexp matching the string returned by the 'type' command" )
 
-(defconst firrtl-dbg-tq-regexp
-   (concat ".*" firrtl-dbg-tq-prompt-string " *")
+(defconst treadle-dbg-tq-regexp
+   (concat ".*" treadle-dbg-tq-prompt-string " *")
    "Regexp matching any response from the REPL" )
 
-(defconst firrtl-dbg-prompt-line-regexp
-   (concat "^" firrtl-dbg-tq-prompt-string " *")
+(defconst treadle-dbg-prompt-line-regexp
+   (concat "^" treadle-dbg-tq-prompt-string " *")
    "Regexp matching a bare prompt line from the REPL" )
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -1072,7 +1072,7 @@ reset                                    Int UInt      1      1    212I      2  
 	    ((string-match "^Memories *:? *" line)
 	       ;; We do nothing with memories yet
 	       )
-	    ((string-match firrtl-dbg-prompt-line-regexp line)
+	    ((string-match treadle-dbg-prompt-line-regexp line)
 	       ;; That's the prompt line, it's not part of the actual
 	       ;; response.  Ignore it.
 	       )
@@ -1874,7 +1874,7 @@ Return nil if component has no permanent props."
 	    ((string-match "^[ \t]*$" line))
 
 	    ;; The prompt line.  Ignore it.
-	    ((string-match firrtl-dbg-prompt-line-regexp line))
+	    ((string-match treadle-dbg-prompt-line-regexp line))
 	    
 	    (t
 	       (push line collected-lines))))
@@ -2403,8 +2403,8 @@ PROC should return non-nil if it has finished its work"
       (goto-char (point-min))
       (search-forward treadle-dbg-tq-prompt-string nil t)))
 ;; ADAPT ME
-'
-(defun firrtl-dbg-initial-load ()
+
+(defun treadle-dbg-initial-load ()
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
@@ -2412,15 +2412,17 @@ PROC should return non-nil if it has finished its work"
    ;; results because it is waiting for the FIRRTL REPL to answer,
    ;; many times.  Could solve this with timers and dirty flags, but
    ;; it's not a serious problem.
-   (tq-enqueue treadle-dbg-tq "show\n" treadle-dbg-tq-regexp
+   (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      (unless (eq treadle-dbg-current-buffer-type 'main)
-		 (treadle-dbg-complain-bad-buffer))
-	      (firrtl-dbg-build-data str)
-	      (firrtl-dbg-init-all-component-types)
-	      (firrtl-dbg-create-widgets)))
+	      (message str)
+	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
+	      ;; 	 (treadle-dbg-complain-bad-buffer))
+	      ;; (firrtl-dbg-build-data str)
+	      ;; (firrtl-dbg-init-all-component-types)
+	      ;; (firrtl-dbg-create-widgets)
+	      ))
       t))
 
 (define-derived-mode treadle-dbg-mode
@@ -2561,7 +2563,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
 
 	 (hack-dir-local-variables-non-file-buffer)
 	 (treadle-dbg-copy-alist-to-perms)
-	 '
+	 ' ;; RE-ENABLE ME
 	 (treadle-dbg-call-until-done-w/timeout
 	    40
 	    #'(lambda (process main-buf)
@@ -2572,7 +2574,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
 		       ((tq (tq-create process)))
 		       (with-current-buffer main-buf
 			  (setq treadle-dbg-tq tq)
-			  (firrtl-dbg-initial-load)))
+			  (treadle-dbg-initial-load)))
 		    (pop-to-buffer main-buf)
 		    ;; Indicate that we have succeeded
 		    t))
@@ -2637,7 +2639,7 @@ This is different than defvar-local in that it doesn't define the variable in ot
 		       ((tq (tq-create process)))
 		       (with-current-buffer main-buf
 			  (setq treadle-dbg-tq tq)
-			  (firrtl-dbg-initial-load)))
+			  (treadle-dbg-initial-load)))
 		    (pop-to-buffer main-buf)
 		    ;; Indicate that we have succeeded
 		    t))
