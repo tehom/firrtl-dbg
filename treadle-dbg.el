@@ -269,7 +269,7 @@ Local in the relevant buffers." )
    "Regexp matching any response from the REPL" )
 
 (defconst treadle-dbg-prompt-line-regexp
-   (concat "^" treadle-dbg-tq-prompt-string " *")
+   (concat "\n[0-9]* *" treadle-dbg-tq-prompt-string " *")
    "Regexp matching a bare prompt line from the REPL" )
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -2418,7 +2418,7 @@ PROC should return non-nil if it has finished its work"
 	   (with-current-buffer (first data)
 	      (let* 
 		 (  (begin-prompt-line
-		       (string-match treadle-dbg-tq-prompt-string str))
+		       (string-match treadle-dbg-prompt-line-regexp str))
 		    (str1 (substring str 0 begin-prompt-line)))
 		 (message str1)
 		 ;; 
