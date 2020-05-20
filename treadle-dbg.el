@@ -2402,7 +2402,7 @@ PROC should return non-nil if it has finished its work"
    (with-current-buffer (process-buffer process)
       (goto-char (point-min))
       (search-forward treadle-dbg-tq-prompt-string nil t)))
-;; ADAPT ME
+
 
 (defun treadle-dbg-initial-load ()
    ""
