@@ -239,18 +239,15 @@ Local in the relevant buffers." )
 (defvar treadle-dbg-obarray
    (make-vector treadle-dbg-obarray-default-size nil)
    "Obarray that holds the current treadle data of FIRRTL components")
-'
-(defvar firrtl-dbg-obarray
-   (make-vector treadle-dbg-obarray-default-size nil)
-   "Obarray that holds the current data of FIRRTL components")
 
 (defvar treadle-dbg-obarray-perm-props
    (make-vector treadle-dbg-obarray-default-size nil)
-   "Obarray that holds data about FIRRTL components that persists between sessions")
+   "Obarray that holds data about components that persists between sessions")
 
+;; Bug:  This stores all the data as the safe-variable.  How can we get just the symbol name?
 (defvar treadle-dbg-perm-props-alist
    '()
-   "Alist that holds data that persists between sessions about FIRRTL components")
+   "Alist that holds data that persists between sessions about components")
 
 (defvar treadle-dbg-subname-tree
    '()
@@ -283,7 +280,7 @@ Format: Each node is either:
 
 (defvar treadle-dbg-process-buffer
    nil
-   "The buffer of the FIRRTL REPL process")
+   "The buffer of the Treadle REPL process")
 
 (defvar treadle-dbg-main-buffer
    nil
@@ -291,11 +288,11 @@ Format: Each node is either:
 
 (defvar treadle-dbg-tq
    nil
-   "The firrtl-dbg transaction queue")
+   "The treadle-dbg transaction queue")
 
 (defvar treadle-dbg-process
    nil
-   "The FIRRTL REPL process")
+   "The Treadle REPL process")
 
 ;;;;;;;;;;;;;;;;;;;;
 
