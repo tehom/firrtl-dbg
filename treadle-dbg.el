@@ -625,6 +625,11 @@ lastOperation                            Int UInt      3      1    252I      3  
 lastOperation/in                         Int UInt      3      1    287I      6  @[dummy.scala 262:30] 0
 "
       )
+   (setq symbol-string-/print9
+      "Name                                     Bin Type  Width  Slots  Index Depend Info
+/print9                                  Int UInt      1      1    146I    300  @[dummy.scala 76:11] 0
+1 treadle>> "
+      )
 
    ;; Slight cheat: Un-truncated the names for this.
    (mapcar
@@ -664,6 +669,10 @@ reset                                    Int UInt      1      1    212I      2  
    (treadle-dbg-test-second-symbol-line
       "lastOperation"
       symbol-string-lastOperation)
+   (treadle-dbg-test-second-symbol-line
+      "/print9"
+      symbol-string-/print9)
+   
 )
 
 
