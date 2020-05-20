@@ -64,16 +64,7 @@
 (require 'tq)
 ;;;_. Body
 
-(defstruct (firrtl-dbg-value (:type list))
-   ""
-   v
-   ;; 'state' is one of (ok poisoned set-by-user-now
-   ;; set-by-user-earlier first-seen just-changed stayed-same) Some of
-   ;; these aren't set yet, and 'ok' will yield to (first-seen
-   ;; just-changed stayed-same)
-   state
-   ;; Not used yet
-   last-time-changed)
+
 
 ;; Now all components are this type
 (defstruct (treadle-dbg-component (:type list))
@@ -90,49 +81,6 @@
    io-type ;; '(input output clock reset nil)
    forced-p ;; Whether it is currently forced.
    )
-
-(defstruct (firrtl-dbg-component-type (:type list))
-   ""
-   signed-p
-   width)
-
-
-(defstruct (firrtl-dbg-component (:type list) :named)
-   "The base of FIRRTL component info for widgets"
-   full-name
-   current ;; A firrtl-dbg-value
-   type ;; (un)signed, bit width, etc
-   )
-
-(defstruct (firrtl-dbg-register
-	      (:type list)
-	      (:include firrtl-dbg-component)
-	      :named)
-   "A register"
-   next ;; A firrtl-dbg-value
-   )
-
-(defstruct (firrtl-dbg-ephemeral
-	      (:type list)
-	      (:include firrtl-dbg-component)
-	      :named)
-   "A wire")
-
-(defstruct (firrtl-dbg-input
-	      (:type list)
-	      (:include firrtl-dbg-component)
-	      :named)
-   "An input wire"
-   user-input)
-
-
-(defstruct (firrtl-dbg-output
-	      (:type list)
-	      (:include firrtl-dbg-component)
-	      :named)
-   "An output wire")
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customizations and constants
