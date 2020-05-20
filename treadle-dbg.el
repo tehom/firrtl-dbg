@@ -2425,6 +2425,19 @@ PROC should return non-nil if it has finished its work"
 	      ))
       t))
 
+
+(defun treadle-dbg-load-fir-file (fir-file)
+   ""
+   
+   (let*
+      ((command (concat "load " fir-file "\n")))
+      (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
+	 nil nil t)))
+
+;; In buffer.  This works.
+'(treadle-dbg-load-fir-file
+    "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/test_run_dir/triggerPulses.indirect3.TriggerPulses.ReplDummy483381288/TriggerPulsesCktDummy.fir")
+
 (define-derived-mode treadle-dbg-mode
    special-mode "Treadle-Dbg"
    "Major mode for Treadle debugger interface"
@@ -2574,10 +2587,13 @@ This is different than defvar-local in that it doesn't define the variable in ot
 		       ((tq (tq-create process)))
 		       (with-current-buffer main-buf
 			  (setq treadle-dbg-tq tq)
+			  ;; WRITE ME
+			  ;; Pass fir-file
 			  (treadle-dbg-initial-load)))
 		    (pop-to-buffer main-buf)
 		    ;; Indicate that we have succeeded
 		    t))
+	    ;; Pass fir-file
 	    (list treadle-dbg-process main-buf)
 	    #'(lambda ()
 		 (message "Debugger process timed out"))
