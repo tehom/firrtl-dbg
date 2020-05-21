@@ -121,7 +121,7 @@
 		(repeat string)))
    :group 'treadle-dbg)
 
-(defconst firrtl-dbg-component-perm-spec
+(defconst treadle-dbg-component-perm-spec
    '(choice
        (group
 	  (const decimal))
@@ -1040,7 +1040,7 @@ string
 		:value ,sym
 		:value-create ,#'treadle-dbg-insert-component
 		;; UPDATE ME
-		:alt-action ,#'firrtl-dbg-edit-properties)))))
+		:alt-action ,#'treadle-dbg-edit-properties)))))
 
 (defun treadle-dbg-tree-expand (tree)
    (or (widget-get tree :args)
@@ -1117,8 +1117,8 @@ string
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ADAPT ME
-'
-(defun firrtl-dbg-edit-properties (widget &optional event)
+
+(defun treadle-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
 
    (unless (eq treadle-dbg-current-buffer-type 'main)
@@ -1139,7 +1139,7 @@ string
 	 (custom-declare-variable perm-sym
 	    (list 'quote firrtl-dbg-component-perm-standard-value)
 	    "The format to display the component in"
-	    :type firrtl-dbg-component-perm-spec))
+	    :type treadle-dbg-component-perm-spec))
 
       (let
 	 (  (main-buf (current-buffer))
@@ -1194,21 +1194,20 @@ string
 		 treadle-dbg-perm-props-alist)))
       treadle-dbg-obarray-perm-props))
 
-;; ADAPT ME
-'
 
-(defun firrtl-dbg-save-perms (&rest ignore)
+(defun treadle-dbg-save-perms (&rest ignore)
    ""
    ;; This takes the place of Custom-save
 
    ;; CHECK ME: Do we need to copy perms to treadle-dbg-perm-props-alist?
+   ;; IMPROVE ME: Load this once instead.
 
    ;; Quick&dirty: Just save treadle-dbg-perm-props-alist.  We don't
    ;; save treadle-dbg-custom-enums because that's useful globally
    ;; (though providing both local and global would be nice).  We
    ;; don't try to track what's dirty, nor treat an extensible set of
    ;; variables
-   (add-dir-local-variable 'firrtl-dbg-mode
+   (add-dir-local-variable 'treadle-dbg-mode
       'treadle-dbg-perm-props-alist
       treadle-dbg-perm-props-alist))
 
