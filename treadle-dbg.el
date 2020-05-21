@@ -1528,9 +1528,7 @@ string argument."
 ;; (treadle-dbg-find-index-in-list "b" '(("b")("a")))
 ;; (treadle-dbg-find-index-in-list "a" '(("b")("a")))
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-read-new-enum-val (prompt fmt)
+(defun treadle-dbg-read-new-enum-val (prompt fmt)
    ""
 
    (let*
@@ -1568,7 +1566,7 @@ string argument."
 	 ((boolean)
 	    (treadle-dbg-read-new-boolean-val prompt old-val))
 	 ((enum)
-	    (firrtl-dbg-read-new-enum-val prompt fmt))
+	    (treadle-dbg-read-new-enum-val prompt fmt))
 	 
 	 (otherwise
 	    (treadle-dbg-read-new-decimal-val prompt old-val)))))
