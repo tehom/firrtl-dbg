@@ -1431,7 +1431,27 @@ Return nil if component has no permanent props."
       
       t))
 
-;; FACTOR ME:  Take command string and proc (treadle-dbg-record-inputs etc)
+(defun firrtl-dbg-show-components (command proc)
+   "Retrieve something in the 'show' format.
+Command should be a string like 'show state'.  PROC must take a
+string argument."
+
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
+	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
+	      ;; 	 (treadle-dbg-complain-bad-buffer))
+	      (let* 
+		 (  (begin-prompt-line
+		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
+			  str))
+		    (str1 (substring str 0 begin-prompt-line)))
+		 (funcall proc str1))))
+      t))
+
 (defun firrtl-dbg-show-circuit-low ()
    "Get the current component values"
 
