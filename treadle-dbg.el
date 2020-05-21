@@ -1387,7 +1387,9 @@ Return nil if component has no permanent props."
       (push '(step) treadle-dbg-current-script-rv))
 
    (treadle-dbg-step-circuit-low)
-   (firrtl-dbg-show-circuit-low))
+   (firrtl-dbg-show-components
+      "show state\n"
+      #'treadle-dbg-record-state))
 
 (defun treadle-dbg-record-spurious-response-lines (str step-num)
    ""
@@ -1452,24 +1454,6 @@ string argument."
 		 (funcall proc str1))))
       t))
 
-(defun firrtl-dbg-show-circuit-low ()
-   "Get the current component values"
-
-   (unless (eq treadle-dbg-current-buffer-type 'main)
-      (treadle-dbg-complain-bad-buffer))
-   (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
-      (list (current-buffer))
-      #'(lambda (data str)
-	   (with-current-buffer (first data)
-	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
-	      ;; 	 (treadle-dbg-complain-bad-buffer))
-	      (let* 
-		 (  (begin-prompt-line
-		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
-			  str))
-		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-state str1))))
-      t))
 ;; ADAPT ME
 '
 
@@ -1791,7 +1775,9 @@ Script should be a list whose entries are in on of the forms:
 	    (treadle-dbg-step-circuit-low))))
    
    ;; All done, now reload and redisplay everything.
-   (firrtl-dbg-show-circuit-low)
+   (firrtl-dbg-show-components
+      "show state\n"
+      #'treadle-dbg-record-state)
    (firrtl-dbg-redraw-widgets))
 
 
@@ -1911,35 +1897,15 @@ PROC should return non-nil if it has finished its work"
    (setq treadle-dbg-current-freshness "FRESH")
    (treadle-dbg-load-fir-file fir-file)
 
-   (firrtl-dbg-show-circuit-low)
-
-   ;; Maybe encap these, and factor with firrtl-dbg-show-circuit-low
-   (tq-enqueue treadle-dbg-tq "show inputs\n" treadle-dbg-tq-regexp
-      (list (current-buffer))
-      #'(lambda (data str)
-	   (with-current-buffer (first data)
-	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
-	      ;; 	 (treadle-dbg-complain-bad-buffer))
-	      (let* 
-		 (  (begin-prompt-line
-		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
-			  str))
-		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-inputs str1))))
-      t)
-   (tq-enqueue treadle-dbg-tq "show outputs\n" treadle-dbg-tq-regexp
-      (list (current-buffer))
-      #'(lambda (data str)
-	   (with-current-buffer (first data)
-	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
-	      ;; 	 (treadle-dbg-complain-bad-buffer))
-	      (let* 
-		 (  (begin-prompt-line
-		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
-			  str))
-		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-outputs str1))))
-      t)
+   (firrtl-dbg-show-components
+      "show state\n"
+      #'treadle-dbg-record-state)
+   (firrtl-dbg-show-components
+      "show inputs\n"
+      #'treadle-dbg-record-inputs)
+   (firrtl-dbg-show-components
+      "show outputs\n"
+      #'treadle-dbg-record-outputs)
 
    ;; Call symbol on every name
    (mapatoms
