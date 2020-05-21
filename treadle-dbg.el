@@ -1495,22 +1495,15 @@ string argument."
 	    0)
 	 (t (error "Not a boolean")))))
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-read-new-decimal-val (prompt old-val)
+
+(defun treadle-dbg-read-new-decimal-val (prompt old-val)
    ""
    ;; IMPROVE ME: Using type info, check new-val for bit width and
    ;; signedness.  Abort if new-val is not conformant.
    (let ((new-val
 	    (read-number
 	       prompt
-	       (if
-		  (not
-		     (eq
-			(firrtl-dbg-value-state old-val)
-			'poisoned))
-		  (firrtl-dbg-value-v old-val)
-		  nil))))
+	       old-val)))
       new-val))
 
 ;; ADAPT ME
@@ -1579,7 +1572,7 @@ string argument."
 	    (firrtl-dbg-read-new-enum-val prompt fmt))
 	 
 	 (otherwise
-	    (firrtl-dbg-read-new-decimal-val prompt old-val)))))
+	    (treadle-dbg-read-new-decimal-val prompt old-val)))))
 
 
 (defun treadle-dbg-poke-value (sym new-val
