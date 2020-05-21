@@ -1091,7 +1091,7 @@ string
       "Rebuild buffer")
 
    (widget-insert "   ")
-   '
+
    (widget-create 'push-button
       :notify
       (lambda (&rest ignore)
