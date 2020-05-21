@@ -1039,8 +1039,7 @@ string
 		:format "%v\n"
 		:value ,sym
 		:value-create ,#'treadle-dbg-insert-component
-		;; UPDATE ME
-		:alt-action ,#'treadle-dbg-edit-properties)))))
+		:alt-action ,#'treadle-dbg-do-integer-edit&poke)))))
 
 (defun treadle-dbg-tree-expand (tree)
    (or (widget-get tree :args)
