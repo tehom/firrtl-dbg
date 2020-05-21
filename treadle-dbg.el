@@ -1594,7 +1594,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	      (let* 
 		 ((had-problem
 		     (treadle-dbg-parse-response-maybe-complain str))
-		    (current (first data))
+		    (component (first data))
 		    (new-val (second data))
 		    (extra-proc (third data))
 		    (extra-data (fourth data)))
@@ -1602,7 +1602,6 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		 (unless had-problem
 		    ;; Set the component's value to that.
 		    (setf (treadle-dbg-component-current component) new-val)
-
 		    (when extra-proc
 		       (apply extra-proc extra-data)))))
 	 t)))
