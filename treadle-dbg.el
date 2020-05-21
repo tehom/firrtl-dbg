@@ -1077,7 +1077,7 @@ string
       "Step")
 
    (widget-insert "   ")
-   '
+
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
 		 (unless (eq treadle-dbg-current-buffer-type 'main)
@@ -1087,7 +1087,7 @@ string
 		 (let
 		    ((inhibit-read-only t))
 		    (erase-buffer))
-		 (firrtl-dbg-create-widgets))
+		 (treadle-dbg-create-widgets))
       "Rebuild buffer")
 
    (widget-insert "   ")
