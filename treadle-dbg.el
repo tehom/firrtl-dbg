@@ -1607,7 +1607,8 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		    (setf (treadle-dbg-component-current component) new-val)
 		    ;; IMPROVE ME: This could take a distinctive value
 		    ;; so we can distinguish set-by-script from
-		    ;; set-manually.
+		    ;; set-manually.  Could also use this to command
+		    ;; "force" instead of "poke"
 		    (setf (treadle-dbg-component-forced-p component) t)
 		    (when extra-proc
 		       (apply extra-proc extra-data)))))
