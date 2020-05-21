@@ -1386,7 +1386,7 @@ Return nil if component has no permanent props."
    (when treadle-dbg-writing-script-p
       (push '(step) treadle-dbg-current-script-rv))
 
-   (firrtl-dbg-step-circuit-low)
+   (treadle-dbg-step-circuit-low)
    (firrtl-dbg-show-circuit-low))
 
 (defun treadle-dbg-record-spurious-response-lines (str step-num)
