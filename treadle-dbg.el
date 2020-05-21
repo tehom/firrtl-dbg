@@ -79,7 +79,9 @@
    signed-p
    width
    io-type ;; '(input output clock reset nil)
-   forced-p ;; Whether it is currently forced.
+   forced-p ;; Whether it is currently forced.  Maybe instead a
+	    ;; current state symbol distinguishing normal input
+	    ;; setting from "forced"
    )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
