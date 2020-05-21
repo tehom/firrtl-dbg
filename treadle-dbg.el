@@ -58,10 +58,13 @@
 
 ;;;_ , Requires
 
+(require 'async)
 (require 'cl)
+(require 'pp)
 (require 'subr-x)
-(require 'tree-widget)
+(require 'tiny-db)
 (require 'tq)
+(require 'tree-widget)
 ;;;_. Body
 
 
@@ -187,6 +190,13 @@ Local in the relevant buffers." )
    "*Treadle-dbg process*"
    "Name of the process buffer" )
 
+(defcustom treadle-dbg-perm-props-relative-filename
+   "tread-dbg-perm-props.el"   
+   "Relative name of the file to store perm properties in"
+   :group 'treadle-dbg
+   :type 'string)
+
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; Regexps
 
@@ -297,6 +307,10 @@ Format: Each node is either:
    nil
    "The main interaction buffer")
 
+(defvar treadle-dbg-perm-props-buffer
+   nil
+   "The buffer holding a text representation of perm properties" )
+
 (defvar treadle-dbg-tq
    nil
    "The treadle-dbg transaction queue")
@@ -304,6 +318,8 @@ Format: Each node is either:
 (defvar treadle-dbg-process
    nil
    "The Treadle REPL process")
+
+
 
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -1164,6 +1180,83 @@ string
 	       firrtl-dbg-custom-variable-menu))
 	  
 	 (pop-to-buffer-same-window buf))))
+
+(defun treadle-dbg-perm-props-visit ()
+   "Force some buffer to visit the password file."
+   (let*
+      (  (file-name
+	    (const default-directory
+	       treadle-dbg-perm-props-relative-filename))
+	 (buf
+	    (find-file-noselect file-name)))
+      
+      (setq treadle-dbg-perm-props-buffer buf)
+      buf))
+
+;; These next three should have been part of tiny-db, since they don't
+;; use app-local variables.  The error messages could be made more
+;; vanilla.
+
+(defun treadle-dbg-sync-list-to-buffer ()
+   "Return the current buffer's data as a list.
+If we read nothing or no list, return nil.
+
+Do NOT call this unless you know what you are doing.."
+   ;; WRITE ME:  Check the buffer type
+   (let
+      ((list 
+	  (condition-case err
+	     (progn
+		(goto-char (point-min))
+		(read (current-buffer)))
+	     (error 
+		(message-box "Perm props file contained no data.")
+		'()))))
+
+      (if 
+	 (listp list) 
+	 list 
+	 (progn
+	    (message-box "Perm props file data was bad.")
+	    '()))))
+
+(defun treadle-dbg-sync-file-to-list (list)
+   "Sync to the current buffer and file to LIST
+
+Do NOT call this unless you know what you are doing."
+   ;; WRITE ME:  Check the treadle-dbg buffer type
+   (erase-buffer)
+   (insert (pp-to-string list))
+
+   ;;Save, forcing backups to exist.  
+   (let
+      ((file-precious-flag t))
+      (save-buffer 64)))
+
+
+;;; Macros to use the buffer
+(defmacro treadle-dbg-buffer-as-const-list (list-var &rest body)
+   "Treat the password buffer as an immutable list named LIST-VAR"
+   
+   `(progn
+       (treadle-dbg-perm-props-visit)
+       (with-current-buffer treadle-dbg-perm-props-buffer
+	  (let
+	     ((,list-var (treadle-dbg-sync-list-to-buffer)))
+	     ,@body))))
+
+(defmacro treadle-dbg-buffer-as-mutable-list (list-var &rest body)
+   "Treat the password buffer as a mutable list named LIST-VAR.
+Always returns `nil'."
+   
+   `(progn
+       (treadle-dbg-perm-props-visit)
+       (with-current-buffer treadle-dbg-perm-props-buffer
+	  (let
+	     ((,list-var (treadle-dbg-sync-list-to-buffer)))
+	     ,@body
+	     (treadle-dbg-sync-file-to-list ,list-var)
+	     nil))))
 
 (defun treadle-dbg-copy-alist-to-perms ()
    ""
