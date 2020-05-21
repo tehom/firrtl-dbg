@@ -58,11 +58,11 @@
 
 ;;;_ , Requires
 
-(require 'async)
 (require 'cl)
 (require 'pp)
 (require 'subr-x)
-(require 'tiny-db)
+(require 'tinydb/asynq)
+(require 'tinydb/persist)
 (require 'tq)
 (require 'tree-widget)
 ;;;_. Body
