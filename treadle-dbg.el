@@ -1430,26 +1430,25 @@ Return nil if component has no permanent props."
 	      (incf treadle-dbg-current-step)))
       
       t))
-;; ADAPT ME
-'
 
+;; FACTOR ME:  Take command string and proc (treadle-dbg-record-inputs etc)
 (defun firrtl-dbg-show-circuit-low ()
    "Get the current component values"
 
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   (tq-enqueue treadle-dbg-tq
-      "show\n"
-      treadle-dbg-tq-regexp
+   (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      ;; IMPROVE ME: At some point change all states of
-	      ;; set-by-user-now to set-by-user-earlier.  For
-	      ;; non-inputs, figure out whether it changed since last
-	      ;; time.
-	      (firrtl-dbg-build-data str)
-	      (firrtl-dbg-redraw-widgets)))
+	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
+	      ;; 	 (treadle-dbg-complain-bad-buffer))
+	      (let* 
+		 (  (begin-prompt-line
+		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
+			  str))
+		    (str1 (substring str 0 begin-prompt-line)))
+		 (treadle-dbg-record-state str1))))
       t))
 ;; ADAPT ME
 '
@@ -1771,8 +1770,9 @@ Script should be a list whose entries are in on of the forms:
 	 (step
 	    (treadle-dbg-step-circuit-low))))
    
-   ;; All done, now redisplay everything.
-   (firrtl-dbg-show-circuit-low))
+   ;; All done, now reload and redisplay everything.
+   (firrtl-dbg-show-circuit-low)
+   (firrtl-dbg-redraw-widgets))
 
 
 
@@ -1891,20 +1891,9 @@ PROC should return non-nil if it has finished its work"
    (setq treadle-dbg-current-freshness "FRESH")
    (treadle-dbg-load-fir-file fir-file)
 
-   (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
-      (list (current-buffer))
-      #'(lambda (data str)
-	   (with-current-buffer (first data)
-	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
-	      ;; 	 (treadle-dbg-complain-bad-buffer))
-	      (let* 
-		 (  (begin-prompt-line
-		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
-			  str))
-		    (str1 (substring str 0 begin-prompt-line)))
-		 (treadle-dbg-record-state str1))))
-      t)
+   (firrtl-dbg-show-circuit-low)
 
+   ;; Maybe encap these, and factor with firrtl-dbg-show-circuit-low
    (tq-enqueue treadle-dbg-tq "show inputs\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
