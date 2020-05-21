@@ -1506,9 +1506,8 @@ string argument."
 	       old-val)))
       new-val))
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-find-index-in-list (key str-list)
+
+(defun treadle-dbg-find-index-in-list (key str-list)
    "Return the index or nil"
    
    (let*
@@ -1526,8 +1525,8 @@ string argument."
 	 nil)))
 
 ;; Examples:
-;; (firrtl-dbg-find-index-in-list "b" '(("b")("a")))
-;; (firrtl-dbg-find-index-in-list "a" '(("b")("a")))
+;; (treadle-dbg-find-index-in-list "b" '(("b")("a")))
+;; (treadle-dbg-find-index-in-list "a" '(("b")("a")))
 
 ;; ADAPT ME
 '
@@ -1548,7 +1547,7 @@ string argument."
 		     nil))
 	       
 	       (new-val
-		  (firrtl-dbg-find-index-in-list new-string strings)))
+		  (treadle-dbg-find-index-in-list new-string strings)))
 	    
 	    (if new-val
 	       new-val
