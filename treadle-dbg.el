@@ -1607,24 +1607,23 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		       (apply extra-proc extra-data)))))
 	 t)))
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-do-integer-edit&poke (widget widget-again &optional event)
+(defun treadle-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
-	 (component-name (firrtl-dbg-input-full-name component))
-	 (current (firrtl-dbg-input-current component))
+	 (component-name (treadle-dbg-full-name component))
+	 (current (treadle-dbg-current component))
 	 (perm-props
 	    (treadle-dbg-get-perm-props (symbol-name sym)))
 	 (new-val (treadle-dbg-read-new-val
 		     (format "New value for %s: " component-name)
 		     current
 		     perm-props)))
-            (when treadle-dbg-writing-script-p
+
+      (when treadle-dbg-writing-script-p
 	 (push
 	    `(poke ,component-name ,new-val)
 	    treadle-dbg-current-script-rv))
