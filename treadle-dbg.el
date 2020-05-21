@@ -1071,10 +1071,9 @@ string
 
    (widget-insert "\n\n")
 
-   '
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		 (firrtl-dbg-step-circuit))
+		 (treadle-dbg-step-circuit))
       "Step")
 
    (widget-insert "   ")
@@ -1309,10 +1308,8 @@ Return nil if component has no permanent props."
 	 (let ((command (lookup-key widget-global-map (this-command-keys))))
 	    (when (commandp command)
 	       (call-interactively command))))))
-;; ADAPT ME
-'
 
-(defun firrtl-dbg-step-circuit ()
+(defun treadle-dbg-step-circuit ()
    "Step the circuit"
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
@@ -1324,9 +1321,11 @@ Return nil if component has no permanent props."
       (push '(step) treadle-dbg-current-script-rv))
 
    (treadle-dbg-step-circuit-low)
-   (firrtl-dbg-show-components
+   (treadle-dbg-show-components
       "show state\n"
-      #'treadle-dbg-record-state))
+      #'treadle-dbg-record-state)
+   (treadle-dbg-redraw-widgets))
+
 
 (defun treadle-dbg-record-spurious-response-lines (str step-num)
    ""
@@ -1370,7 +1369,7 @@ Return nil if component has no permanent props."
       
       t))
 
-(defun firrtl-dbg-show-components (command proc)
+(defun treadle-dbg-show-components (command proc)
    "Retrieve something in the 'show' format.
 Command should be a string like 'show state'.  PROC must take a
 string argument."
@@ -1449,9 +1448,7 @@ string argument."
 			(funcall proc button))))
 	       (setq done t))))))
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-redraw-widgets ()
+(defun treadle-dbg-redraw-widgets ()
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
@@ -1713,10 +1710,10 @@ Script should be a list whose entries are in on of the forms:
 	    (treadle-dbg-step-circuit-low))))
    
    ;; All done, now reload and redisplay everything.
-   (firrtl-dbg-show-components
+   (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
-   (firrtl-dbg-redraw-widgets))
+   (treadle-dbg-redraw-widgets))
 
 
 
@@ -1835,13 +1832,13 @@ PROC should return non-nil if it has finished its work"
    (setq treadle-dbg-current-freshness "FRESH")
    (treadle-dbg-load-fir-file fir-file)
 
-   (firrtl-dbg-show-components
+   (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
-   (firrtl-dbg-show-components
+   (treadle-dbg-show-components
       "show inputs\n"
       #'treadle-dbg-record-inputs)
-   (firrtl-dbg-show-components
+   (treadle-dbg-show-components
       "show outputs\n"
       #'treadle-dbg-record-outputs)
 
