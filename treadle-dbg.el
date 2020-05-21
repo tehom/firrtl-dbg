@@ -1580,8 +1580,8 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    (let* 
       (  
 	 (component (symbol-value sym))
-	 (component-name (treadle-dbg-full-name component))
-	 (current (treadle-dbg-current component))
+	 (component-name (treadle-dbg-component-full-name component))
+	 (current (treadle-dbg-component-current component))
 	 (msg (concat "poke " component-name " "
 		 (number-to-string new-val) "\n")))
       
@@ -1609,13 +1609,14 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 
 (defun treadle-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
+   (message "treadle-dbg-do-integer-edit&poke")
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
-	 (component-name (treadle-dbg-full-name component))
-	 (current (treadle-dbg-current component))
+	 (component-name (treadle-dbg-component-full-name component))
+	 (current (treadle-dbg-component-current component))
 	 (perm-props
 	    (treadle-dbg-get-perm-props (symbol-name sym)))
 	 (new-val (treadle-dbg-read-new-val
