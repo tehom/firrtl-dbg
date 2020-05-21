@@ -230,11 +230,11 @@ Local in the relevant buffers." )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Widgets
-(defvar-local firrtl-dbg-widget-of-step-num
+(defvar-local treadle-dbg-widget-of-step-num
    nil
    "Widget displaying the current step value")
 
-(defvar-local firrtl-dbg-widget-of-freshness
+(defvar-local treadle-dbg-widget-of-freshness
    nil
    "Widget displaying the current freshness")
 
@@ -1055,15 +1055,15 @@ string
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
    (widget-insert "Treadle debugger interface\n\n")
-   '
-   (setq firrtl-dbg-widget-of-step-num
+
+   (setq treadle-dbg-widget-of-step-num
       (widget-create 'const
 	 :value treadle-dbg-current-step
 	 :format "Step %v"))
    
    (widget-insert " ")
-   '
-   (setq firrtl-dbg-widget-of-freshness
+
+   (setq treadle-dbg-widget-of-freshness
       (widget-create 'const
 	 :value treadle-dbg-current-freshness
 	 :format "(%v)"))
@@ -1122,13 +1122,13 @@ string
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
    (widget-insert "FIRRTL debugger interface\n\n")
-   (setq firrtl-dbg-widget-of-step-num
+   (setq treadle-dbg-widget-of-step-num
       (widget-create 'const
 	 :value treadle-dbg-current-step
 	 :format "Step %v"))
    
    (widget-insert " ")
-   (setq firrtl-dbg-widget-of-freshness
+   (setq treadle-dbg-widget-of-freshness
       (widget-create 'const
 	 :value treadle-dbg-current-freshness
 	 :format "(%v)"))
@@ -1380,7 +1380,7 @@ Return nil if component has no permanent props."
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (widget-value-set
-      firrtl-dbg-widget-of-freshness
+      treadle-dbg-widget-of-freshness
       "Stepping")
 
    (when treadle-dbg-writing-script-p
@@ -1521,10 +1521,10 @@ Return nil if component has no permanent props."
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (widget-value-set
-      firrtl-dbg-widget-of-step-num
+      treadle-dbg-widget-of-step-num
       treadle-dbg-current-step)
    (widget-value-set
-      firrtl-dbg-widget-of-freshness
+      treadle-dbg-widget-of-freshness
       treadle-dbg-current-freshness)
 
    (treadle-dbg-for-all-buttons
@@ -1726,7 +1726,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	    treadle-dbg-current-script-rv))
       (setq treadle-dbg-current-freshness "STALE")
       (widget-value-set
-	 firrtl-dbg-widget-of-freshness
+	 treadle-dbg-widget-of-freshness
 	 "STALE")
 
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
@@ -1764,7 +1764,7 @@ Script should be a list whose entries are in on of the forms:
       (treadle-dbg-complain-bad-buffer))
 
    (widget-value-set
-      firrtl-dbg-widget-of-freshness
+      treadle-dbg-widget-of-freshness
       "Running script")
 
    (dolist (line script)
