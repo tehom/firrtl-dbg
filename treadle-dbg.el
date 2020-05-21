@@ -1440,14 +1440,15 @@ string argument."
 
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
-      (list (current-buffer))
+   (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
+      (list (current-buffer) proc)
       #'(lambda (data str)
 	   (with-current-buffer (first data)
 	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
 	      ;; 	 (treadle-dbg-complain-bad-buffer))
 	      (let* 
-		 (  (begin-prompt-line
+		 (  (proc (second data))
+		    (begin-prompt-line
 		       (string-match treadle-dbg-prompt-line-regexp-leading-cr
 			  str))
 		    (str1 (substring str 0 begin-prompt-line)))
