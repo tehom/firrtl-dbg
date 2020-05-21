@@ -1935,14 +1935,6 @@ PROC should return non-nil if it has finished its work"
       (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
 	 nil nil t)))
 
-;; In buffer.  This works.
-'(treadle-dbg-load-fir-file
-    "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/test_run_dir/triggerPulses.indirect3.TriggerPulses.ReplDummy483381288/TriggerPulsesCktDummy.fir")
-
-'(treadle-dbg-initial-load
-    "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/test_run_dir/triggerPulses.indirect3.TriggerPulses.ReplDummy483381288/TriggerPulsesCktDummy.fir"
-    )
-
 (defun treadle-dbg-get-symbol-data (sym)
    ""
    (when sym
@@ -1963,20 +1955,7 @@ PROC should return non-nil if it has finished its work"
 			  str)))
 	       t)))))
 
-;; Run with treadle running.
-'
-(mapatoms
-   #'treadle-dbg-get-symbol-data
-   treadle-dbg-obarray)
 
-;; Showing
-'
-(mapatoms
-   #'(lambda (sym)
-	(when sym
-	   (message "Sym %S" sym))
-	)
-   treadle-dbg-obarray)
 
 
 (define-derived-mode treadle-dbg-mode
