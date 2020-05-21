@@ -1468,17 +1468,16 @@ string argument."
 		    (widget-value widget)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ADAPT ME
-'
-(defun firrtl-dbg-read-new-boolean-val (prompt old-val)
-   "Return it as list of (number text)"
+
+(defun treadle-dbg-read-new-boolean-val (prompt old-val)
+   "Return it as number"
 
    (let*
       (  (default-string
 	    ;; Reverse what was there, since there are only
 	    ;; two possibilities
 	    ;; bool number to string
-	    (case (- 1 (firrtl-dbg-value-v old-val))
+	    (case (- 1 old-val)
 	       (0 "false")
 	       (1 "true")
 	       (otherwise nil)))
@@ -1575,7 +1574,7 @@ string argument."
 	 (car fmt)
 	 ;; Treat as a boolean
 	 ((boolean)
-	    (firrtl-dbg-read-new-boolean-val prompt old-val))
+	    (treadle-dbg-read-new-boolean-val prompt old-val))
 	 ((enum)
 	    (firrtl-dbg-read-new-enum-val prompt fmt))
 	 
@@ -1627,14 +1626,6 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   ;; Can replace most of it with this:
-   '(treadle-dbg-poke-value
-       sym new-val
-       #'(lambda (widget widgets-buffer)
-	    (with-current-buffer widgets-buffer
-	       (widget-value-set widget (widget-value widget))))
-       (list widget (current-buffer)))
-
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
@@ -1645,11 +1636,8 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	 (new-val (firrtl-dbg-read-new-val
 		     (format "New value for %s: " component-name)
 		     current
-		     perm-props))
-	 (msg (concat "poke " component-name " "
-		 (number-to-string new-val) "\n")))
-
-      (when treadle-dbg-writing-script-p
+		     perm-props)))
+            (when treadle-dbg-writing-script-p
 	 (push
 	    `(poke ,component-name ,new-val)
 	    treadle-dbg-current-script-rv))
@@ -1657,29 +1645,14 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
       (widget-value-set
 	 treadle-dbg-widget-of-freshness
 	 "STALE")
+      
+      (treadle-dbg-poke-value
+	 sym new-val
+	 #'(lambda (widget widgets-buffer)
+	      (with-current-buffer widgets-buffer
+		 (widget-value-set widget (widget-value widget))))
+	 (list widget (current-buffer)))))
 
-      ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
-      (tq-enqueue treadle-dbg-tq
-	 msg
-	 treadle-dbg-tq-regexp
-	 (list current widget new-val (current-buffer))
-	 #'(lambda (data str)
-	      (let* 
-		 ((had-problem
-		     (treadle-dbg-parse-response-maybe-complain str))
-		    (current (first data))
-		    (widget (second data))
-		    (new-val (third data))
-		    (widgets-buffer (fourth data)))
-
-		 (unless had-problem
-		    ;; Set the component's value to that.
-		    (setf (firrtl-dbg-value-v current) new-val)
-
-		    (setf (firrtl-dbg-value-state current) 'set-by-user-now)
-		    (with-current-buffer widgets-buffer
-		       (widget-value-set widget (widget-value widget))))))
-	 t)))
 
 ;; ADAPT ME
 '
