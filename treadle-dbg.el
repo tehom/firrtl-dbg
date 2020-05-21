@@ -276,7 +276,7 @@ Format: Each node is either:
    "The current step of the circuit")
 
 (defvar treadle-dbg-current-freshness
-   "UNKNOWN"
+   "NOT LOADED"
    "The current freshness of the circuit, as a string")
 
 (defvar treadle-dbg-writing-script-p
@@ -1887,6 +1887,8 @@ PROC should return non-nil if it has finished its work"
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
+   (setq treadle-dbg-current-step 0)
+   (setq treadle-dbg-current-freshness "FRESH")
    (treadle-dbg-load-fir-file fir-file)
 
    (tq-enqueue treadle-dbg-tq "show state\n" treadle-dbg-tq-regexp
