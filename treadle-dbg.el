@@ -81,7 +81,7 @@
    io-type ;; '(input output clock reset nil)
    forced-p ;; Whether it is currently forced.  Maybe instead a
 	    ;; current state symbol distinguishing normal input
-	    ;; setting from "forced"
+	    ;; setting from "forced" from set-by-script.
    )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1605,6 +1605,10 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		 (unless had-problem
 		    ;; Set the component's value to that.
 		    (setf (treadle-dbg-component-current component) new-val)
+		    ;; IMPROVE ME: This could take a distinctive value
+		    ;; so we can distinguish set-by-script from
+		    ;; set-manually.
+		    (setf (treadle-dbg-component-forced-p component) t)
 		    (when extra-proc
 		       (apply extra-proc extra-data)))))
 	 t)))
