@@ -1323,6 +1323,7 @@ Return nil if component has no permanent props."
    (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
+   (setq treadle-dbg-current-freshness "FRESH")
    (treadle-dbg-redraw-widgets))
 
 
@@ -1669,6 +1670,8 @@ Script should be a list whose entries are in on of the forms:
    (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
+   (setq treadle-dbg-current-freshness "Script finished")
+
    (treadle-dbg-redraw-widgets))
 
 
