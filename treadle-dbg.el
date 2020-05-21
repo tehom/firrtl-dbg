@@ -1582,9 +1582,8 @@ string argument."
 	 (otherwise
 	    (firrtl-dbg-read-new-decimal-val prompt old-val)))))
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-poke-value (sym new-val
+
+(defun treadle-dbg-poke-value (sym new-val
 				&optional extra-proc extra-data)
    "Poke NEW-VAL into the component named by SYM
 Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
@@ -1595,8 +1594,8 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    (let* 
       (  
 	 (component (symbol-value sym))
-	 (component-name (firrtl-dbg-input-full-name component))
-	 (current (firrtl-dbg-input-current component))
+	 (component-name (treadle-dbg-full-name component))
+	 (current (treadle-dbg-current component))
 	 (msg (concat "poke " component-name " "
 		 (number-to-string new-val) "\n")))
       
@@ -1604,7 +1603,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
       (tq-enqueue treadle-dbg-tq
 	 msg
 	 treadle-dbg-tq-regexp
-	 (list current new-val extra-proc extra-data)
+	 (list component new-val extra-proc extra-data)
 	 #'(lambda (data str)
 	      (let* 
 		 ((had-problem
@@ -1616,8 +1615,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 
 		 (unless had-problem
 		    ;; Set the component's value to that.
-		    (setf (firrtl-dbg-value-v current) new-val)
-		    (setf (firrtl-dbg-value-state current) 'set-by-user-now)
+		    (setf (treadle-dbg-current component) new-val)
 
 		    (when extra-proc
 		       (apply extra-proc extra-data)))))
@@ -1630,7 +1628,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    ;; Can replace most of it with this:
-   '(firrtl-dbg-poke-value
+   '(treadle-dbg-poke-value
        sym new-val
        #'(lambda (widget widgets-buffer)
 	    (with-current-buffer widgets-buffer
@@ -1701,7 +1699,7 @@ Script should be a list whose entries are in on of the forms:
    (dolist (line script)
       (case (first line)
 	 (poke
-	    (firrtl-dbg-poke-value
+	    (treadle-dbg-poke-value
 	       (intern (second line) firrtl-dbg-obarray)
 	       (third line)))
 	 
