@@ -1553,10 +1553,7 @@ string argument."
 	 
 	 (error "No such enum: %s" key))))
 
-
-;; ADAPT ME
-'
-(defun firrtl-dbg-read-new-val (prompt old-val perm-props)
+(defun treadle-dbg-read-new-val (prompt old-val perm-props)
    ""
    (let
       ((fmt perm-props))
@@ -1623,7 +1620,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	 (current (firrtl-dbg-input-current component))
 	 (perm-props
 	    (treadle-dbg-get-perm-props (symbol-name sym)))
-	 (new-val (firrtl-dbg-read-new-val
+	 (new-val (treadle-dbg-read-new-val
 		     (format "New value for %s: " component-name)
 		     current
 		     perm-props)))
