@@ -1721,10 +1721,9 @@ Script should be a list whose entries are in on of the forms:
 
 (defun treadle-dbg-parse-response-maybe-complain (str)
    "Return non-nil if str caused an error message"
-   
    (let*
       (
-	 (legit-rx (concat " *" treadle-dbg-tq-prompt-string))
+	 (legit-rx treadle-dbg-prompt-line-regexp)
 	 (start-legit (string-match legit-rx str)))
       ;; Show any error that we get back
       (when (or (null start-legit) (> start-legit 0))
