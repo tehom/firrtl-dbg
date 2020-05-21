@@ -1600,7 +1600,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 
 		 (unless had-problem
 		    ;; Set the component's value to that.
-		    (setf (treadle-dbg-current component) new-val)
+		    (setf (treadle-dbg-component-current component) new-val)
 
 		    (when extra-proc
 		       (apply extra-proc extra-data)))))
