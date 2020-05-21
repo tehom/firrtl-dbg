@@ -1181,14 +1181,21 @@ string
 	  
 	 (pop-to-buffer-same-window buf))))
 
-(defun treadle-dbg-perm-props-visit ()
-   "Force some buffer to visit the password file."
+;; This is specific to treadle-dbg.  Most of the rest should be shared.
+(defun treadle-dbg-get-perm-props-filename ()
+   ""
+
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+
+   (concat default-directory
+      treadle-dbg-perm-props-relative-filename))
+
+(defun treadle-dbg-perm-props-visit (file-name)
+   "Force some buffer to visit the storage file."
    (let*
-      (  (file-name
-	    (const default-directory
-	       treadle-dbg-perm-props-relative-filename))
-	 (buf
-	    (find-file-noselect file-name)))
+      ((buf
+	  (find-file-noselect file-name)))
       
       (setq treadle-dbg-perm-props-buffer buf)
       buf))
@@ -1233,13 +1240,15 @@ Do NOT call this unless you know what you are doing."
       ((file-precious-flag t))
       (save-buffer 64)))
 
+;; These two are really only parameterized on the filename.  The rest
+;; would be the same if we share the functions above.
 
 ;;; Macros to use the buffer
 (defmacro treadle-dbg-buffer-as-const-list (list-var &rest body)
    "Treat the password buffer as an immutable list named LIST-VAR"
    
    `(progn
-       (treadle-dbg-perm-props-visit)
+       (treadle-dbg-perm-props-visit (treadle-dbg-get-perm-props-filename))
        (with-current-buffer treadle-dbg-perm-props-buffer
 	  (let
 	     ((,list-var (treadle-dbg-sync-list-to-buffer)))
@@ -1250,7 +1259,7 @@ Do NOT call this unless you know what you are doing."
 Always returns `nil'."
    
    `(progn
-       (treadle-dbg-perm-props-visit)
+       (treadle-dbg-perm-props-visit (treadle-dbg-get-perm-props-filename))
        (with-current-buffer treadle-dbg-perm-props-buffer
 	  (let
 	     ((,list-var (treadle-dbg-sync-list-to-buffer)))
