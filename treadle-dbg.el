@@ -566,7 +566,8 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
    "Set the data of components from the result of Treadle 'show state'"
    (treadle-dbg-set-data-aux
       state-string
-      #'treadle-dbg-mutate-component-value))
+      #'treadle-dbg-mutate-component-value)
+   (setq treadle-dbg-have-built-subname-tree t))
 
 
 (defun treadle-dbg-record-inputs (str)
