@@ -1414,10 +1414,7 @@ Return nil if component has no permanent props."
 	 (push line-data treadle-dbg-spurious-lines))))
 
 
-;; ADAPT ME
-'
-
-(defun firrtl-dbg-step-circuit-low ()
+(defun treadle-dbg-step-circuit-low ()
    "Step the circuit"
 
    (unless (eq treadle-dbg-current-buffer-type 'main)
@@ -1772,7 +1769,7 @@ Script should be a list whose entries are in on of the forms:
 	       (third line)))
 	 
 	 (step
-	    (firrtl-dbg-step-circuit-low))))
+	    (treadle-dbg-step-circuit-low))))
    
    ;; All done, now redisplay everything.
    (firrtl-dbg-show-circuit-low))
