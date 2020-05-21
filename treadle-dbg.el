@@ -1389,10 +1389,7 @@ Return nil if component has no permanent props."
    (firrtl-dbg-step-circuit-low)
    (firrtl-dbg-show-circuit-low))
 
-;; ADAPT ME
-'
-
-(defun firrtl-dbg-record-spurious-response-lines (str step-num)
+(defun treadle-dbg-record-spurious-response-lines (str step-num)
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
@@ -1431,7 +1428,7 @@ Return nil if component has no permanent props."
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      (firrtl-dbg-record-spurious-response-lines
+	      (treadle-dbg-record-spurious-response-lines
 		 str treadle-dbg-current-step)
 	      (incf treadle-dbg-current-step)))
       
