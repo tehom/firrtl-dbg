@@ -1177,6 +1177,10 @@ string
 ;;;;;;;;;;;;;;;;;;;;
 ;; Storing perm props
 
+;; The perms buffer must be set up knowing treadle-dbg-main-buffer,
+;; and treadle-dbg-write-perms-to-buffer will be in its
+;; write-contents-functions
+
 (defun treadle-dbg-get-perm-props-filename ()
    ""
 
@@ -1214,9 +1218,6 @@ string
 	 (error 
 	    (message-box "Perm props file contained no data.")
 	    '()))))
-
-;; The perms buffer must be set up knowing treadle-dbg-main-buffer,
-;; and this will be in that buffer's write-contents-functions
 
 (defun treadle-dbg-write-perms-to-buffer ()
    ""
