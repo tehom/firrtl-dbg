@@ -1486,18 +1486,7 @@ string argument."
 		 (funcall proc str1))))
       t))
 
-;; ADAPT ME
-'
 
-(defun firrtl-dbg-remove-prompt-suffix (str)
-   ""
-
-   (let*
-      (
-	 (start-legit (string-match treadle-dbg-tq-prompt-string str)))
-      (when (null start-legit)
-	 (error "No FIRRTL prompt found"))
-      (substring str 0 start-legit)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
