@@ -1267,11 +1267,12 @@ Always returns `nil'."
 	     (treadle-dbg-sync-file-to-list ,list-var)
 	     nil))))
 
-(defun treadle-dbg-copy-alist-to-perms ()
+;; Get all the saved props into treadle-dbg-obarray-perm-props
+(defun treadle-dbg-load-perm-props-from-alist (alist)
    ""
    
    (interactive)
-   (dolist (cell treadle-dbg-perm-props-alist)
+   (dolist (cell alist)
       (let* 
 	 ((name (car cell))
 	    (value (cdr cell))
@@ -1279,24 +1280,56 @@ Always returns `nil'."
 	 (set sym value))))
 
 
-;; ADAPT ME
-'
+(defvar treadle-dbg-perm-props-dirty nil
+   "Non-nil if treadle-dbg-obarray-perm-props disagrees with permanent storage of perm-props"
+   )
 
-(defun firrtl-dbg-copy-perms-to-alist ()
+;; Try this locally with
+;; (add-hook 'write-file-functions 'treadle-dbg-test-write-something nil t)
+'
+(defun treadle-dbg-test-write-something ()
+   ""
+   
+   (interactive)
+   (insert "Yes, it works")
+   nil)
+
+;; For the moment, I'll call this manually after making some perms.
+;; Later, this buffer must be set up knowing treadle-dbg-main-buffer,
+;; and this will be set with write-file-functions
+;; (add-hook 'write-file-functions 'treadle-dbg-write-perms-to-buffer nil t)
+(defun treadle-dbg-write-perms-to-buffer ()
+   ""
+   '  ;; ENABLE ME
+   (unless (eq treadle-dbg-current-buffer-type 'perms)
+      (treadle-dbg-complain-bad-buffer
+	 "Function only makes sense in the perms buffer"))
+   ;; Get the perms as an alist.
+   (let*
+      ( (alist
+	   (with-current-buffer treadle-dbg-main-buffer
+	      (treadle-dbg-get-perm-props-as-alist))))
+      (treadle-dbg-sync-file-to-list alist) 
+      t))
+
+;; RENAME ME treadle-dbg-get-perms-as-alist
+(defun treadle-dbg-get-perm-props-as-alist ()
    ""
 
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Copying to the perm alist only makes sense in the main buffer"))
 
-   (setq treadle-dbg-perm-props-alist '())
-   (mapatoms
-      #'(lambda (sym)
-	   (when sym
-	      (push
-		 (cons (symbol-name sym) (symbol-value sym))
-		 treadle-dbg-perm-props-alist)))
-      treadle-dbg-obarray-perm-props))
+   (let
+      ((alist '()))
+      (mapatoms
+	 #'(lambda (sym)
+	      (when sym
+		 (push
+		    (cons (symbol-name sym) (symbol-value sym))
+		    alist)))
+	 treadle-dbg-obarray-perm-props)
+      alist))
 
 
 (defun treadle-dbg-save-perms (&rest ignore)
@@ -1311,6 +1344,7 @@ Always returns `nil'."
    ;; (though providing both local and global would be nice).  We
    ;; don't try to track what's dirty, nor treat an extensible set of
    ;; variables
+   '
    (add-dir-local-variable 'treadle-dbg-mode
       'treadle-dbg-perm-props-alist
       treadle-dbg-perm-props-alist))
@@ -2087,8 +2121,8 @@ PROC should return non-nil if it has finished its work"
 		  ;; actually messes us up.
 		  treadle-dbg-repl-launch-command)))
 
-	 (hack-dir-local-variables-non-file-buffer)
-	 (treadle-dbg-copy-alist-to-perms)
+	 ;;(hack-dir-local-variables-non-file-buffer)
+	 ;;(treadle-dbg-copy-alist-to-perms)
 
 	 (treadle-dbg-call-until-done-w/timeout
 	    treadle-dbg-timeout
