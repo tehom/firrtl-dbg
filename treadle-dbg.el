@@ -1197,7 +1197,7 @@ string
 ;; These next three should have been part of tiny-db, since they don't
 ;; use app-local variables.  The error messages could be made more
 ;; vanilla.
-
+'
 (defun treadle-dbg-sync-list-to-buffer ()
    "Return the current buffer's data as a list.
 If we read nothing or no list, return nil.
@@ -1239,6 +1239,7 @@ Do NOT call this unless you know what you are doing."
 ;; would be the same if we share the functions above.
 
 ;;; Macros to use the buffer
+'
 (defmacro treadle-dbg-buffer-as-const-list (list-var &rest body)
    "Treat the password buffer as an immutable list named LIST-VAR"
    
@@ -1248,7 +1249,7 @@ Do NOT call this unless you know what you are doing."
 	  (let
 	     ((,list-var (treadle-dbg-sync-list-to-buffer)))
 	     ,@body))))
-
+'
 (defmacro treadle-dbg-buffer-as-mutable-list (list-var &rest body)
    "Treat the password buffer as a mutable list named LIST-VAR.
 Always returns `nil'."
@@ -1274,25 +1275,25 @@ Always returns `nil'."
 	    (sym (intern name treadle-dbg-obarray-perm-props)))
 	 (set sym value))))
 
+(defun treadle-dbg-read-object-from-buffer ()
+   "Return the current buffer's data read as a lisp object."
 
-(defvar treadle-dbg-perm-props-dirty nil
-   "Non-nil if treadle-dbg-obarray-perm-props disagrees with permanent storage of perm-props"
-   )
+   (unless (eq treadle-dbg-current-buffer-type 'perms-file)
+      (treadle-dbg-complain-bad-buffer
+	 "Function only makes sense in the perms buffer"))
+   (if (eql (buffer-size) 0)
+      nil
+      (condition-case err
+	 (progn
+	    (goto-char (point-min))
+	    (read (current-buffer)))
+	 (error 
+	    (message-box "Perm props file contained no data.")
+	    '()))))
 
-;; Try this locally with
-;; (add-hook 'write-file-functions 'treadle-dbg-test-write-something nil t)
-'
-(defun treadle-dbg-test-write-something ()
-   ""
-   
-   (interactive)
-   (insert "Yes, it works")
-   nil)
+;; The perms buffer must be set up knowing treadle-dbg-main-buffer,
+;; and this will be in that buffer's write-contents-functions
 
-;; For the moment, I'll call this manually after making some perms.
-;; Later, this buffer must be set up knowing treadle-dbg-main-buffer,
-;; and this will be set with write-file-functions
-;; (add-hook 'write-file-functions 'treadle-dbg-write-perms-to-buffer nil t)
 (defun treadle-dbg-write-perms-to-buffer ()
    ""
    (unless (eq treadle-dbg-current-buffer-type 'perms-file)
@@ -1305,12 +1306,7 @@ Always returns `nil'."
 	      (treadle-dbg-get-perm-props-as-alist))))
       (erase-buffer)
       (insert (pp-to-string alist))
-      (let
-	 ((file-precious-flag t)
-	    (write-file-functions nil) ;; TEMPORARY  REMOVE ME
-	    (write-contents-functions nil))
-	 (save-buffer 64))
-      t))
+      nil))
 
 (defun treadle-dbg-get-perm-props-as-alist ()
    ""
@@ -1502,24 +1498,6 @@ string argument."
       (when (null start-legit)
 	 (error "No FIRRTL prompt found"))
       (substring str 0 start-legit)))
-;; ADAPT ME
-'
-
-(defun firrtl-dbg-parse-component-type-string (str)
-   ""
-   (string-match firrtl-dbg-type-regexp str)
-   (let*
-      (	 (name (match-string 1 str))
-	 (value (match-string 2 str))
-	 (type-tag-str (match-string 3 str))
-	 (width (string-to-number (match-string 4 str)))
-	 (signed-p
-	    (case type-tag-str
-	       (("U" "PU") t)
-	       (otherwise nil))))
-      (make-firrtl-dbg-component-type
-	 :signed-p signed-p
-	 :width width)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Updating widgets due to new "show"
@@ -2091,7 +2069,7 @@ PROC should return non-nil if it has finished its work"
 	 ;; Read the old value into the perms obarray.
 	 (treadle-dbg-load-perm-props-from-alist
 	    (with-current-buffer treadle-dbg-perm-props-buffer
-	       (treadle-dbg-sync-list-to-buffer)))
+	       (treadle-dbg-read-object-from-buffer)))
 
 	 (setq treadle-dbg-process
 	    (let ((default-directory working-directory))
