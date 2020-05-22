@@ -265,11 +265,6 @@ Local in the relevant buffers." )
    (make-vector treadle-dbg-obarray-default-size nil)
    "Obarray that holds data about components that persists between sessions")
 
-;; Bug:  This stores all the data as the safe-variable.  How can we get just the symbol name?
-(defvar treadle-dbg-perm-props-alist
-   '()
-   "Alist that holds data that persists between sessions about components")
-
 (defvar treadle-dbg-subname-tree
    '()
    "The component-tree of the circuit.
@@ -1172,11 +1167,8 @@ string
 	       ;; The parm "description" doesn't do anything
 	       nil)
 	    (setq treadle-dbg-main-buffer main-buf)
-	    ;; RE-enable me
-	    '
 	    (fset (make-local-variable 'Custom-save)
-	       #'firrtl-dbg-save-perms)
-	    '
+	       #'treadle-dbg-save-perms)
 	    (set (make-local-variable 'custom-variable-menu)
 	       treadle-dbg-custom-variable-menu))
 	  
@@ -1313,7 +1305,6 @@ Always returns `nil'."
       (treadle-dbg-sync-file-to-list alist) 
       t))
 
-;; RENAME ME treadle-dbg-get-perms-as-alist
 (defun treadle-dbg-get-perm-props-as-alist ()
    ""
 
@@ -1321,6 +1312,8 @@ Always returns `nil'."
       (treadle-dbg-complain-bad-buffer
 	 "Copying to the perm alist only makes sense in the main buffer"))
 
+   ;; IMPROVE ME: Maybe should only be saving the symbols' perm
+   ;; customs, and not everything about them.
    (let
       ((alist '()))
       (mapatoms
@@ -1333,22 +1326,15 @@ Always returns `nil'."
       alist))
 
 
+;; REWRITE ME: Basically just marking the save-perms buffer dirty with
+;; (restore-buffer-modified-p t).  We have to first create that buffer
+;; and hook into its write-file-functions.  When doing that, we should
+;; read the old value as an alist and put it into the obarray.
 (defun treadle-dbg-save-perms (&rest ignore)
    ""
    ;; This takes the place of Custom-save
-
-   ;; CHECK ME: Do we need to copy perms to treadle-dbg-perm-props-alist?
-   ;; IMPROVE ME: Load this once instead.
-
-   ;; Quick&dirty: Just save treadle-dbg-perm-props-alist.  We don't
-   ;; save treadle-dbg-custom-enums because that's useful globally
-   ;; (though providing both local and global would be nice).  We
-   ;; don't try to track what's dirty, nor treat an extensible set of
-   ;; variables
-   '
-   (add-dir-local-variable 'treadle-dbg-mode
-      'treadle-dbg-perm-props-alist
-      treadle-dbg-perm-props-alist))
+   ;; REWRITE ME: Instead, just mark the perms buffer dirty
+)
 
 
 (defun treadle-dbg-get-perm-props (str)
@@ -1361,35 +1347,11 @@ Return nil if component has no permanent props."
 	    (intern-soft str treadle-dbg-obarray-perm-props)))
       (if perm-prop-sym (symbol-value perm-prop-sym) nil)))
 
-;; ADAPT ME
-'
 
-(defun firrtl-dbg-custom-variable-save (widget)
+(defun treadle-dbg-custom-variable-save (widget)
    "Save value of variable edited by widget WIDGET."
    (custom-variable-mark-to-save widget)
-   (save-excursion
-      (let* 
-	 ((sym (widget-get widget :value)))
-
-	 ;; Customize buffer knows a particular widgets buffer
-	 (with-current-buffer treadle-dbg-main-buffer
-	    (unless (eq treadle-dbg-current-buffer-type 'main)
-	       (treadle-dbg-complain-bad-buffer))
-
-	    ;; Copy this sym to treadle-dbg-perm-props-alist
-	    (setq treadle-dbg-perm-props-alist
-	       (cons
-		  (cons (symbol-name sym) (symbol-value sym))
-		  (delete-if
-		     #'(lambda (a)
-			  (string-equal (first a) (symbol-name sym)))
-		     treadle-dbg-perm-props-alist)))
-	    ;; IMPROVE ME: Nice to save the file automatically and not
-	    ;; necessarily see the buffer in a window.
-	    (add-dir-local-variable 'firrtl-dbg-mode
-	       'treadle-dbg-perm-props-alist
-	       treadle-dbg-perm-props-alist))))
-   
+   ;; REWRITE ME: Instead, just mark the perms buffer dirty
    (custom-variable-state-set-and-redraw widget))
 
 (defun treadle-dbg-make-custom-variable-menu ()
@@ -1405,8 +1367,7 @@ Return nil if component has no permanent props."
 	    ((entry
 		(if (eq (second i) 'custom-variable-save)
 		   '("Save for Future Sessions"
-		       ;; DISABLED for now
-		       firrtl-dbg-custom-variable-save
+		       treadle-dbg-custom-variable-save
 		       (lambda
 			  (widget)
 			  (memq
