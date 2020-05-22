@@ -1129,9 +1129,9 @@ string
       (tree-minor-mode t)
       (widget-insert "\n\n"))
    (use-local-map widget-keymap)
-   '
+
    (local-set-key "\M-\r"
-      #'firrtl-dbg-do-alt-interaction))
+      #'treadle-dbg-do-alt-interaction))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ADAPT ME
@@ -1423,10 +1423,9 @@ Return nil if component has no permanent props."
 (defconst firrtl-dbg-custom-variable-menu
    (firrtl-dbg-make-custom-variable-menu)
    "" )
-;; ADAPT ME
-'
 
-(defun firrtl-dbg-do-alt-interaction (pos &optional event)
+
+(defun treadle-dbg-do-alt-interaction (pos &optional event)
    "Do the alternate widget interaction at pos"
    (interactive "@d")
 
@@ -1999,7 +1998,7 @@ PROC should return non-nil if it has finished its work"
    (progn
       (set-keymap-parent treadle-dbg-mode-map widget-keymap)
       (define-key treadle-dbg-mode-map  "\M-\r"
-	 #'firrtl-dbg-do-alt-interaction)))
+	 #'treadle-dbg-do-alt-interaction)))
 
 
 (defun treadle-dbg-complain-bad-buffer (&optional msg)
