@@ -191,7 +191,7 @@ Local in the relevant buffers." )
    "Name of the process buffer" )
 
 (defcustom treadle-dbg-perm-props-relative-filename
-   "tread-dbg-perm-props.el"   
+   "tread-dbg-perm-props"   
    "Relative name of the file to store perm properties in"
    :group 'treadle-dbg
    :type 'string)
@@ -1184,6 +1184,7 @@ string
    (concat default-directory
       treadle-dbg-perm-props-relative-filename))
 
+;; UNNEEDED
 (defun treadle-dbg-perm-props-visit (file-name)
    "Force some buffer to visit the storage file."
    (let*
@@ -1326,16 +1327,12 @@ Always returns `nil'."
       alist))
 
 
-;; REWRITE ME: Basically just marking the save-perms buffer dirty with
-;; (restore-buffer-modified-p t).  We have to first create that buffer
-;; and hook into its write-file-functions.  When doing that, we should
-;; read the old value as an alist and put it into the obarray.
 (defun treadle-dbg-save-perms (&rest ignore)
    ""
-   ;; This takes the place of Custom-save
-   ;; REWRITE ME: Instead, just mark the perms buffer dirty
-)
-
+   ;; This takes the place of Custom-save, but just marks the perms
+   ;; buffer dirty to be saved later.
+   (with-current-buffer treadle-dbg-perm-props-buffer
+      (restore-buffer-modified-p t)))
 
 (defun treadle-dbg-get-perm-props (str)
    "Get the permanent props for the component named STR.
@@ -1351,7 +1348,8 @@ Return nil if component has no permanent props."
 (defun treadle-dbg-custom-variable-save (widget)
    "Save value of variable edited by widget WIDGET."
    (custom-variable-mark-to-save widget)
-   ;; REWRITE ME: Instead, just mark the perms buffer dirty
+   (with-current-buffer treadle-dbg-perm-props-buffer
+      (restore-buffer-modified-p t))
    (custom-variable-state-set-and-redraw widget))
 
 (defun treadle-dbg-make-custom-variable-menu ()
@@ -2067,6 +2065,26 @@ PROC should return non-nil if it has finished its work"
 	 (with-current-buffer treadle-dbg-process-buffer
 	    (setq default-directory working-directory)
 	    (setq treadle-dbg-main-buffer main-buf))
+
+	 (setq treadle-dbg-perm-props-buffer
+	    (find-file-noselect (treadle-dbg-get-perm-props-filename)))
+	 (with-current-buffer treadle-dbg-perm-props-buffer
+	    ;; RE-ENABLE ME
+	    '(setq treadle-dbg-current-buffer-type 'perms-file)
+	    ;; Arrange for it to write our data into it when it saves,
+	    (add-hook 'write-file-functions
+	       'treadle-dbg-write-perms-to-buffer nil t)
+	    (setq treadle-dbg-main-buffer main-buf)
+	    ;; The buffer will be empty the first time we ever visit
+	    ;; the file, so ensure that an object can be read.
+	    (when (eql (buffer-size) 0)
+	       (insert "nil\n")))
+	 
+
+	 ;; Read the old value into the perms obarray.
+	 (treadle-dbg-load-perm-props-from-alist
+	    (with-current-buffer treadle-dbg-perm-props-buffer
+	       (treadle-dbg-sync-list-to-buffer)))
 
 	 (setq treadle-dbg-process
 	    (let ((default-directory working-directory))
