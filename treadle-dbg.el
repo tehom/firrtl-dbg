@@ -1177,7 +1177,7 @@ string
 	    (fset (make-local-variable 'Custom-save)
 	       #'firrtl-dbg-save-perms)
 	    (set (make-local-variable 'custom-variable-menu)
-	       firrtl-dbg-custom-variable-menu))
+	       treadle-dbg-custom-variable-menu))
 	  
 	 (pop-to-buffer-same-window buf))))
 
@@ -1390,10 +1390,8 @@ Return nil if component has no permanent props."
 	       treadle-dbg-perm-props-alist))))
    
    (custom-variable-state-set-and-redraw widget))
-;; ADAPT ME
-'
 
-(defun firrtl-dbg-make-custom-variable-menu ()
+(defun treadle-dbg-make-custom-variable-menu ()
    ""
    
    (require 'cus-edit)
@@ -1406,6 +1404,7 @@ Return nil if component has no permanent props."
 	    ((entry
 		(if (eq (second i) 'custom-variable-save)
 		   '("Save for Future Sessions"
+		       ;; DISABLED for now
 		       firrtl-dbg-custom-variable-save
 		       (lambda
 			  (widget)
@@ -1416,12 +1415,9 @@ Return nil if component has no permanent props."
 	    (push entry our-menu)))
       (nreverse our-menu)))
 
-;; ADAPT ME
-'
-
-;; Needs to be after firrtl-dbg-make-custom-variable-menu
-(defconst firrtl-dbg-custom-variable-menu
-   (firrtl-dbg-make-custom-variable-menu)
+;; Needs to be after treadle-dbg-make-custom-variable-menu
+(defconst treadle-dbg-custom-variable-menu
+   (treadle-dbg-make-custom-variable-menu)
    "" )
 
 
