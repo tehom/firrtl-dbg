@@ -146,9 +146,9 @@
    '(decimal)
    "The standard value for components perm-spec")
 
-(defvar treadle-dbg-current-buffer-type nil
+(defvar-local treadle-dbg-current-buffer-type nil
    "What type of buffer the current buffer is.  
-Possible values are (nil 'main 'custom 'process).
+Possible values are (nil 'main 'custom 'process 'perms-file).
 Local in the relevant buffers." )
 
 (defconst treadle-dbg-obarray-default-size 257
@@ -1220,11 +1220,12 @@ Do NOT call this unless you know what you are doing.."
 	 (progn
 	    (message-box "Perm props file data was bad.")
 	    '()))))
-
+'
 (defun treadle-dbg-sync-file-to-list (list)
    "Sync to the current buffer and file to LIST
 
 Do NOT call this unless you know what you are doing."
+   (error "Not used now")
    ;; WRITE ME:  Check the treadle-dbg buffer type
    (erase-buffer)
    (insert (pp-to-string list))
@@ -1294,8 +1295,7 @@ Always returns `nil'."
 ;; (add-hook 'write-file-functions 'treadle-dbg-write-perms-to-buffer nil t)
 (defun treadle-dbg-write-perms-to-buffer ()
    ""
-   '  ;; ENABLE ME
-   (unless (eq treadle-dbg-current-buffer-type 'perms)
+   (unless (eq treadle-dbg-current-buffer-type 'perms-file)
       (treadle-dbg-complain-bad-buffer
 	 "Function only makes sense in the perms buffer"))
    ;; Get the perms as an alist.
@@ -1303,7 +1303,13 @@ Always returns `nil'."
       ( (alist
 	   (with-current-buffer treadle-dbg-main-buffer
 	      (treadle-dbg-get-perm-props-as-alist))))
-      (treadle-dbg-sync-file-to-list alist) 
+      (erase-buffer)
+      (insert (pp-to-string alist))
+      (let
+	 ((file-precious-flag t)
+	    (write-file-functions nil) ;; TEMPORARY  REMOVE ME
+	    (write-contents-functions nil))
+	 (save-buffer 64))
       t))
 
 (defun treadle-dbg-get-perm-props-as-alist ()
@@ -2070,9 +2076,10 @@ PROC should return non-nil if it has finished its work"
 	    (find-file-noselect (treadle-dbg-get-perm-props-filename)))
 	 (with-current-buffer treadle-dbg-perm-props-buffer
 	    ;; RE-ENABLE ME
-	    '(setq treadle-dbg-current-buffer-type 'perms-file)
-	    ;; Arrange for it to write our data into it when it saves,
-	    (add-hook 'write-file-functions
+	    (setq treadle-dbg-current-buffer-type 'perms-file)
+	    ;; Arrange for save operations to first write our data
+	    ;; into the buffer.
+	    (add-hook 'write-contents-functions
 	       'treadle-dbg-write-perms-to-buffer nil t)
 	    (setq treadle-dbg-main-buffer main-buf)
 	    ;; The buffer will be empty the first time we ever visit
