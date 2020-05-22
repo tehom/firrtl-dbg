@@ -806,50 +806,46 @@ reset                                    Int UInt      1      1    212I      2  
 	    ;; Blank line.  Nothing to do.
 	    ((string-blank-p line))
 	    (t
+	       ;; We don't try to reject foo/in etc here because they
+	       ;; are filtered out before here by regexp ^foo$
 	       (let* 
-		  ((info (treadle-dbg-symbol-string->struct line))
-		     (name (symbol-record-strings-trunc-name info)))
-		  (unless
-		     ;; Don't use foo/in, foo/prev, etc
-		     (or
-			(string-match-p ".+/in" name)
-			(string-match-p ".+/prev" name))
-		     (treadle-dbg-add-object name
-			;; Proc mutate
-			#'(lambda (component)
-			     (let* 
-				(
-				   (source-str
-				      (symbol-record-strings-source-str info))
-				   (type-str
-				      (symbol-record-strings-type-str info))
-				   (value-str
-				      (symbol-record-strings-value-str info))
-				   (signed-p
-				      (cond
-					 ((string-equal type-str "UInt") nil)
-					 ((string-equal type-str "SInt") t)
-					 (t (message
-					       "Unrecognized type-str '%s' from line %s"
-					       type-str
-					       line))))
-				   (width
-				      (string-to-number
-					 (symbol-record-strings-width-str info))))
-				(unless
-				   (eql (treadle-dbg-component-current component)
-				      (string-to-number value-str))
-				   (message "Values do not match! %s != %s"
-				      (treadle-dbg-component-current component)
-				      (string-to-number value-str)))
-				(setf
-				   (treadle-dbg-component-width component)
-				   width)
-				(setf (treadle-dbg-component-signed-p component)
-				   signed-p)
-				(setf (treadle-dbg-component-source component)
-				   source-str))))
-		     (setq found t))))))))
+		  ((info (treadle-dbg-symbol-string->struct line)))
+		  (treadle-dbg-add-object name
+		     ;; Proc mutate
+		     #'(lambda (component)
+			  (let* 
+			     (
+				(source-str
+				   (symbol-record-strings-source-str info))
+				(type-str
+				   (symbol-record-strings-type-str info))
+				(value-str
+				   (symbol-record-strings-value-str info))
+				(signed-p
+				   (cond
+				      ((string-equal type-str "UInt") nil)
+				      ((string-equal type-str "SInt") t)
+				      (t (message
+					    "Unrecognized type-str '%s' from line %s"
+					    type-str
+					    line))))
+				(width
+				   (string-to-number
+				      (symbol-record-strings-width-str info))))
+			     (unless
+				(eql (treadle-dbg-component-current component)
+				   (string-to-number value-str))
+				(message "Values do not match! %s != %s"
+				   (treadle-dbg-component-current component)
+				   (string-to-number value-str)))
+			     (setf
+				(treadle-dbg-component-width component)
+				width)
+			     (setf (treadle-dbg-component-signed-p component)
+				signed-p)
+			     (setf (treadle-dbg-component-source component)
+				source-str))))
+		  (setq found t)))))))
 
 (defun treadle-dbg-clear ()
    "Clear all the values; ready to start again"
