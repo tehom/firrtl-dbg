@@ -1792,18 +1792,33 @@ PROC should return non-nil if it has finished its work"
       "show outputs\n"
       #'treadle-dbg-record-outputs)
 
-   ;; Call symbol on every name
-   (mapatoms
-      #'treadle-dbg-get-symbol-data
-      treadle-dbg-obarray)
+   ;; ENCAP and SHARE ME: treadle-dbg-do-when-tq-empty data proc
+
+   ;; FIX ME: This still doesn't do it.  Still too early because the
+   ;; next one is placed in queue while this is waiting.  The
+   ;; treadle-dbg-create-widgets one needs to wait for this one.
+   (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
+	      '
+	      (unless (eq treadle-dbg-current-buffer-type 'main)
+	      	 (treadle-dbg-complain-bad-buffer))
+
+	      ;; Call symbol on every name
+	      (mapatoms
+		 #'treadle-dbg-get-symbol-data
+		 treadle-dbg-obarray)))
+      t)
 
    ;; When it's all done and received, draw the widgets and go.
    (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
-	      ;; 	 (treadle-dbg-complain-bad-buffer))
+	      '
+	      (unless (eq treadle-dbg-current-buffer-type 'main)
+	      	 (treadle-dbg-complain-bad-buffer))
 	      (treadle-dbg-create-widgets))
 	   (pop-to-buffer (first data)))
       t))
