@@ -142,7 +142,7 @@
 	  (integer)))
    "Customize spec that applies to all components" )
 
-(defconst firrtl-dbg-component-perm-standard-value
+(defconst treadle-dbg-component-perm-standard-value
    '(decimal)
    "The standard value for components perm-spec")
 
@@ -1134,7 +1134,6 @@ string
       #'treadle-dbg-do-alt-interaction))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ADAPT ME
 
 (defun treadle-dbg-edit-properties (widget &optional event)
    "Edit the properties of a component symbol"
@@ -1155,7 +1154,7 @@ string
 
       (unless perm-sym-soft
 	 (custom-declare-variable perm-sym
-	    (list 'quote firrtl-dbg-component-perm-standard-value)
+	    (list 'quote treadle-dbg-component-perm-standard-value)
 	    "The format to display the component in"
 	    :type treadle-dbg-component-perm-spec))
 
@@ -1173,9 +1172,11 @@ string
 	       ;; The parm "description" doesn't do anything
 	       nil)
 	    (setq treadle-dbg-main-buffer main-buf)
-
+	    ;; RE-enable me
+	    '
 	    (fset (make-local-variable 'Custom-save)
 	       #'firrtl-dbg-save-perms)
+	    '
 	    (set (make-local-variable 'custom-variable-menu)
 	       treadle-dbg-custom-variable-menu))
 	  
