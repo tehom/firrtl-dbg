@@ -191,11 +191,21 @@ If non-nil, enables compiling"
 	  :tag "Default to the FIRRTL of the latest test")
        (const use-custom-file
 	  :tag "Use 'treadle-dbg-fir-file-location'")
-       (const recompile-custom-file
-	  :tag "Use 'treadle-dbg-fir-file-location', recompiling it every time")
+       ;; Not ready yet.
+       ;; (const recompile-custom-file
+       ;; 	  :tag "Use 'treadle-dbg-fir-file-location', recompiling it every time")
        (const manual :tag "Always specify it manually"))
    :group 'treadle-dbg)
 
+
+(defvar-local treadle-dbg-recompile-base-command
+   "test:runMain triggerPulses.indirect3.TriggerPulses.CompileDummy"
+   ;; nil
+   "Command in sbt to recompile FIRRTL.  The output filename will be appended to it")
+
+(defconst treadle-dbg-recompile-base-command-spec
+   '(string :tag "Command in sbt to recompile FIRRTL")
+   "Customize spec for treadle-dbg-recompile-base-command" )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;Configuration
