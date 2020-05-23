@@ -1094,7 +1094,6 @@ string
 (defun treadle-dbg-load-perm-props-from-alist (alist)
    ""
    
-   (interactive)
    (dolist (cell alist)
       (let* 
 	 ((name (car cell))
@@ -1125,12 +1124,25 @@ string
 	 "Function only makes sense in the perms buffer"))
    ;; Get the perms as an alist.
    (let*
-      ( (alist
+      ( (obj
 	   (with-current-buffer treadle-dbg-main-buffer
-	      (treadle-dbg-get-perm-props-as-alist))))
+	      (treadle-dbg-get-all-perms))))
       (erase-buffer)
-      (insert (pp-to-string alist))
+      (insert (pp-to-string obj))
       nil))
+
+(defun treadle-dbg-get-all-perms ()
+   ""
+   
+   (list
+      (cons 'perm-props (treadle-dbg-get-perm-props-as-alist))))
+
+(defun treadle-dbg-load-all-perms (object)
+   ""
+   
+   (treadle-dbg-load-perm-props-from-alist
+      (cdr (assoc 'perm-props object))))
+
 
 (defun treadle-dbg-get-perm-props-as-alist ()
    ""
@@ -1904,8 +1916,8 @@ PROC should return non-nil if it has finished its work"
 	       (insert "nil\n")))
 	 
 
-	 ;; Read the old value into the perms obarray.
-	 (treadle-dbg-load-perm-props-from-alist
+	 ;; Read the old perms values
+	 (treadle-dbg-load-all-perms
 	    (with-current-buffer treadle-dbg-perm-props-buffer
 	       (treadle-dbg-read-object-from-buffer)))
 
