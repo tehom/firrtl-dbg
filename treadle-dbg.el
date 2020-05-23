@@ -170,7 +170,7 @@ Local in the relevant buffers." )
 
 ;; IMPROVE ME: Allow a local version to override this if non-nil
 (defcustom treadle-dbg-fir-file-location
-   nil
+   "fir-file-for-treadle-dbg.fir"
    "Location of FIRRTL source file.
 If non-nil, enables compiling"
    :type
@@ -180,16 +180,20 @@ If non-nil, enables compiling"
    :group 'treadle-dbg)
 
 
-(defcustom treadle-dbg-launcher-spec
+(defcustom treadle-dbg-how-to-find-fir-file
    'always-use-latest-test
    "How launcher should find the FIR file"
    :type
    '(choice
-       (const always-use-latest-test)
-       (const latest-is-default)
-       (const use-custom-file)
-       (const use-custom-file-recompile)
-       (const manual))
+       (const always-use-latest-test
+	  :tag "Automatically use the FIRRTL of the latest test")
+       (const latest-is-default
+	  :tag "Default to the FIRRTL of the latest test")
+       (const use-custom-file
+	  :tag "Use 'treadle-dbg-fir-file-location'")
+       (const recompile-custom-file
+	  :tag "Use 'treadle-dbg-fir-file-location', recompiling it every time")
+       (const manual :tag "Always specify it manually"))
    :group 'treadle-dbg)
 
 
