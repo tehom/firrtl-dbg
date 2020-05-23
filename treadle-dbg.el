@@ -142,17 +142,30 @@
    
    "Customize spec that applies to all components" )
 
-(defconst treadle-dbg-launcher-spec
+;; IMPROVE ME: Allow a local version to override this if non-nil
+(defcustom treadle-dbg-fir-file-location
+   nil
+   "Location of FIRRTL source file.
+If non-nil, enables compiling"
+   :type
    '(choice
-       (group (const always-use-latest-test))
-       (group (const latest-is-default))
-       ;; When this is given, compile on a prefix arg and provide a
-       ;; button for recompile.
-       (group
-	  (const to-relative-file)
-	  (string :tag "Relative file name")))
-   
-   "Customize spec for launcher" )
+       (const nil :tag "Disabled")
+       (string :tag "File name"))
+   :group 'treadle-dbg)
+
+
+(defcustom treadle-dbg-launcher-spec
+   'always-use-latest-test
+   "How launcher should find the FIR file"
+   :type
+   '(choice
+       (const always-use-latest-test)
+       (const latest-is-default)
+       (const use-custom-file)
+       (const use-custom-file-recompile)
+       (const manual))
+   :group 'treadle-dbg)
+
 
 (defconst treadle-dbg-component-perm-standard-value
    '(decimal)
