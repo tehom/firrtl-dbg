@@ -1772,6 +1772,17 @@ PROC should return non-nil if it has finished its work"
       (goto-char (point-min))
       (search-forward treadle-dbg-tq-prompt-string nil t)))
 
+(defun treadle-dbg-do-when-tq-empty (data proc)
+   "PROC must take DATA as arguments."
+
+   (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
+      (cons proc data)
+      #'(lambda (proc+data str)
+	   (let* 
+	      ((proc (first proc+data))
+		 (data (cdr proc+data)))
+	      (apply proc data)))
+      t))
 
 (defun treadle-dbg-initial-load (fir-file)
    ""
