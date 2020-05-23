@@ -142,6 +142,32 @@
    
    "Customize spec that applies to all components" )
 
+
+(defconst treadle-dbg-component-perm-standard-value
+   '(decimal)
+   "The standard value for components perm-spec")
+
+(defvar-local treadle-dbg-current-buffer-type nil
+   "What type of buffer the current buffer is.  
+Possible values are (nil 'main 'custom 'process 'perms-file).
+Local in the relevant buffers." )
+
+(defconst treadle-dbg-obarray-default-size 257
+   "The default size of an obarray" )
+
+;;;;;;;;;;;;;;;;;;;;
+;; Launching Treadle
+
+(defcustom treadle-dbg-directory-history
+   '()
+   "History list of working directories.  Put the directory that you would run sbt in for your project on this list.  Then 'treadle-dbg' will see it as a history item"
+   :type '(repeat directory)
+   :group 'treadle-dbg)
+
+(defconst treadle-dbg-repl-launch-command
+   "runMain treadle.TreadleRepl"
+   "" )
+
 ;; IMPROVE ME: Allow a local version to override this if non-nil
 (defcustom treadle-dbg-fir-file-location
    nil
@@ -166,31 +192,6 @@ If non-nil, enables compiling"
        (const manual))
    :group 'treadle-dbg)
 
-
-(defconst treadle-dbg-component-perm-standard-value
-   '(decimal)
-   "The standard value for components perm-spec")
-
-(defvar-local treadle-dbg-current-buffer-type nil
-   "What type of buffer the current buffer is.  
-Possible values are (nil 'main 'custom 'process 'perms-file).
-Local in the relevant buffers." )
-
-(defconst treadle-dbg-obarray-default-size 257
-   "The default size of an obarray" )
-
-;;;;;;;;;;;;;;;;;;;;
-;; History lists
-
-(defcustom treadle-dbg-directory-history
-   '()
-   "History list of working directories.  Put the directory that you would run sbt in for your project on this list.  Then 'treadle-dbg' will see it as a history item"
-   :type '(repeat directory)
-   :group 'treadle-dbg)
-
-(defconst treadle-dbg-repl-launch-command
-   "runMain treadle.TreadleRepl"
-   "" )
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;Configuration
