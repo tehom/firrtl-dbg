@@ -298,6 +298,10 @@ If non-nil, enables compiling"
    nil
    "Widget displaying the current freshness")
 
+(defvar-local treadle-dbg-widget-of-circuit-name
+   nil
+   "Widget displaying the name of the current circuit")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Data items
 ;; RE-LOCALIZE ME:  All must become defvar-local again
@@ -333,6 +337,10 @@ Format: Each node is either:
 (defvar treadle-dbg-current-freshness
    "NOT LOADED"
    "The current freshness of the circuit, as a string")
+
+(defvar treadle-dbg-current-circuit-name
+   ""
+   "The name of the current circuit, as a string")
 
 (defvar treadle-dbg-writing-script-p
    nil
