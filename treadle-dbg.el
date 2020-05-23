@@ -24,8 +24,6 @@
 
 ;;;_ , Commentary:
 
-;; IN FLUX.  This will now be aimed at the treadle debugger.
-
 ;; This is an emacs interface for the Treadle debugger REPL for
 ;; Chisel.  To use it, you will need Chisel3 and sbt.  If you don't
 ;; know what those are, you probably don't need this package.
@@ -40,9 +38,8 @@
 
 ;; You'll have to point it towards the right directory (the one that
 ;; build.sbt lives in) You probably want to set
-;; treadle-dbg-directory-history and firrtl-dbg-repl-name-history to
-;; that your current project pops up at the top of the history lists
-;; when calling firrtl-dbg.
+;; treadle-dbg-directory-history so that your current project pops up
+;; at the top of the history lists when calling firrtl-dbg.
 
 ;; It doesn't support vpn scripts, but does support a native elisp
 ;; script.  Create it with firrtl-dbg-start-recording-script, do stuff
