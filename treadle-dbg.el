@@ -428,14 +428,6 @@ DATA is the data to store, usually a symbol"
 ;; (treadle-dbg-split-component-name "io_a.b")
 ;; (treadle-dbg-split-component-name "/print0")
 
-'
-(progn
-   (setq str1 "cellVec2_2.timeVec_3.clock/prev 0")
-   (setq str-an-output "io_operationWhatMyLastDebug 1")
-   (setq str-an-input "io_operation 0"))
-
-
-
 (defstruct treadle-dbg-state-entry
    ""
    full-name
@@ -494,8 +486,7 @@ DATA is the data to store, usually a symbol"
 	 :split-name (treadle-dbg-split-component-name full-name)
 	 :qualifiers qualifiers
 	 :value value)))
-'
-(treadle-dbg-str->state-entry str1)
+
 
 
 (defun treadle-dbg-mutate-component-value (component e)
@@ -601,91 +592,6 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
       str
       #'(lambda (component entry)
 	   (setf (treadle-dbg-component-io-type component) 'output))))
-;; Call symbol on ^foo$.  Use the original name, because symbol truncates the longer ones.  FIX ME: Not everything has source lines, so change the regexp to account for that.  Not clear how.
-'
-(progn
-   (setq state-string1
-      "cellVec2_2.timeVec_3.clock 0
-cellVec2_2.timeVec_3.clock/prev 0
-cellVec2_2.timeVec_3.io_writeEnableReachesHere 0
-cellVec2_2.timeVec_3.reset 0
-clock 0
-clock/prev 0
-io_operation 0
-io_operationWhatMyLastDebug 0
-io_pulseOnPerCell_0 0
-io_pulseOnPerCell_1 0
-io_pulseOnPerCell_2 0
-lastOperation 0
-lastOperation/in 0")
-   (setq show-inputs-string
-      "clock 0
-io_operation 0
-reset 0
-"
-      )
-   (setq show-outputs-string
-      "io_operationWhatMyLastDebug 1
-io_pulseOnPerCell_0 0
-io_pulseOnPerCell_1 0
-io_pulseOnPerCell_2 0
-")
-   (setq symbol-string-lastOperation
-      "Name                                     Bin Type  Width  Slots  Index Depend Info
-lastOperation                            Int UInt      3      1    252I      3  @[dummy.scala 262:30] 0
-lastOperation/in                         Int UInt      3      1    287I      6  @[dummy.scala 262:30] 0
-"
-      )
-   (setq symbol-string-/print9
-      "Name                                     Bin Type  Width  Slots  Index Depend Info
-/print9                                  Int UInt      1      1    146I    300  @[dummy.scala 76:11] 0
-1 treadle>> "
-      )
-
-   ;; Slight cheat: Un-truncated the names for this.
-   (mapcar
-      #'treadle-dbg-test-second-symbol-line
-      '("Name                                     Bin Type  Width  Slots  Index Depend Info
-cellVec2_2.timeVec_3.clock               Int UInt      1      1    238I     62  0
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-cellVec2_2.timeVec_3.io_writeEnableReachesHere Int UInt      1      1     45I     61  0
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-cellVec2_2.timeVec_3.reset               Int UInt      1      1    356I     67  0
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-clock                                    Int UInt      1      1    212I      2  0
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-io_operation                             Int UInt      3      1     84I      1  0
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-io_operationWhatMyLastDebug              Int UInt      3      1    230I      4  0
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-io_pulseOnPerCell_0                      Int UInt      2      1    161I     -1  0
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-io_pulseOnPerCell_1                      Int UInt      2      1      9I     -1  0
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-io_pulseOnPerCell_2                      Int UInt      2      1    229I     -1  0
-
-""Name                                     Bin Type  Width  Slots  Index Depend Info
-lastOperation                            Int UInt      3      1    252I      3  @[dummy.scala 262:30] 0
-"
-"Name                                     Bin Type  Width  Slots  Index Depend Info
-reset                                    Int UInt      1      1    212I      2  0
-"
-	  )
-      )
-
-   (treadle-dbg-record-state state-string1)
-   (treadle-dbg-record-outputs show-outputs-string)
-   (treadle-dbg-record-inputs show-inputs-string)
-   (treadle-dbg-record-symbol-info symbol-string-lastOperation)
-   (treadle-dbg-test-second-symbol-line
-      "lastOperation"
-      symbol-string-lastOperation)
-   (treadle-dbg-test-second-symbol-line
-      "/print9"
-      symbol-string-/print9)
-   
-)
-
 
 (defstruct (symbol-record-strings (:type list))
    ""
@@ -1941,10 +1847,6 @@ PROC should return non-nil if it has finished its work"
 	       (best-file-abs
 		  (car list-in-dir)))
 	    best-file-abs))))
-
-'
-(treadle-dbg-guess-best-fir-file
-   "/home/tehom/projects/ic-fab/ChiselProjects/tryout-chisel/")
 
 (defun treadle-dbg (working-directory fir-file)
    ""
