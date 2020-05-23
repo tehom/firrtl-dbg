@@ -147,6 +147,7 @@
    '(decimal)
    "The standard value for components perm-spec")
 
+;; Doesn't tag the compile-process nor firrlt source buffers
 (defvar-local treadle-dbg-current-buffer-type nil
    "What type of buffer the current buffer is.  
 Possible values are (nil 'main 'custom 'process 'perms-file).
