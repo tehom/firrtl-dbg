@@ -1062,6 +1062,16 @@ string
 	 (treadle-dbg-shutdown))
       "Done")
    
+   (widget-insert "   ")
+
+   (widget-create 'push-button
+      :notify
+      (lambda (&rest ignore)
+	 (unless (eq treadle-dbg-current-buffer-type 'main)
+	    (treadle-dbg-complain-bad-buffer))
+	 (treadle-dbg-compile&restart))
+      "Recompile & restart")
+   
    ;; IMPROVE ME: Add other buttons: Reset, (Done), Poison, Randomize,
    ;; Start/stop recording script, etc
    (widget-insert "\n\n")
