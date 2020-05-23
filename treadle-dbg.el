@@ -2009,7 +2009,19 @@ PROC should return non-nil if it has finished its work"
 	 (use-custom-file
 	    treadle-dbg-fir-file-location))))
 
+(defun treadle-dbg-get-circuit-name (fir-file)
+   ""
 
+   (with-temp-buffer
+      (insert-file-contents fir-file)
+      (let* 
+	 ((circuit-name nil))
+	 (while (and (null circuit-name) (not (eobp)))
+	    (if
+	       (looking-at "circuit \\([a-zA-Z]+\\) *: *")
+	       (setq circuit-name (match-string 1))
+	       (forward-line 1)))
+	 circuit-name)))
 
 (defun treadle-dbg (working-directory fir-file)
    ""
