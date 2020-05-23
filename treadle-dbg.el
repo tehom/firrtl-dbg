@@ -1811,28 +1811,30 @@ PROC should return non-nil if it has finished its work"
    (treadle-dbg-do-when-tq-empty
       (list (current-buffer))
       #'(lambda (buf)
-	   (with-current-buffer (buf)
+	   (with-current-buffer buf
 	      '
 	      (unless (eq treadle-dbg-current-buffer-type 'main)
 	      	 (treadle-dbg-complain-bad-buffer))
-
+	      (message "mapatoms")
 	      ;; Call symbol on every name
 	      (mapatoms
 		 #'treadle-dbg-get-symbol-data
 		 treadle-dbg-obarray)
 
-	      ;; After we've enqueued all those requests, enqueue the
-	      ;; stuff that should only be done after them.
+	      ;; Having enqueued the pre-requisites, now enqueue the
+	      ;; widget drawing, so that the operations will be done
+	      ;; in this order.
 	      (treadle-dbg-do-when-tq-empty
 		 (list (current-buffer))
 		 #'(lambda (buf)
-		      (with-current-buffer (buf)
+		      (with-current-buffer buf
 			 '
 			 (unless (eq treadle-dbg-current-buffer-type 'main)
 			    (treadle-dbg-complain-bad-buffer))
 			 ;; Draw the widgets and go.
 			 (treadle-dbg-create-widgets))
 		      (pop-to-buffer buf)))))))
+
 
 
 
