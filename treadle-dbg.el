@@ -187,14 +187,13 @@ If non-nil, enables compiling"
    '(choice
        (const always-use-latest-test
 	  :tag "Automatically use the FIRRTL of the latest test")
-       (const latest-is-default
-	  :tag "Default to the FIRRTL of the latest test")
+       (const manual :tag "Always specify it interactively")
        (const use-custom-file
 	  :tag "Use 'treadle-dbg-fir-file-location'")
        ;; Not ready yet.
        ;; (const recompile-custom-file
        ;; 	  :tag "Use 'treadle-dbg-fir-file-location', recompiling it every time")
-       (const manual :tag "Always specify it manually"))
+       )
    :group 'treadle-dbg)
 
 
@@ -1934,6 +1933,37 @@ PROC should return non-nil if it has finished its work"
 		  (car list-in-dir)))
 	    best-file-abs))))
 
+(defun treadle-dbg-read-fir-file-name (wd)
+   "Read or compute the fir file name, relative to WD"
+
+   (let*
+      ((best-file
+	  (file-relative-name
+	     (treadle-dbg-guess-best-fir-file wd)
+	     wd)))
+      (case treadle-dbg-how-to-find-fir-file
+	 (always-use-latest-test
+	    (let
+	       ((best-file
+		   (file-relative-name
+		      (treadle-dbg-guess-best-fir-file wd)
+		      wd)))
+	       best-file))
+	 (manual
+	    (let
+	       ((best-file
+		   (file-relative-name
+		      (treadle-dbg-guess-best-fir-file wd)
+		      wd)))
+	       (read-file-name
+		  "FIRRTL file: "
+		  wd best-file
+		  'confirm nil)))
+	 (use-custom-file
+	    treadle-dbg-fir-file-location))))
+
+
+
 (defun treadle-dbg (working-directory fir-file)
    ""
    
@@ -1943,15 +1973,7 @@ PROC should return non-nil if it has finished its work"
 	     (let
 		((file-name-history treadle-dbg-directory-history))
 		(read-directory-name "Working directory: ")))
-	    (best-file
-	       (file-relative-name
-		  (treadle-dbg-guess-best-fir-file wd)
-		  wd))
-	    (ff
-	       (read-file-name
-		  "FIRRTL file: "
-		  wd best-file
-		  nil best-file)))
+	    (ff (treadle-dbg-read-fir-file-name wd)))
 	 (list wd ff)))
    
 
