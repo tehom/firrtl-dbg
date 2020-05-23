@@ -1026,7 +1026,14 @@ string
       (treadle-dbg-complain-bad-buffer
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
-   (widget-insert "Treadle debugger interface\n\n")
+   (widget-insert "Treadle debugger interface\n")
+
+   (setq treadle-dbg-widget-of-circuit-name
+      (widget-create 'const
+	 :value treadle-dbg-current-circuit-name
+	 :format "%v"))
+   
+   (widget-insert "\n\n")
 
    (setq treadle-dbg-widget-of-step-num
       (widget-create 'const
@@ -1429,6 +1436,9 @@ string argument."
    (widget-value-set
       treadle-dbg-widget-of-freshness
       treadle-dbg-current-freshness)
+   (widget-value-set
+      treadle-dbg-widget-of-circuit-name
+      treadle-dbg-current-circuit-name)
 
    (treadle-dbg-for-all-buttons
       #'(lambda (widget)
@@ -1775,6 +1785,9 @@ PROC should return non-nil if it has finished its work"
 
    (setq treadle-dbg-current-step 0)
    (setq treadle-dbg-current-freshness "FRESH")
+   (setq treadle-dbg-current-circuit-name
+      (treadle-dbg-get-circuit-name fir-file))
+
    (treadle-dbg-load-fir-file fir-file)
 
    (treadle-dbg-show-components
