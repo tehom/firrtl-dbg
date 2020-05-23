@@ -130,14 +130,29 @@
        (group
 	  (const boolean))
        (group
-	  (const hexadecimal))
+	  (const hexadecimal)
+	  :tag "Hexadecimal")
        (group
 	  (const enum)
 	  (string))
        (group
 	  (const base)
-	  (integer)))
+	  (integer)
+	  :tag "In a given base"))
+   
    "Customize spec that applies to all components" )
+
+(defconst treadle-dbg-launcher-spec
+   '(choice
+       (group (const always-use-latest-test))
+       (group (const latest-is-default))
+       ;; When this is given, compile on a prefix arg and provide a
+       ;; button for recompile.
+       (group
+	  (const to-relative-file)
+	  (string :tag "Relative file name")))
+   
+   "Customize spec for launcher" )
 
 (defconst treadle-dbg-component-perm-standard-value
    '(decimal)
