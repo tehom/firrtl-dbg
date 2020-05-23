@@ -1808,10 +1808,10 @@ PROC should return non-nil if it has finished its work"
    ;; FIX ME: This still doesn't do it.  Still too early because the
    ;; next one is placed in queue while this is waiting.  The
    ;; treadle-dbg-create-widgets one needs to wait for this one.
-   (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
+   (treadle-dbg-do-when-tq-empty
       (list (current-buffer))
-      #'(lambda (data str)
-	   (with-current-buffer (first data)
+      #'(lambda (buf)
+	   (with-current-buffer (buf)
 	      '
 	      (unless (eq treadle-dbg-current-buffer-type 'main)
 	      	 (treadle-dbg-complain-bad-buffer))
@@ -1819,20 +1819,21 @@ PROC should return non-nil if it has finished its work"
 	      ;; Call symbol on every name
 	      (mapatoms
 		 #'treadle-dbg-get-symbol-data
-		 treadle-dbg-obarray)))
-      t)
+		 treadle-dbg-obarray)
 
-   ;; When it's all done and received, draw the widgets and go.
-   (tq-enqueue treadle-dbg-tq "\n" treadle-dbg-tq-regexp
-      (list (current-buffer))
-      #'(lambda (data str)
-	   (with-current-buffer (first data)
-	      '
-	      (unless (eq treadle-dbg-current-buffer-type 'main)
-	      	 (treadle-dbg-complain-bad-buffer))
-	      (treadle-dbg-create-widgets))
-	   (pop-to-buffer (first data)))
-      t))
+	      ;; After we've enqueued all those requests, enqueue the
+	      ;; stuff that should only be done after them.
+	      (treadle-dbg-do-when-tq-empty
+		 (list (current-buffer))
+		 #'(lambda (buf)
+		      (with-current-buffer (buf)
+			 '
+			 (unless (eq treadle-dbg-current-buffer-type 'main)
+			    (treadle-dbg-complain-bad-buffer))
+			 ;; Draw the widgets and go.
+			 (treadle-dbg-create-widgets))
+		      (pop-to-buffer buf)))))))
+
 
 
 
