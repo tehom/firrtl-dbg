@@ -1850,17 +1850,15 @@ PROC should return non-nil if it has finished its work"
    (error (or msg "This operation only makes sense in main buffer")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun treadle-dbg-compile-fir-file ()
+(defun treadle-dbg-compile-fir-file (fir-file-name)
    ""
-   (when (and
-	    (stringp treadle-dbg-fir-file-location)
-	    (stringp treadle-dbg-recompile-base-command))
+   (when (stringp treadle-dbg-recompile-base-command)
       (let*
 	 ((command
 	     (concat
 		treadle-dbg-recompile-base-command
 		" "
-		treadle-dbg-fir-file-location))
+		fir-file-name))
 	    (buf
 	       (generate-new-buffer
 		  treadle-dbg-compile-process-buffer-name)))
@@ -1870,6 +1868,40 @@ PROC should return non-nil if it has finished its work"
 	    buf
 	    treadle-dbg-sbt-executable
 	    command))))
+
+(defun treadle-dbg-compile&restart ()
+   ""
+   (interactive)
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   (if
+      (not (stringp treadle-dbg-fir-file-location))
+      (message "Need to set 'treadle-dbg-fir-file-location'"))
+   (if (not (stringp treadle-dbg-recompile-base-command))
+      (message "Need to set 'treadle-dbg-recompile-base-command'"))
+   
+   (when (stringp treadle-dbg-fir-file-location)
+      (let
+	 ((compile-process
+	     (treadle-dbg-compile-fir-file treadle-dbg-fir-file-location)))
+	 (when compile-process
+	    (treadle-dbg-call-until-done-w/timeout
+	       treadle-dbg-timeout
+	       #'(lambda (main-buf fir-file compile-process)
+		    (when (eq (process-status compile-process) 'exit)
+		       (let
+			  ((wd (with-current-buffer main-buf
+				  default-directory)))
+			  (with-current-buffer main-buf
+			     (treadle-dbg-shutdown)))
+		       (treadle-dbg wd fir-file)
+		       t))
+
+	       (list main-buf treadle-dbg-fir-file-location compile-process)
+	       #'(lambda ()
+		    (message "Compile process timed out"))
+	       '())))))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
