@@ -210,7 +210,7 @@ If non-nil, enables compiling"
 ;;;;;;;;;;;;;;;;;;;;
 ;;Configuration
 
-(defcustom treadle-dbg-executable
+(defcustom treadle-dbg-sbt-executable
    "sbt"
    "Name of the actual executable that helps launch the debugger REPL"
    :type 'string
@@ -229,6 +229,14 @@ If non-nil, enables compiling"
 (defconst treadle-dbg-process-buffer-name
    "*Treadle-dbg process*"
    "Name of the process buffer" )
+
+(defconst treadle-dbg-compile-process-name
+   "treadle-dbg-compile-process"
+   "Name for the process that compiles FIRRTL files" )
+
+(defconst treadle-dbg-compile-process-buffer-name
+   "*Treadle-dbg compile process*"
+   "Name of the compile process buffer when active" )
 
 (defcustom treadle-dbg-perm-props-relative-filename
    "tread-dbg-perm-props"   
@@ -1842,7 +1850,30 @@ PROC should return non-nil if it has finished its work"
    ""
    (error (or msg "This operation only makes sense in main buffer")))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun treadle-dbg-compile-fir-file ()
+   ""
+   (when (and
+	    (stringp treadle-dbg-fir-file-location)
+	    (stringp treadle-dbg-recompile-base-command))
+      (let*
+	 ((command
+	     (concat
+		treadle-dbg-recompile-base-command
+		" "
+		treadle-dbg-fir-file-location))
+	    (buf
+	       (generate-new-buffer
+		  treadle-dbg-compile-process-buffer-name)))
 
+	 (start-process
+	    treadle-dbg-compile-process-name
+	    buf
+	    treadle-dbg-sbt-executable
+	    command))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun treadle-dbg-compare-file-attributes-most-recent-mod (a b)
    ""
@@ -1969,7 +2000,7 @@ PROC should return non-nil if it has finished its work"
 	       (start-process
 		  treadle-dbg-process-name
 		  treadle-dbg-process-buffer
-		  treadle-dbg-executable
+		  treadle-dbg-sbt-executable
 		  ;; Quoting this string with shell-quote-argument
 		  ;; actually messes us up.
 		  treadle-dbg-repl-launch-command)))
