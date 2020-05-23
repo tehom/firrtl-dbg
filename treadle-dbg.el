@@ -1893,11 +1893,14 @@ PROC should return non-nil if it has finished its work"
 			  ((wd (with-current-buffer main-buf
 				  default-directory)))
 			  (with-current-buffer main-buf
-			     (treadle-dbg-shutdown)))
-		       (treadle-dbg wd fir-file)
+			     (treadle-dbg-shutdown))
+			  (treadle-dbg wd fir-file))
 		       t))
 
-	       (list main-buf treadle-dbg-fir-file-location compile-process)
+	       (list
+		  (current-buffer)
+		  treadle-dbg-fir-file-location
+		  compile-process)
 	       #'(lambda ()
 		    (message "Compile process timed out"))
 	       '())))))
