@@ -1884,11 +1884,13 @@ PROC should return non-nil if it has finished its work"
       (let
 	 ((compile-process
 	     (treadle-dbg-compile-fir-file treadle-dbg-fir-file-location)))
+	 (message "Compiling...")
 	 (when compile-process
 	    (treadle-dbg-call-until-done-w/timeout
 	       treadle-dbg-timeout
 	       #'(lambda (main-buf fir-file compile-process)
 		    (when (eq (process-status compile-process) 'exit)
+		       (message "Restarting")
 		       (let
 			  ((wd (with-current-buffer main-buf
 				  default-directory)))
