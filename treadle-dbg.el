@@ -1071,6 +1071,13 @@ string
    (widget-insert "   ")
 
    (widget-create 'push-button
+      :notify (lambda (&rest ignore)
+		 (treadle-dbg-reset-circuit))
+      "Reset")
+
+   (widget-insert "   ")
+
+   (widget-create 'push-button
       :notify
       (lambda (&rest ignore)
 	 (unless (eq treadle-dbg-current-buffer-type 'main)
@@ -1333,6 +1340,22 @@ Return nil if component has no permanent props."
    (setq treadle-dbg-current-freshness "FRESH")
    (treadle-dbg-redraw-widgets))
 
+(defun treadle-dbg-reset-circuit ()
+   "Reset the circuit"
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   (widget-value-set
+      treadle-dbg-widget-of-freshness
+      "Resetting")
+   (setq treadle-dbg-writing-script-p nil)
+
+   (treadle-dbg-reset-circuit-low)
+   (treadle-dbg-show-components
+      "show state\n"
+      #'treadle-dbg-record-state)
+   (setq treadle-dbg-current-freshness "FRESH")
+   (treadle-dbg-redraw-widgets))
+
 
 (defun treadle-dbg-record-spurious-response-lines (str step-num)
    ""
@@ -1373,6 +1396,23 @@ Return nil if component has no permanent props."
 	      (treadle-dbg-record-spurious-response-lines
 		 str treadle-dbg-current-step)
 	      (incf treadle-dbg-current-step)))
+      
+      t))
+
+(defun treadle-dbg-reset-circuit-low ()
+   "Step the circuit"
+
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   (tq-enqueue treadle-dbg-tq
+      "reset\n"
+      treadle-dbg-tq-regexp
+      (list (current-buffer))
+      #'(lambda (data str)
+	   (with-current-buffer (first data)
+	      (treadle-dbg-record-spurious-response-lines
+		 str treadle-dbg-current-step)
+	      (setq treadle-dbg-current-step 0)))
       
       t))
 
