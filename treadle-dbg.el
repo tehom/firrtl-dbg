@@ -567,8 +567,6 @@ DATA is the data to store, usually a symbol"
 
 (defun treadle-dbg-mutate-subname-tree (full-name data)
    ""
-   ;; Temporarily out
-   '
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
@@ -581,8 +579,6 @@ DATA is the data to store, usually a symbol"
 
 (defun treadle-dbg-add-object (full-name proc-mutate)
    ""
-    ;; Temporarily out
-   '
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
@@ -1022,7 +1018,6 @@ string
 
 
 (defun treadle-dbg-create-widgets ()
-   '  ;; REENABLE ME
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer
 	 "Creating the widgets only makes sense in a circuit buffer"))
@@ -1438,8 +1433,8 @@ string argument."
       (list (current-buffer) proc)
       #'(lambda (data str)
 	   (with-current-buffer (first data)
-	      ;; (unless (eq treadle-dbg-current-buffer-type 'main)
-	      ;; 	 (treadle-dbg-complain-bad-buffer))
+	      (unless (eq treadle-dbg-current-buffer-type 'main)
+	      	 (treadle-dbg-complain-bad-buffer))
 	      (let* 
 		 (  (proc (second data))
 		    (begin-prompt-line
@@ -1646,7 +1641,6 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 
 (defun treadle-dbg-do-integer-edit&poke (widget widget-again &optional event)
    ""
-   (message "treadle-dbg-do-integer-edit&poke")
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (let* 
@@ -1851,16 +1845,10 @@ PROC should return non-nil if it has finished its work"
       "show outputs\n"
       #'treadle-dbg-record-outputs)
 
-   ;; ENCAP and SHARE ME: treadle-dbg-do-when-tq-empty data proc
-
-   ;; FIX ME: This still doesn't do it.  Still too early because the
-   ;; next one is placed in queue while this is waiting.  The
-   ;; treadle-dbg-create-widgets one needs to wait for this one.
    (treadle-dbg-do-when-tq-empty
       (list (current-buffer))
       #'(lambda (buf)
 	   (with-current-buffer buf
-	      '
 	      (unless (eq treadle-dbg-current-buffer-type 'main)
 	      	 (treadle-dbg-complain-bad-buffer))
 	      (message "mapatoms")
@@ -1876,7 +1864,6 @@ PROC should return non-nil if it has finished its work"
 		 (list (current-buffer))
 		 #'(lambda (buf)
 		      (with-current-buffer buf
-			 '
 			 (unless (eq treadle-dbg-current-buffer-type 'main)
 			    (treadle-dbg-complain-bad-buffer))
 			 ;; Draw the widgets and go.
@@ -1906,7 +1893,6 @@ PROC should return non-nil if it has finished its work"
 	       (list (current-buffer) (symbol-name sym))
 	       #'(lambda (data str)
 		    (with-current-buffer (first data)
-		       '
 		       (unless (eq treadle-dbg-current-buffer-type 'main)
 			  (treadle-dbg-complain-bad-buffer))
 		       ;;(message "Got %s" str)
@@ -2137,7 +2123,6 @@ PROC should return non-nil if it has finished its work"
 	 (setq treadle-dbg-perm-props-buffer
 	    (find-file-noselect (treadle-dbg-get-perm-props-filename)))
 	 (with-current-buffer treadle-dbg-perm-props-buffer
-	    ;; RE-ENABLE ME
 	    (setq treadle-dbg-current-buffer-type 'perms-file)
 	    ;; Arrange for save operations to first write our data
 	    ;; into the buffer.
