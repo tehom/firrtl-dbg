@@ -1350,6 +1350,16 @@ Return nil if component has no permanent props."
    (setq treadle-dbg-writing-script-p nil)
 
    (treadle-dbg-reset-circuit-low)
+   (mapatoms
+      #'(lambda (sym)
+	   (when sym
+	      (let* 
+		 ((component (symbol-value sym)))
+		 (setf
+		    (treadle-dbg-component-forced-p component)
+		    nil))))
+      treadle-dbg-obarray)
+
    (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
@@ -1405,7 +1415,7 @@ Return nil if component has no permanent props."
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (tq-enqueue treadle-dbg-tq
-      "reset\n"
+      "randomize;reset 3\n"
       treadle-dbg-tq-regexp
       (list (current-buffer))
       #'(lambda (data str)
