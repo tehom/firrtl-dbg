@@ -479,10 +479,12 @@ DATA is the data to store, usually a symbol"
 
 (defun treadle-dbg-split-component-name (str)
    ""
-   (if
-      (eql (elt str 0) ?/)
-      (cons "/" (split-string (substring str 1) "[._]+"))
-      (split-string str "[._]+")))
+   (cons
+      "999"
+      (if
+	 (eql (elt str 0) ?/)
+	 (cons "/" (split-string (substring str 1) "[._]+"))
+	 (split-string str "[._]+"))))
 
 ;; (treadle-dbg-split-component-name "io_a.b")
 ;; (treadle-dbg-split-component-name "/print0")
