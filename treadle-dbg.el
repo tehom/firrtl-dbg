@@ -304,20 +304,19 @@ If non-nil, enables compiling"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Data items
-;; RE-LOCALIZE ME:  All must become defvar-local again
-(defvar treadle-dbg-spurious-lines
+(defvar-local treadle-dbg-spurious-lines
    '()
    "Spurious lines from stepping")
 
-(defvar treadle-dbg-obarray
+(defvar-local treadle-dbg-obarray
    (make-vector treadle-dbg-obarray-default-size nil)
    "Obarray that holds the current treadle data of FIRRTL components")
 
-(defvar treadle-dbg-obarray-perm-props
+(defvar-local treadle-dbg-obarray-perm-props
    (make-vector treadle-dbg-obarray-default-size nil)
    "Obarray that holds data about components that persists between sessions")
 
-(defvar treadle-dbg-subname-tree
+(defvar-local treadle-dbg-subname-tree
    '()
    "The component-tree of the circuit.
 
@@ -326,47 +325,47 @@ Format: Each node is either:
   (subname-string nil . sym)"
    )
 
-(defvar treadle-dbg-have-built-subname-tree
+(defvar-local treadle-dbg-have-built-subname-tree
    nil
    "Whether the subname tree has been built yet")
 
-(defvar treadle-dbg-current-step
+(defvar-local treadle-dbg-current-step
    nil
    "The current step of the circuit")
 
-(defvar treadle-dbg-current-freshness
+(defvar-local treadle-dbg-current-freshness
    "NOT LOADED"
    "The current freshness of the circuit, as a string")
 
-(defvar treadle-dbg-current-circuit-name
+(defvar-local treadle-dbg-current-circuit-name
    ""
    "The name of the current circuit, as a string")
 
-(defvar treadle-dbg-writing-script-p
+(defvar-local treadle-dbg-writing-script-p
    nil
    "Whether we are currently writing a script")
 
-(defvar treadle-dbg-current-script-rv
+(defvar-local treadle-dbg-current-script-rv
    '()
    "The script that we are currently writing, in reverse order")
 
-(defvar treadle-dbg-process-buffer
+(defvar-local treadle-dbg-process-buffer
    nil
    "The buffer of the Treadle REPL process")
 
-(defvar treadle-dbg-main-buffer
+(defvar-local treadle-dbg-main-buffer
    nil
    "The main interaction buffer")
 
-(defvar treadle-dbg-perm-props-buffer
+(defvar-local treadle-dbg-perm-props-buffer
    nil
    "The buffer holding a text representation of perm properties" )
 
-(defvar treadle-dbg-tq
+(defvar-local treadle-dbg-tq
    nil
    "The treadle-dbg transaction queue")
 
-(defvar treadle-dbg-process
+(defvar-local treadle-dbg-process
    nil
    "The Treadle REPL process")
 
@@ -2121,6 +2120,12 @@ PROC should return non-nil if it has finished its work"
 	 ;; Set up most of the local variables.  Some are set further
 	 ;; down as their objects are created.
 	 (setq treadle-dbg-current-buffer-type 'main)
+
+	 ;; Init the "easy" local variables
+	 (setq treadle-dbg-obarray
+	    (make-vector treadle-dbg-obarray-default-size nil))
+	 (setq treadle-dbg-obarray-perm-props
+	    (make-vector treadle-dbg-obarray-default-size nil))
 
 	 (setq treadle-dbg-process-buffer
 	    (generate-new-buffer treadle-dbg-process-buffer-name))
