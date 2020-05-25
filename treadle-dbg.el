@@ -1054,11 +1054,14 @@ string
 	 (let*
 	    (  (start-open-p nil)
 	       (raw-tag (car cell))
+	       (format "%[%t%]\n")
 	       (tag
 		  (cond
 		     ((numberp raw-tag)
-			(when (< raw-tag 100) (setq start-open-p t))
-			(number-to-string raw-tag))
+			(setq format "%t\n")
+			(when (< raw-tag 100)
+			   (setq start-open-p t))
+			(concat "[" (number-to-string raw-tag) "]"))
 		     ((stringp raw-tag) raw-tag)
 		     (t "?"))))
 	    
@@ -1066,7 +1069,7 @@ string
 		:node (push-button
 			 :value ,(cddr cell)
 			 :tag ,tag
-			 :format "%[%t%]\n"
+			 :format ,format
 			 ;; Nothing to do yet for inner nodes
 			 :alt-action ,#'ignore)
 		,@(if start-open-p '(:open t) '())
