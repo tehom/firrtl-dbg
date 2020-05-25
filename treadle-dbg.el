@@ -1049,39 +1049,38 @@ string
       (treadle-dbg-insert-component-aux v perm-props)))
 
 (defun treadle-dbg-tree-widget (cell)
-   (let ()
-      (if (second cell)
-	 (let*
-	    (  (start-open-p nil)
-	       (raw-tag (car cell))
-	       (format "%[%t%]\n")
-	       (tag
-		  (cond
-		     ((numberp raw-tag)
-			(setq format "%t\n")
-			(when (< raw-tag 100)
-			   (setq start-open-p t))
-			(concat "[" (number-to-string raw-tag) "]"))
-		     ((stringp raw-tag) raw-tag)
-		     (t "?"))))
+   (if (second cell)
+      (let*
+	 (  (start-open-p nil)
+	    (raw-tag (car cell))
+	    (format "%[%t%]\n")
+	    (tag
+	       (cond
+		  ((numberp raw-tag)
+		     (setq format "%t\n")
+		     (when (< raw-tag 100)
+			(setq start-open-p t))
+		     (concat "[" (number-to-string raw-tag) "]"))
+		  ((stringp raw-tag) raw-tag)
+		  (t "?"))))
 	    
-	    `(tree-widget
-		:node (push-button
-			 :value ,(cddr cell)
-			 :tag ,tag
-			 :format ,format
-			 ;; Nothing to do yet for inner nodes
-			 :alt-action ,#'ignore)
-		,@(if start-open-p '(:open t) '())
-		:dynargs treadle-dbg-tree-expand))
-	 (let*
-	    ((sym (cddr cell)))
-	    `(const
-		:format "%v\n"
-		:value ,sym
-		:value-create ,#'treadle-dbg-insert-component
-		:alt-action ,#'treadle-dbg-edit-properties
-		:notify ,#'treadle-dbg-do-integer-edit&poke)))))
+	 `(tree-widget
+	     :node (push-button
+		      :value ,(cddr cell)
+		      :tag ,tag
+		      :format ,format
+		      ;; Nothing to do yet for inner nodes
+		      :alt-action ,#'ignore)
+	     ,@(if start-open-p '(:open t) '())
+	     :dynargs treadle-dbg-tree-expand))
+      (let*
+	 ((sym (cddr cell)))
+	 `(const
+	     :format "%v\n"
+	     :value ,sym
+	     :value-create ,#'treadle-dbg-insert-component
+	     :alt-action ,#'treadle-dbg-edit-properties
+	     :notify ,#'treadle-dbg-do-integer-edit&poke))))
 
 (defun treadle-dbg-tree-expand (tree)
    (or (widget-get tree :args)
