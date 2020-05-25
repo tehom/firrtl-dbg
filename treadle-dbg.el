@@ -1052,8 +1052,8 @@ string
    (if (second cell)
       (let* ((raw-tag (car cell))
 	       (value (cddr cell)))
-	 ;; If value is just one item, replace this with the expansion
-	 ;; of that item.
+	 ;; If value is just one item, build a telescoped one with
+	 ;; just that item.
 	 (if (null (cdr value))
 	    (treadle-dbg-tree-widget
 	       (car value)
