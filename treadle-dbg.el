@@ -1083,7 +1083,7 @@ string
 	     :notify ,#'treadle-dbg-do-integer-edit&poke))))
 
 (defun treadle-dbg-tree-expand (tree)
-   (or (widget-get tree :args)
+   (unless (widget-get tree :args)
       (let
 	 ((alist (widget-get (tree-widget-node tree) :value)))
 	 (mapcar #'treadle-dbg-tree-widget alist))))
