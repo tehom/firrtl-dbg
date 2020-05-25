@@ -123,6 +123,18 @@
 		(repeat string)))
    :group 'treadle-dbg)
 
+;; IMPROVE ME:  Make this local
+(defcustom treadle-dbg-custom-sorting
+   '(("^io" 50)
+       ("^reset$" 2000)
+       ("^clock$" 2000))
+   "List controlling which components are placed earlier or later in the expanding tree.  Each element is (REGEXP Integer)"
+   :type '(repeat
+	     (group
+		regexp
+		integer))
+   :group 'treadle-dbg)
+
 (defconst treadle-dbg-component-perm-spec
    '(choice
        (group
@@ -478,12 +490,10 @@ DATA is the data to store, usually a symbol"
 
 (defun treadle-dbg-split-component-name (str)
    ""
-   (cons
-      "999"
-      (if
-	 (eql (elt str 0) ?/)
-	 (cons "/" (split-string (substring str 1) "[._]+"))
-	 (split-string str "[._]+"))))
+   (if
+      (eql (elt str 0) ?/)
+      (cons "/" (split-string (substring str 1) "[._]+"))
+      (split-string str "[._]+")))
 
 ;; (treadle-dbg-split-component-name "io_a.b")
 ;; (treadle-dbg-split-component-name "/print0")
@@ -491,7 +501,7 @@ DATA is the data to store, usually a symbol"
 (defstruct treadle-dbg-state-entry
    ""
    full-name
-   split-name
+   split-name ;; Remove this
    qualifiers
    value
    )
@@ -543,7 +553,6 @@ DATA is the data to store, usually a symbol"
       
       (make-treadle-dbg-state-entry
 	 :full-name full-name
-	 :split-name (treadle-dbg-split-component-name full-name)
 	 :qualifiers qualifiers
 	 :value value)))
 
@@ -571,11 +580,23 @@ DATA is the data to store, usually a symbol"
       (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
 
-   (setq
-      treadle-dbg-subname-tree
-      (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
-	 (treadle-dbg-split-component-name full-name)
-	 data)))
+   ;; IMPROVE ME: Look at treadle-dbg-custom-sorting to decide what
+   ;; number to prepend.  Eg, ("io" ** ) would prepend "50" while
+   ;; others prepended "999".  treadle-dbg-split-component-name does
+   ;; this now.
+   (let*
+      ((num-prefix ;; full-name
+	  998)
+	 (split-name
+	    (cons
+	       (number-to-string num-prefix)
+	       (treadle-dbg-split-component-name full-name))))
+      
+      (setq
+	 treadle-dbg-subname-tree
+	 (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
+	    split-name
+	    data))))
 
 (defun treadle-dbg-add-object (full-name proc-mutate)
    ""
