@@ -1069,6 +1069,7 @@ string
 			 :format "%[%t%]\n"
 			 ;; Nothing to do yet for inner nodes
 			 :alt-action ,#'ignore)
+		,@(if start-open-p '(:open t) '())
 		:dynargs treadle-dbg-tree-expand))
 	 (let*
 	    ((sym (cddr cell)))
