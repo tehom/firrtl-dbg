@@ -573,6 +573,15 @@ DATA is the data to store, usually a symbol"
 	 ((in/prev)
 	    (setf (treadle-dbg-component-in/prev component) value)))))
 
+(defun treadle-dbg-get-display-priority (full-name)
+   ""
+   
+   (let*
+      ((num 999))
+      (dolist (cell treadle-dbg-custom-sorting)
+	 (when (string-match (first cell) full-name)
+	    (setq num (second cell))))
+      num))
 
 (defun treadle-dbg-mutate-subname-tree (full-name data)
    ""
@@ -580,18 +589,13 @@ DATA is the data to store, usually a symbol"
       (treadle-dbg-complain-bad-buffer
 	 "Objects are only available in the main buffer"))
 
-   ;; IMPROVE ME: Look at treadle-dbg-custom-sorting to decide what
-   ;; number to prepend.  Eg, ("io" ** ) would prepend "50" while
-   ;; others prepended "999".  treadle-dbg-split-component-name does
-   ;; this now.
    (let*
-      ((num-prefix ;; full-name
-	  998)
+      ((num-prefix (treadle-dbg-get-display-priority full-name))
 	 (split-name
 	    (cons
 	       (number-to-string num-prefix)
 	       (treadle-dbg-split-component-name full-name))))
-      
+      ;; IMPROVE ME:  Actually sort the tree when done
       (setq
 	 treadle-dbg-subname-tree
 	 (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
