@@ -128,6 +128,8 @@
    '(("^io" 50)
        ("^/" 2000)
        ("^$" 2000)
+       ("^_T" 2000)
+       ("^_GEN" 2000)
        ("^reset$" 2000)
        ("^clock$" 2000))
    "List controlling which components are placed earlier or later in the expanding tree.  Each element is (REGEXP Integer)"
