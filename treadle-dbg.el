@@ -1050,31 +1050,42 @@ string
 
 (defun treadle-dbg-tree-widget (cell children-open)
    (if (second cell)
-      ;; IMPROVE ME: If value is just one item, replace this with the
-      ;; expansion of that item
-      (let*
-	 (  (start-open-form (if children-open '(:open t) '()))
-	    (raw-tag (car cell))
-	    (format "%[%t%]\n")
-	    (tag
-	       (cond
-		  ((numberp raw-tag)
-		     (setq format "%t\n")
-		     (when (< raw-tag 100)
-			(setq start-open-form '(:open t :children-open t)))
-		     (concat "[" (number-to-string raw-tag) "]"))
-		  ((stringp raw-tag) raw-tag)
-		  (t "?"))))
+      (let* ((raw-tag (car cell))
+	       (value (cddr cell)))
+	 ;; If value is just one item, replace this with the expansion
+	 ;; of that item.
+	 (if (null (cdr value))
+	    (treadle-dbg-tree-widget
+	       (car value)
+	       ;; Still use the number value to decide whether
+	       ;; children are forced open.
+	       (if (numberp raw-tag) (< raw-tag 100) nil))
+	    ;; Expand normally
+	    (let*
+	       (  
 
-	 `(tree-widget
-	     :node (push-button
-		      :value ,(cddr cell)
-		      :tag ,tag
-		      :format ,format
-		      ;; Nothing to do yet for inner nodes
-		      :alt-action ,#'ignore)
-	     ,@start-open-form
-	     :dynargs treadle-dbg-tree-expand))
+		  (start-open-form (if children-open '(:open t) '()))
+	    
+		  (format "%[%t%]\n")
+		  (tag
+		     (cond
+			((numberp raw-tag)
+			   (setq format "%t\n")
+			   (when (< raw-tag 100)
+			      (setq start-open-form '(:open t :children-open t)))
+			   (concat "[" (number-to-string raw-tag) "]"))
+			((stringp raw-tag) raw-tag)
+			(t "?"))))
+
+	       `(tree-widget
+		   :node (push-button
+			    :value ,(cddr cell)
+			    :tag ,tag
+			    :format ,format
+			    ;; Nothing to do yet for inner nodes
+			    :alt-action ,#'ignore)
+		   ,@start-open-form
+		   :dynargs treadle-dbg-tree-expand))))
       (let*
 	 ((sym (cddr cell)))
 	 `(const
