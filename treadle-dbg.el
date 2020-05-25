@@ -1052,10 +1052,13 @@ string
    (let ()
       (if (second cell)
 	 (let*
-	    (  (raw-tag (car cell))
+	    (  (start-open-p nil)
+	       (raw-tag (car cell))
 	       (tag
 		  (cond
-		     ((numberp raw-tag) (number-to-string raw-tag))
+		     ((numberp raw-tag)
+			(when (< raw-tag 100) (setq start-open-p t))
+			(number-to-string raw-tag))
 		     ((stringp raw-tag) raw-tag)
 		     (t "?"))))
 	    
