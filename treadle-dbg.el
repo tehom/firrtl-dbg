@@ -391,9 +391,7 @@ TREE should be '(list subtree...) or '(tag values...) where tag is one of the co
 
 DATA is the data to store, usually a symbol"
 
-   ;; We could make a dedicated symbol instead of `list', but it
-   ;; hasn't presented a problem yet.  Or just indicate listness with
-   ;; t or nil.
+   ;; We indicate listness with t or nil.
    (let* 
       (  (tree (or tree '(t)))
 	 (subtree-info-list '())
@@ -477,16 +475,52 @@ DATA is the data to store, usually a symbol"
 ;;    'my-data)
 
 
-;; (treadle-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "b")
+;; (treadle-dbg-add-to-subname-tree '(t ("a" t ("b" nil my-data))) '("a" "b")
 ;;     'new-data)
 
 
-;; (treadle-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("a" "c")
+;; (treadle-dbg-add-to-subname-tree '(t ("a" t ("b" nil my-data))) '("a" "c")
 ;;     'new-data)
 
 
-;; (treadle-dbg-add-to-subname-tree '(list ("a" list ("b" my-data))) '("d" "b")
+;; (treadle-dbg-add-to-subname-tree '(t ("a" t ("b" nil my-data))) '("d" "b")
 ;;     'new-data)
+
+(defun treadle-dbg-sort-as-subname-tree (tree)
+   "
+TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
+
+Return a sorted version of it"
+   (let* 
+      ((new-children
+	  (mapcar
+	     #'(lambda (cell)
+		  (if (cadr cell)
+		     (list*
+			(car cell)
+			(cadr cell)
+			(treadle-dbg-sort-as-subname-tree (cddr cell)))
+		     cell))
+	     
+	     (cdr tree)))
+	 (children-2
+	    (sort new-children
+	       #'(lambda (a b)
+		    (let*
+		       ((a-1 (car-safe a))
+			  (b-1 (car-safe b)))
+		       (if (numberp a-1)
+			  (if (numberp b-1)
+			     (< a-1 b-1)
+			     t)
+			  (if (numberp b-1)
+			     nil
+			     (string< a-1 b-1))))))))
+      (cons (car tree) children-2)))
+
+
+
+
 
 (defun treadle-dbg-split-component-name (str)
    ""
@@ -595,8 +629,6 @@ DATA is the data to store, usually a symbol"
 	    (cons
 	       num-prefix
 	       (treadle-dbg-split-component-name full-name))))
-      ;; IMPROVE ME: Actually sort the tree when done.  We'd like to
-      ;; intermix numbers and tags freely.
       (setq
 	 treadle-dbg-subname-tree
 	 (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
@@ -1885,7 +1917,11 @@ PROC should return non-nil if it has finished its work"
 	   (with-current-buffer buf
 	      (unless (eq treadle-dbg-current-buffer-type 'main)
 	      	 (treadle-dbg-complain-bad-buffer))
-	      (message "mapatoms")
+
+	      (setq
+		 treadle-dbg-subname-tree
+		 (treadle-dbg-sort-as-subname-tree treadle-dbg-subname-tree))
+
 	      ;; Call symbol on every name
 	      (mapatoms
 		 #'treadle-dbg-get-symbol-data
