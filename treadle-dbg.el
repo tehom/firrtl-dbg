@@ -1048,10 +1048,12 @@ string
 	 (perm-props (treadle-dbg-get-perm-props (symbol-name sym))))
       (treadle-dbg-insert-component-aux v perm-props)))
 
-(defun treadle-dbg-tree-widget (cell)
+(defun treadle-dbg-tree-widget (cell children-open)
    (if (second cell)
+      ;; IMPROVE ME: If value is just one item, replace this with the
+      ;; expansion of that item
       (let*
-	 (  (start-open-p nil)
+	 (  (start-open-form (if children-open '(:open t) '()))
 	    (raw-tag (car cell))
 	    (format "%[%t%]\n")
 	    (tag
@@ -1059,11 +1061,11 @@ string
 		  ((numberp raw-tag)
 		     (setq format "%t\n")
 		     (when (< raw-tag 100)
-			(setq start-open-p t))
+			(setq start-open-form '(:open t :children-open t)))
 		     (concat "[" (number-to-string raw-tag) "]"))
 		  ((stringp raw-tag) raw-tag)
 		  (t "?"))))
-	    
+
 	 `(tree-widget
 	     :node (push-button
 		      :value ,(cddr cell)
@@ -1071,7 +1073,7 @@ string
 		      :format ,format
 		      ;; Nothing to do yet for inner nodes
 		      :alt-action ,#'ignore)
-	     ,@(if start-open-p '(:open t) '())
+	     ,@start-open-form
 	     :dynargs treadle-dbg-tree-expand))
       (let*
 	 ((sym (cddr cell)))
@@ -1084,9 +1086,15 @@ string
 
 (defun treadle-dbg-tree-expand (tree)
    (unless (widget-get tree :args)
-      (let
-	 ((alist (widget-get (tree-widget-node tree) :value)))
-	 (mapcar #'treadle-dbg-tree-widget alist))))
+      (let*
+	 (  (node (tree-widget-node tree))
+	    (alist (widget-get node :value))
+	    (children-open (widget-get tree :children-open)))
+	 (mapcar
+	    #'(lambda (cell)
+		 (treadle-dbg-tree-widget cell children-open))
+	    alist))))
+
 
 
 (defun treadle-dbg-create-widgets ()
@@ -1169,7 +1177,8 @@ string
 
    (widget-apply-action
       (widget-create (treadle-dbg-tree-widget
-			(cons "root" treadle-dbg-subname-tree))))
+			(cons "root" treadle-dbg-subname-tree)
+			nil)))
    (if (require 'tree-mode nil t)
       (tree-minor-mode t)
       (widget-insert "\n\n"))
