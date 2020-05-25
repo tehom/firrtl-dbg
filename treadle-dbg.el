@@ -593,9 +593,10 @@ DATA is the data to store, usually a symbol"
       ((num-prefix (treadle-dbg-get-display-priority full-name))
 	 (split-name
 	    (cons
-	       (number-to-string num-prefix)
+	       num-prefix
 	       (treadle-dbg-split-component-name full-name))))
-      ;; IMPROVE ME:  Actually sort the tree when done
+      ;; IMPROVE ME: Actually sort the tree when done.  We'd like to
+      ;; intermix numbers and tags freely.
       (setq
 	 treadle-dbg-subname-tree
 	 (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
@@ -1018,14 +1019,22 @@ string
 (defun treadle-dbg-tree-widget (cell)
    (let ()
       (if (second cell)
-	 `(tree-widget
-	     :node (push-button
-		      :value ,(cddr cell)
-		      :tag ,(car cell)
-		      :format "%[%t%]\n"
-		      ;; Nothing to do yet for inner nodes
-		      :alt-action ,#'ignore)
-	     :dynargs treadle-dbg-tree-expand)
+	 (let*
+	    (  (raw-tag (car cell))
+	       (tag
+		  (cond
+		     ((numberp raw-tag) (number-to-string raw-tag))
+		     ((stringp raw-tag) raw-tag)
+		     (t "?"))))
+	    
+	    `(tree-widget
+		:node (push-button
+			 :value ,(cddr cell)
+			 :tag ,tag
+			 :format "%[%t%]\n"
+			 ;; Nothing to do yet for inner nodes
+			 :alt-action ,#'ignore)
+		:dynargs treadle-dbg-tree-expand))
 	 (let*
 	    ((sym (cddr cell)))
 	    `(const
