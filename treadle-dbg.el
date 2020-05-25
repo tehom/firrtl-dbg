@@ -126,6 +126,7 @@
 ;; IMPROVE ME:  Make this local
 (defcustom treadle-dbg-custom-sorting
    '(("^io" 50)
+       ("^/" 2000)
        ("^reset$" 2000)
        ("^clock$" 2000))
    "List controlling which components are placed earlier or later in the expanding tree.  Each element is (REGEXP Integer)"
