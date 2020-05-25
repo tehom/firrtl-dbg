@@ -500,8 +500,7 @@ Return a sorted version of it"
 		  (if (cadr cell)
 		     (list*
 			(car cell)
-			(cadr cell)
-			(treadle-dbg-sort-as-subname-tree (cddr cell)))
+			(treadle-dbg-sort-as-subname-tree (cdr cell)))
 		     cell))
 	     
 	     (cdr tree)))
@@ -520,8 +519,12 @@ Return a sorted version of it"
 			     (string< a-1 b-1))))))))
       (cons (car tree) children-2)))
 
-
-
+'
+(treadle-dbg-sort-as-subname-tree
+   '(t ("2" nil . io_pulseOnPerCell_2) ("1" nil . io_pulseOnPerCell_1) ("0" nil . io_pulseOnPerCell_0)))
+'
+(treadle-dbg-sort-as-subname-tree
+   '(t ("a" t ("2" nil . io_pulseOnPerCell_2) ("1" nil . io_pulseOnPerCell_1) ("0" nil . io_pulseOnPerCell_0))))
 
 
 (defun treadle-dbg-split-component-name (str)
