@@ -1076,7 +1076,10 @@ string
 			   (when (< raw-tag 100)
 			      (setq start-open-form '(:open t :children-open t)))
 			   (concat "[" (number-to-string raw-tag) "]"))
-			((stringp raw-tag) raw-tag)
+			((stringp raw-tag)
+			   (if (string-blank-p raw-tag)
+			      "(blank)"
+			      raw-tag))
 			(t "?"))))
 
 	       `(tree-widget
