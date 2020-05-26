@@ -1915,7 +1915,11 @@ If EXTRA-PROC is non-nil, call it with extra-data."
 
       (if
 	 just-clearing-p
-	 (treadle-dbg-unforce sym)
+	 (treadle-dbg-unforce sym
+	    #'(lambda (widget widgets-buffer)
+		 (with-current-buffer widgets-buffer
+		    (widget-value-set widget (widget-value widget))))
+	       (list widget (current-buffer)))
 	 (let* 
 	    (  
 	       (component-name (treadle-dbg-component-full-name component))
