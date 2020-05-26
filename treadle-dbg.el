@@ -619,14 +619,20 @@ Return a sorted version of it"
 (defun treadle-dbg-split-component-name (full-name)
    ""
 
-   (let*
-      ((num-prefix (treadle-dbg-get-display-priority full-name))
-	 (split-name
-	    (cons
-	       num-prefix
-	       (treadle-dbg-split-component-name-simple full-name))))
-      
-      ))
+   (let
+      ((found nil))
+      (dolist (cell treadle-dbg-custom-sorting)
+	 (when
+	    (and
+	       (not found)
+	       (string-match (first cell) full-name))
+	    (setq found
+	       (cons
+		  (second cell)
+		  (treadle-dbg-split-component-name-simple full-name)))))
+      (or found
+	 (cons 1000 (treadle-dbg-split-component-name-simple full-name)))))
+
 
 (defun treadle-dbg-mutate-subname-tree (full-name data)
    ""
