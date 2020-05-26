@@ -125,11 +125,11 @@
 
 ;; IMPROVE ME:  Make this local
 (defcustom treadle-dbg-custom-sorting
-   '(("^io" 50)
+   '(("io" 50)
        ("^/" 2000)
        ("^$" 2000)
-       ("^_T" 2000)
-       ("^_GEN" 2000)
+       ("_T" 2000)
+       ("_GEN" 2000)
        ("^reset$" 2000)
        ("^clock$" 2000))
    "List controlling which components are placed earlier or later in the expanding tree.  Each element is (REGEXP Integer)"
@@ -531,6 +531,28 @@ Return a sorted version of it"
 ;; (treadle-dbg-split-component-name-simple "io_a.b")
 ;; (treadle-dbg-split-component-name-simple "/print0")
 
+(defun treadle-dbg-split-component-name-simple-2 (str)
+   ""
+   
+   (let*
+      ((done nil)
+	 (start 0)
+	 (subnames-rv '()))
+      (while (not done)
+	 (let* 
+	    ((pos (string-match "[._/]" str start)))
+	    (if pos
+	       (progn
+		  (push (substring str start (1+ pos)) subnames-rv)
+		  (setq start (1+ pos)))
+	       (setq done t))))
+      (push (substring str start) subnames-rv)
+      (nreverse subnames-rv)))
+
+;; (treadle-dbg-split-component-name-simple-2 "io_a.b")
+;; (treadle-dbg-split-component-name-simple-2 "/print0")
+
+
 (defstruct treadle-dbg-state-entry
    ""
    full-name
@@ -656,7 +678,17 @@ Return a sorted version of it"
 		  (t nil)))))
       (or found
 	 (cons 1000 (treadle-dbg-split-component-name-simple full-name)))))
-
+'
+(treadle-dbg-split-component-name "_T_5")
+(2000 "" "T" "5")
+'
+(treadle-dbg-split-component-name
+   "cellVec2_0.io_hasWrittenAny")
+'("cellVec2" "0" "" 50 "io" "hasWrittenAny")
+'
+(treadle-dbg-split-component-name "cellVec2_0")
+'
+(1000 "cellVec2" "0")
 
 (defun treadle-dbg-mutate-subname-tree (full-name data)
    ""
