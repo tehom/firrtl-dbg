@@ -616,11 +616,8 @@ Return a sorted version of it"
 	    (setq num (second cell))))
       num))
 
-(defun treadle-dbg-mutate-subname-tree (full-name data)
+(defun treadle-dbg-split-component-name (full-name)
    ""
-   (unless (eq treadle-dbg-current-buffer-type 'main)
-      (treadle-dbg-complain-bad-buffer
-	 "Objects are only available in the main buffer"))
 
    (let*
       ((num-prefix (treadle-dbg-get-display-priority full-name))
@@ -628,11 +625,20 @@ Return a sorted version of it"
 	    (cons
 	       num-prefix
 	       (treadle-dbg-split-component-name-simple full-name))))
-      (setq
-	 treadle-dbg-subname-tree
-	 (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
-	    split-name
-	    data))))
+      
+      ))
+
+(defun treadle-dbg-mutate-subname-tree (full-name data)
+   ""
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer
+	 "Objects are only available in the main buffer"))
+
+   (setq
+      treadle-dbg-subname-tree
+      (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
+	 (treadle-dbg-split-component-name full-name)
+	 data)))
 
 (defun treadle-dbg-add-object (full-name proc-mutate)
    ""
