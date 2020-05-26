@@ -1884,14 +1884,14 @@ If EXTRA-PROC is non-nil, call it with extra-data."
       (tq-enqueue treadle-dbg-tq
 	 msg
 	 treadle-dbg-tq-regexp
-	 (list component 0 extra-proc extra-data)
+	 (list component extra-proc extra-data)
 	 #'(lambda (data str)
 	      (let* 
 		 ((had-problem
 		     (treadle-dbg-parse-response-maybe-complain str))
 		    (component (first data))
-		    (extra-proc (third data))
-		    (extra-data (fourth data)))
+		    (extra-proc (second data))
+		    (extra-data (third data)))
 
 		 (unless had-problem
 		    (setf (treadle-dbg-component-current component) nil)
