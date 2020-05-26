@@ -1920,14 +1920,16 @@ If EXTRA-PROC is non-nil, call it with extra-data."
 	       (push
 		  `(unforce ,component-name)
 		  treadle-dbg-current-script-rv))
-	    
+
 	    (treadle-dbg-unforce sym
 	       #'(lambda (widget widgets-buffer)
 		    (with-current-buffer widgets-buffer
 		       (widget-value-set widget (widget-value widget))))
 	       (list widget (current-buffer)))
-	    
-	    )
+	    (setq treadle-dbg-current-freshness "STALE")
+	    (widget-value-set
+	       treadle-dbg-widget-of-freshness
+	       "STALE"))
 	 (let* 
 	    (  
 	       (component-name (treadle-dbg-component-full-name component))
@@ -1948,10 +1950,11 @@ If EXTRA-PROC is non-nil, call it with extra-data."
 			   current
 			   perm-props)))
 
-	    ;; IMPROVE ME:  Write something different for forcing.
 	    (when treadle-dbg-writing-script-p
 	       (push
-		  `(poke ,component-name ,new-val)
+		  (if forcing-p
+		     `(force ,component-name ,new-val)
+		     `(poke ,component-name ,new-val))
 		  treadle-dbg-current-script-rv))
 	    (setq treadle-dbg-current-freshness "STALE")
 	    (widget-value-set
