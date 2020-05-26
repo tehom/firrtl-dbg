@@ -532,9 +532,9 @@ Return a sorted version of it"
 		       (if (numberp a-1)
 			  (if (numberp b-1)
 			     (< a-1 b-1)
-			     t)
+			     (< a-1 1000))
 			  (if (numberp b-1)
-			     nil
+			     (< b-1 1000)
 			     (string< a-1 b-1))))))))
       (cons (car tree) children-2)))
 
