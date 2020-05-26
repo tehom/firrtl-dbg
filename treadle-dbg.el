@@ -1820,8 +1820,8 @@ string argument."
 	 (otherwise
 	    (treadle-dbg-read-new-decimal-val prompt old-val)))))
 
-
-(defun treadle-dbg-poke-value (sym new-val
+;; mode = nil, force, unforce
+(defun treadle-dbg-poke-value (sym new-val force-p
 				&optional extra-proc extra-data)
    "Poke NEW-VAL into the component named by SYM
 Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
@@ -1834,8 +1834,12 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	 (component (symbol-value sym))
 	 (component-name (treadle-dbg-component-full-name component))
 	 (current (treadle-dbg-component-current component))
-	 (msg (concat "poke " component-name " "
-		 (number-to-string new-val) "\n")))
+	 (msg
+	    (if force-p
+	       (concat "force " component-name " "
+		  (number-to-string new-val) "\n")
+	       (concat "poke " component-name " "
+		  (number-to-string new-val) "\n"))))
       
       ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
       (tq-enqueue treadle-dbg-tq
@@ -1870,40 +1874,51 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
-	 (component-name (treadle-dbg-component-full-name component))
-	 (current (treadle-dbg-component-current component))
-	 ;; If so, offer to unforce it (only?)
-	 (forced-p
-	    (and
-	       (treadle-dbg-component-forced-p component)
-	       (not (eq (treadle-dbg-component-io-type component) 'input))))
-	 (perm-props
-	    (treadle-dbg-get-perm-props (symbol-name sym)))
-	 (prompt
-	    (case (treadle-dbg-component-io-type component)
-	       ((input) (format "New value for %s: " component-name))
-	       (t (format "Force %s to value: " component-name))))
 	 
-	 (new-val (treadle-dbg-read-new-val
-		     prompt
-		     current
-		     perm-props)))
+	 )
+      (if
+	 (and
+	    (treadle-dbg-component-forced-p component)
+	    (not (eq (treadle-dbg-component-io-type component) 'input)))
+	 ;; Doesn't do much yet, and we may not go this route.
+	 (y-or-n-p "Clear forced value?")
+	 (let* 
+	    (  
+	       (component-name (treadle-dbg-component-full-name component))
+	       (current (treadle-dbg-component-current component))
+	       (forcing-p
+		  (case (treadle-dbg-component-io-type component)
+		     ((input) nil)
+		     (t t)))
+	       (perm-props
+		  (treadle-dbg-get-perm-props (symbol-name sym)))
+	       (prompt
+		  (case forcing-p
+		     ((nil) (format "New value for %s: " component-name))
+		     ((t) (format "Force %s to value: " component-name))))
+	 
+	       (new-val (treadle-dbg-read-new-val
+			   prompt
+			   current
+			   perm-props)))
 
-      (when treadle-dbg-writing-script-p
-	 (push
-	    `(poke ,component-name ,new-val)
-	    treadle-dbg-current-script-rv))
-      (setq treadle-dbg-current-freshness "STALE")
-      (widget-value-set
-	 treadle-dbg-widget-of-freshness
-	 "STALE")
+	    (when treadle-dbg-writing-script-p
+	       (push
+		  `(poke ,component-name ,new-val)
+		  treadle-dbg-current-script-rv))
+	    (setq treadle-dbg-current-freshness "STALE")
+	    (widget-value-set
+	       treadle-dbg-widget-of-freshness
+	       "STALE")
       
-      (treadle-dbg-poke-value
-	 sym new-val
-	 #'(lambda (widget widgets-buffer)
-	      (with-current-buffer widgets-buffer
-		 (widget-value-set widget (widget-value widget))))
-	 (list widget (current-buffer)))))
+	    (treadle-dbg-poke-value
+	       sym new-val
+	       forcing-p
+	       #'(lambda (widget widgets-buffer)
+		    (with-current-buffer widgets-buffer
+		       (widget-value-set widget (widget-value widget))))
+	       (list widget (current-buffer)))))))
+
 
 
 ;; ADAPT ME
