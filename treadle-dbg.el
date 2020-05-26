@@ -404,7 +404,21 @@ Format: Each node is either:
    nil
    "The Treadle REPL process")
 
+(defvar-local treadle-dbg-timer-for-redraw
+   nil
+   "Timer that handles redrawing")
 
+(defvar-local treadle-dbg-widget-buffer-dirty-p
+   nil
+   "Non-nil if the widget buffer needs redrawing or rebuilding")
+
+(defvar-local treadle-dbg-widget-buffer-filled-p
+   nil
+   "Non-nil if the widget buffer needs rebuilding")
+
+(defvar-local treadle-dbg-widget-buffer-instability
+   0
+   "Count of what is currently working to dirty the widget buffer")
 
 ;;;;;;;;;;;;;;;;;;;;
 
