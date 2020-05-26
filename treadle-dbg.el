@@ -681,9 +681,13 @@ Return a sorted version of it"
 '
 (treadle-dbg-split-component-name-2
    "io_hasWrittenAny")
-
-
-
+'
+(treadle-dbg-split-component-name-2
+   "io_operation")
+;;(50 "io_" "operation")
+'
+(treadle-dbg-split-component-name-2 "cellVec2_2")
+;;("cellVec2_" "2")
 (defun treadle-dbg-split-name&insert-priority (full-name beginning end num)
    ""
    (let* 
