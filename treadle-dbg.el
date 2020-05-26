@@ -606,16 +606,6 @@ Return a sorted version of it"
 	 ((in/prev)
 	    (setf (treadle-dbg-component-in/prev component) value)))))
 
-(defun treadle-dbg-get-display-priority (full-name)
-   ""
-   
-   (let*
-      ((num 999))
-      (dolist (cell treadle-dbg-custom-sorting)
-	 (when (string-match (first cell) full-name)
-	    (setq num (second cell))))
-      num))
-
 (defun treadle-dbg-split-component-name (full-name)
    ""
 
