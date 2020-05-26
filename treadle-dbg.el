@@ -1132,7 +1132,9 @@ string
 		  perm-props)
 	       face-of-current)
 	    field-list-rv)
-	 (push "?" field-list-rv))
+	 (push
+	    (list "?" 'treadle-dbg-face-value-input-unset)
+	    field-list-rv))
       (when (treadle-dbg-component-prev component)
 	 (push " <- " field-list-rv)
 	 (push
