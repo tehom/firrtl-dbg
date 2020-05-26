@@ -79,10 +79,13 @@
    signed-p
    width
    io-type ;; '(input output clock reset nil)
-   forced-p ;; Whether it is currently forced.  Maybe instead a
-	    ;; current state symbol distinguishing normal input
-	    ;; setting from "forced" from set-by-script.
-   )
+
+   ;; Whether it is currently forced or poked.  Maybe instead a
+   ;; current state symbol distinguishing normal input setting from
+   ;; "forced" from set-by-script.  But nil always means that neither
+   ;; forced nor poked.
+   forced-p)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customizations and constants
@@ -1869,10 +1872,20 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 	 (component (symbol-value sym))
 	 (component-name (treadle-dbg-component-full-name component))
 	 (current (treadle-dbg-component-current component))
+	 ;; If so, offer to unforce it (only?)
+	 (forced-p
+	    (and
+	       (treadle-dbg-component-forced-p component)
+	       (not (eq (treadle-dbg-component-io-type component) 'input))))
 	 (perm-props
 	    (treadle-dbg-get-perm-props (symbol-name sym)))
+	 (prompt
+	    (case (treadle-dbg-component-io-type component)
+	       ((input) (format "New value for %s: " component-name))
+	       (t (format "Force %s to value: " component-name))))
+	 
 	 (new-val (treadle-dbg-read-new-val
-		     (format "New value for %s: " component-name)
+		     prompt
 		     current
 		     perm-props)))
 
