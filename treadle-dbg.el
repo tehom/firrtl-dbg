@@ -609,13 +609,21 @@ Return a sorted version of it"
 (defun treadle-dbg-split-name&insert-priority (full-name beginning end num)
    ""
    (let* 
-      ((before (substring full-name 0 beginning))
+      ((before
+	  (if (eql beginning 0)
+	     ""
+	     (substring full-name 0 beginning)))
 	 (after (substring full-name end))
 	 (before-subnames
-	    (treadle-dbg-split-component-name-simple before))
+	    (if (eql beginning 0)
+	       '()
+	       (treadle-dbg-split-component-name-simple before)))
 	 (after-subnames
-	    (treadle-dbg-split-component-name-simple after)))
-      (append before-subnames num after-subnames)))
+	    (if
+	       (string-empty-p after)
+	       '()
+	       (treadle-dbg-split-component-name-simple after))))
+      (append before-subnames (list num) after-subnames)))
 
 (defun treadle-dbg-split-component-name (full-name)
    ""
