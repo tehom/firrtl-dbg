@@ -139,6 +139,21 @@
 		integer))
    :group 'treadle-dbg)
 
+(defcustom treadle-dbg-custom-sorting-2
+   '(("^io" 50 nil)
+       ("^/" 2000 nil)
+       ("^_T" 2000 nil)
+       ("^_GEN" 2000 nil)
+       ("^reset$" 2000 t)
+       ("^clock$" 2000 t))
+   "List controlling which components are placed earlier or later in the expanding tree.  Each element is (Regexp Integer Boolean)"
+   :type '(repeat
+	     (group
+		regexp
+		integer
+		(boolean :tag "Only as first subname")))
+   :group 'treadle-dbg)
+
 (defconst treadle-dbg-component-perm-spec
    '(choice
        (group
@@ -628,6 +643,45 @@ Return a sorted version of it"
 	 ((in/prev)
 	    (setf (treadle-dbg-component-in/prev component) value)))))
 
+(defun treadle-dbg-split-component-name-2 (full-name)
+   ""
+   
+   (let*
+      ((split (treadle-dbg-split-component-name-simple-2 full-name))
+	 (subnames-rv '())
+	 (first-p t))
+      (dolist (sn split)
+	 (let
+	    ((found nil))
+	    (dolist (cell treadle-dbg-custom-sorting-2)
+	       (when
+		  (and
+		     (not found)
+		     (or (null (third cell)) first-p)
+		     (string-match (first cell) sn))
+		  (push (second cell) subnames-rv)
+		  (setq found t)))
+	    (push sn subnames-rv))
+	 (setq first nil))
+      (nreverse subnames-rv)))
+
+'
+(treadle-dbg-split-component-name-2 "_T_5")
+
+'
+(treadle-dbg-split-component-name-2
+   "cellVec2_0.io_hasWrittenAny")
+
+'("cellVec2" "0" "" 50 "io" "hasWrittenAny")
+'
+(treadle-dbg-split-component-name-2 "cellVec2_0")
+
+'
+(treadle-dbg-split-component-name-2
+   "io_hasWrittenAny")
+
+
+
 (defun treadle-dbg-split-name&insert-priority (full-name beginning end num)
    ""
    (let* 
@@ -639,12 +693,12 @@ Return a sorted version of it"
 	 (before-subnames
 	    (if (eql beginning 0)
 	       '()
-	       (treadle-dbg-split-component-name-simple before)))
+	       (treadle-dbg-split-component-name-simple-2 before)))
 	 (after-subnames
 	    (if
 	       (string-empty-p after)
 	       '()
-	       (treadle-dbg-split-component-name-simple after))))
+	       (treadle-dbg-split-component-name-simple-2 after))))
       (append before-subnames (list num) after-subnames)))
 
 (defun treadle-dbg-split-component-name (full-name)
