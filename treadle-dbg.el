@@ -139,15 +139,14 @@
 		integer))
    :group 'treadle-dbg)
 
-;; This may not need ^$ since every string so far matches exactly.
 (defcustom treadle-dbg-custom-sorting-2
-   '(("^io_$" 50 nil)
-       ("^/$" 2000 nil)
-       ("^_$" 2000 nil)
-       ("^T_$" 2000 nil)
-       ("^GEN_$" 2000 nil)
-       ("^reset$" 2000 t)
-       ("^clock$" 2000 t))
+   '(("io_" 50 nil)
+       ("/" 2000 nil)
+       ("_" 2000 nil)
+       ("T_" 2000 nil)
+       ("GEN_" 2000 nil)
+       ("reset" 2000 t)
+       ("clock" 2000 t))
    "List controlling which components are placed earlier or later in the expanding tree.  Each element is (Regexp Integer Boolean)"
    :type '(repeat
 	     (group
@@ -660,7 +659,7 @@ Return a sorted version of it"
 		  (and
 		     (not found)
 		     (or (null (third cell)) first-p)
-		     (string-match (first cell) sn))
+		     (string-equal (first cell) sn))
 		  (push (second cell) subnames-rv)
 		  (setq found t)))
 	    (push sn subnames-rv))
