@@ -521,15 +521,15 @@ Return a sorted version of it"
 			     (string< a-1 b-1))))))))
       (cons (car tree) children-2)))
 
-(defun treadle-dbg-split-component-name (str)
+(defun treadle-dbg-split-component-name-simple (str)
    ""
    (if
       (eql (elt str 0) ?/)
       (cons "/" (split-string (substring str 1) "[._]+"))
       (split-string str "[._]+")))
 
-;; (treadle-dbg-split-component-name "io_a.b")
-;; (treadle-dbg-split-component-name "/print0")
+;; (treadle-dbg-split-component-name-simple "io_a.b")
+;; (treadle-dbg-split-component-name-simple "/print0")
 
 (defstruct treadle-dbg-state-entry
    ""
@@ -627,7 +627,7 @@ Return a sorted version of it"
 	 (split-name
 	    (cons
 	       num-prefix
-	       (treadle-dbg-split-component-name full-name))))
+	       (treadle-dbg-split-component-name-simple full-name))))
       (setq
 	 treadle-dbg-subname-tree
 	 (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
