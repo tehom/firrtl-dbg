@@ -1820,7 +1820,6 @@ string argument."
 	 (otherwise
 	    (treadle-dbg-read-new-decimal-val prompt old-val)))))
 
-;; mode = nil, force, unforce
 (defun treadle-dbg-poke-value (sym new-val force-p
 				&optional extra-proc extra-data)
    "Poke NEW-VAL into the component named by SYM
@@ -1860,9 +1859,87 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 		    (setf (treadle-dbg-component-current component) new-val)
 		    ;; IMPROVE ME: This could take a distinctive value
 		    ;; so we can distinguish set-by-script from
-		    ;; set-manually.  Could also use this to command
-		    ;; "force" instead of "poke"
+		    ;; set-manually.
 		    (setf (treadle-dbg-component-forced-p component) t)
+		    (when extra-proc
+		       (apply extra-proc extra-data)))))
+	 t)))
+
+(defun treadle-dbg-poke-value (sym new-val force-p
+				&optional extra-proc extra-data)
+   "Poke NEW-VAL into the component named by SYM
+Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
+   
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+
+   (let* 
+      (  
+	 (component (symbol-value sym))
+	 (component-name (treadle-dbg-component-full-name component))
+	 (current (treadle-dbg-component-current component))
+	 (msg
+	    (if force-p
+	       (concat "force " component-name " "
+		  (number-to-string new-val) "\n")
+	       (concat "poke " component-name " "
+		  (number-to-string new-val) "\n"))))
+      
+      ;; IMPROVE ME:  Pre-filter inputs so we don't get errors here.
+      (tq-enqueue treadle-dbg-tq
+	 msg
+	 treadle-dbg-tq-regexp
+	 (list component new-val extra-proc extra-data)
+	 #'(lambda (data str)
+	      (let* 
+		 ((had-problem
+		     (treadle-dbg-parse-response-maybe-complain str))
+		    (component (first data))
+		    (new-val (second data))
+		    (extra-proc (third data))
+		    (extra-data (fourth data)))
+
+		 (unless had-problem
+		    ;; Set the component's value to that.
+		    (setf (treadle-dbg-component-current component) new-val)
+		    ;; IMPROVE ME: This could take a distinctive value
+		    ;; so we can distinguish set-by-script from
+		    ;; set-manually.
+		    (setf (treadle-dbg-component-forced-p component) t)
+		    (when extra-proc
+		       (apply extra-proc extra-data)))))
+	 t)))
+
+(defun treadle-dbg-unforce (sym &optional extra-proc extra-data)
+   "Unforce the component named by SYM.  
+If EXTRA-PROC is non-nil, call it with extra-data."
+   
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+
+   (let* 
+      (  
+	 (component (symbol-value sym))
+	 (component-name (treadle-dbg-component-full-name component))
+	 (msg (concat "force " component-name " clear" "\n")))
+
+      (tq-enqueue treadle-dbg-tq
+	 msg
+	 treadle-dbg-tq-regexp
+	 (list component 0 extra-proc extra-data)
+	 #'(lambda (data str)
+	      (let* 
+		 ((had-problem
+		     (treadle-dbg-parse-response-maybe-complain str))
+		    (component (first data))
+		    (extra-proc (third data))
+		    (extra-data (fourth data)))
+
+		 (unless had-problem
+		    ;; FIX ME Set something to indicate that the
+		    ;; component's value is unknown?  Set it to nil?
+		    (setf (treadle-dbg-component-current component) 0)
+		    (setf (treadle-dbg-component-forced-p component) nil)
 		    (when extra-proc
 		       (apply extra-proc extra-data)))))
 	 t)))
@@ -1874,14 +1951,15 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
-	 
-	 )
+	 (just-clearing-p
+	    (and
+	       (treadle-dbg-component-forced-p component)
+	       (not (eq (treadle-dbg-component-io-type component) 'input))
+	       (y-or-n-p "Clear forced value?"))))
+
       (if
-	 (and
-	    (treadle-dbg-component-forced-p component)
-	    (not (eq (treadle-dbg-component-io-type component) 'input)))
-	 ;; Doesn't do much yet, and we may not go this route.
-	 (y-or-n-p "Clear forced value?")
+	 just-clearing-p
+	 (treadle-dbg-unforce sym)
 	 (let* 
 	    (  
 	       (component-name (treadle-dbg-component-full-name component))
@@ -1902,6 +1980,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
 			   current
 			   perm-props)))
 
+	    ;; IMPROVE ME:  Write something different for forcing.
 	    (when treadle-dbg-writing-script-p
 	       (push
 		  `(poke ,component-name ,new-val)
