@@ -1915,11 +1915,19 @@ If EXTRA-PROC is non-nil, call it with extra-data."
 
       (if
 	 just-clearing-p
-	 (treadle-dbg-unforce sym
-	    #'(lambda (widget widgets-buffer)
-		 (with-current-buffer widgets-buffer
-		    (widget-value-set widget (widget-value widget))))
+	 (progn
+	    (when treadle-dbg-writing-script-p
+	       (push
+		  `(unforce ,component-name)
+		  treadle-dbg-current-script-rv))
+	    
+	    (treadle-dbg-unforce sym
+	       #'(lambda (widget widgets-buffer)
+		    (with-current-buffer widgets-buffer
+		       (widget-value-set widget (widget-value widget))))
 	       (list widget (current-buffer)))
+	    
+	    )
 	 (let* 
 	    (  
 	       (component-name (treadle-dbg-component-full-name component))
@@ -1981,7 +1989,13 @@ Script should be a list whose entries are in on of the forms:
 	    (treadle-dbg-poke-value
 	       (intern (second line) firrtl-dbg-obarray)
 	       (third line)))
-	 
+	 (force
+	    (treadle-dbg-poke-value
+	       (intern (second line) firrtl-dbg-obarray)
+	       (third line)))
+	 (unforce
+	    (treadle-dbg-unforce
+	       (intern (second line) firrtl-dbg-obarray)))
 	 (step
 	    (treadle-dbg-step-circuit-low))))
    
