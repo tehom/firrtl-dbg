@@ -753,7 +753,7 @@ Return a sorted version of it"
    (setq
       treadle-dbg-subname-tree
       (treadle-dbg-add-to-subname-tree treadle-dbg-subname-tree
-	 (treadle-dbg-split-component-name full-name)
+	 (treadle-dbg-split-component-name-2 full-name)
 	 data)))
 
 (defun treadle-dbg-add-object (full-name proc-mutate)
