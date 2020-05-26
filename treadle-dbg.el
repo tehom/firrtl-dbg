@@ -1124,14 +1124,15 @@ string
       (push
 	 (list 'to-col treadle-dbg-value-column)
 	 field-list-rv)
-      (when (treadle-dbg-component-current component)
+      (if (treadle-dbg-component-current component)
 	 (push
 	    (list
 	       (treadle-dbg-value-text
 		  (treadle-dbg-component-current component)
 		  perm-props)
 	       face-of-current)
-	    field-list-rv))
+	    field-list-rv)
+	 (push "?" field-list-rv))
       (when (treadle-dbg-component-prev component)
 	 (push " <- " field-list-rv)
 	 (push
