@@ -606,6 +606,17 @@ Return a sorted version of it"
 	 ((in/prev)
 	    (setf (treadle-dbg-component-in/prev component) value)))))
 
+(defun treadle-dbg-split-name&insert-priority (full-name beginning end num)
+   ""
+   (let* 
+      ((before (substring full-name 0 beginning))
+	 (after (substring full-name end))
+	 (before-subnames
+	    (treadle-dbg-split-component-name-simple before))
+	 (after-subnames
+	    (treadle-dbg-split-component-name-simple after)))
+      (append before-subnames num after-subnames)))
+
 (defun treadle-dbg-split-component-name (full-name)
    ""
 
@@ -617,9 +628,24 @@ Return a sorted version of it"
 	       (not found)
 	       (string-match (first cell) full-name))
 	    (setq found
-	       (cons
-		  (second cell)
-		  (treadle-dbg-split-component-name-simple full-name)))))
+	       (cond
+		  ;; There was a sub-expression.  Split full-name at the
+		  ;; sub-expression, replacing it (it is typically empty)
+		  ((match-beginning 1)
+		     (treadle-dbg-split-name&insert-priority full-name
+			(match-beginning 1)
+			(match-end 1)
+			(second cell)))
+		  ;; No subexpression.  Split when the match begins,
+		  ;; and do not replace a part.  If the regexp starts
+		  ;; with ^ this is the same as always matching at the
+		  ;; beginning
+		  ((match-beginning 0)
+		     (treadle-dbg-split-name&insert-priority full-name
+			(match-beginning 0)
+			(match-beginning 0) ;; Same position.
+			(second cell)))
+		  (t nil)))))
       (or found
 	 (cons 1000 (treadle-dbg-split-component-name-simple full-name)))))
 
