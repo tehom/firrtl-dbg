@@ -1375,9 +1375,7 @@ string
       (widget-create (treadle-dbg-tree-widget
 			(cons "root" treadle-dbg-subname-tree)
 			nil)))
-   (if (require 'tree-mode nil t)
-      (tree-minor-mode t)
-      (widget-insert "\n\n"))
+
    (use-local-map widget-keymap)
 
    (local-set-key "\M-\r"
