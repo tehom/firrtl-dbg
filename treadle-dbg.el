@@ -1723,7 +1723,8 @@ string argument."
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
-   (and treadle-dbg-widget-buffer-dirty-p
+   (and
+      treadle-dbg-widget-buffer-dirty-p
       (eql treadle-dbg-widget-buffer-instability 0)))
 
 (defun treadle-dbg-redraw-if-needed (buf data)
