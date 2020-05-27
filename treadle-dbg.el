@@ -1713,6 +1713,28 @@ string argument."
 			(funcall proc button))))
 	       (setq done t))))))
 
+;; Also check treadle-dbg-widget-buffer-filled-p to know whether to
+;; redraw or rebuild.
+(defun treadle-dbg-widget-buffer-wants-redraw-p ()
+   ""
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+
+   (and treadle-dbg-widget-buffer-dirty-p
+      (eql treadle-dbg-widget-buffer-instability 0)))
+
+(defun treadle-dbg-redraw-if-needed (buf data)
+   "Redraw the buffer if needed"
+   (unless (buffer-live-p buf)
+      (cancel-timer (first data)))
+   (with-current-buffer buf
+      (when (treadle-dbg-widget-buffer-wants-redraw-p)
+	 (if treadle-dbg-widget-buffer-filled-p
+	    (progn
+	       (treadle-dbg-create-widgets)
+	       (pop-to-buffer buf))
+	    (treadle-dbg-redraw-widgets)))))
+
 (defun treadle-dbg-redraw-widgets ()
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
