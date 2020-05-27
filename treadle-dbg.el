@@ -2547,7 +2547,7 @@ PROC should return non-nil if it has finished its work"
 	    #'(lambda (process main-buf fir-file)
 		 (when
 		    (treadle-dbg-process-is-ready-p process)
-		    (message "Debugger process is ready")
+		    (message "Treadle debugger process is ready")
 		    (let* 
 		       ((tq (tq-create process)))
 		       (with-current-buffer main-buf
@@ -2558,7 +2558,7 @@ PROC should return non-nil if it has finished its work"
 	    ;; Pass fir-file
 	    (list treadle-dbg-process main-buf fir-file)
 	    #'(lambda ()
-		 (message "Debugger process timed out"))
+		 (message "Treadle debugger process timed out"))
 	    '()))))
 
 ;;;_. Footers
