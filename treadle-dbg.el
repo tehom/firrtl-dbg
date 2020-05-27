@@ -422,6 +422,36 @@ Format: Each node is either:
 
 ;;;;;;;;;;;;;;;;;;;;
 
+(defun treadle-dbg-make-custom-variable-menu ()
+   ""
+   
+   (require 'cus-edit)
+   (let*
+      (
+	 (our-menu '()))
+
+      (dolist (i custom-variable-menu)
+	 (let* 
+	    ((entry
+		(if (eq (second i) 'custom-variable-save)
+		   '("Save for Future Sessions"
+		       treadle-dbg-custom-variable-save
+		       (lambda
+			  (widget)
+			  (memq
+			     (widget-get widget :custom-state)
+			     '(modified set changed rogue))))
+		   i)))
+	    (push entry our-menu)))
+      (nreverse our-menu)))
+
+;; Needs to be after treadle-dbg-make-custom-variable-menu
+(defconst treadle-dbg-custom-variable-menu
+   (treadle-dbg-make-custom-variable-menu)
+   "" )
+
+;;;;;;;;;;;;;;;;;;;;
+
 (defun treadle-dbg-add-to-subname-tree (tree subname-list data)
    "
 TREE should be '(list subtree...) or '(tag values...) where tag is one of the component struct tags.
@@ -680,7 +710,7 @@ Return a sorted version of it"
 		  (push (second cell) subnames-rv)
 		  (setq found t)))
 	    (push sn subnames-rv))
-	 (setq first nil))
+	 (setq first-p nil))
       (nreverse subnames-rv)))
 
 '
@@ -811,7 +841,7 @@ MUTATOR takes two arguments.  First is a treadle-dbg-component, second is a trea
 	       ((e (treadle-dbg-str->state-entry line))
 		  (full-name (treadle-dbg-state-entry-full-name e)))
 	       (when (string-blank-p full-name)
-		  (message "Got a blank name in line %s") line)
+		  (message "Got a blank name in line %s" line))
 	       (unless (string-blank-p full-name)
 		  (treadle-dbg-add-object
 		     full-name
@@ -1516,35 +1546,6 @@ Return nil if component has no permanent props."
       (restore-buffer-modified-p t))
    (custom-variable-state-set-and-redraw widget))
 
-(defun treadle-dbg-make-custom-variable-menu ()
-   ""
-   
-   (require 'cus-edit)
-   (let*
-      (
-	 (our-menu '()))
-
-      (dolist (i custom-variable-menu)
-	 (let* 
-	    ((entry
-		(if (eq (second i) 'custom-variable-save)
-		   '("Save for Future Sessions"
-		       treadle-dbg-custom-variable-save
-		       (lambda
-			  (widget)
-			  (memq
-			     (widget-get widget :custom-state)
-			     '(modified set changed rogue))))
-		   i)))
-	    (push entry our-menu)))
-      (nreverse our-menu)))
-
-;; Needs to be after treadle-dbg-make-custom-variable-menu
-(defconst treadle-dbg-custom-variable-menu
-   (treadle-dbg-make-custom-variable-menu)
-   "" )
-
-
 (defun treadle-dbg-do-alt-interaction (pos &optional event)
    "Do the alternate widget interaction at pos"
    (interactive "@d")
@@ -1969,6 +1970,7 @@ If EXTRA-PROC is non-nil, call it with extra-data."
    (let* 
       (  (sym (widget-get widget :value))
 	 (component (symbol-value sym))
+	 (component-name (treadle-dbg-component-full-name component))
 	 (just-clearing-p
 	    (and
 	       (treadle-dbg-component-forced-p component)
@@ -1994,7 +1996,6 @@ If EXTRA-PROC is non-nil, call it with extra-data."
 	       "STALE"))
 	 (let* 
 	    (  
-	       (component-name (treadle-dbg-component-full-name component))
 	       (current (treadle-dbg-component-current component))
 	       (forcing-p
 		  (case (treadle-dbg-component-io-type component)
