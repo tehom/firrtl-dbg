@@ -2056,11 +2056,13 @@ Script should be a list whose entries are in one of the forms:
 	 (poke
 	    (treadle-dbg-poke-value
 	       (intern (second line) treadle-dbg-obarray)
-	       (third line)))
+	       (third line)
+	       nil))
 	 (force
 	    (treadle-dbg-poke-value
 	       (intern (second line) treadle-dbg-obarray)
-	       (third line)))
+	       (third line)
+	       t))
 	 (unforce
 	    (treadle-dbg-unforce
 	       (intern (second line) treadle-dbg-obarray)))
