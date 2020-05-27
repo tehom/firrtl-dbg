@@ -1263,6 +1263,10 @@ string
 
    (setq treadle-dbg-widget-buffer-dirty-p nil)
    (setq treadle-dbg-widget-buffer-filled-p t)
+   ;;
+   (let
+      ((inhibit-read-only t))
+      (erase-buffer))
 
    (widget-insert "Treadle debugger interface\n")
 
