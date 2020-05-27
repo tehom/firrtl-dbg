@@ -756,15 +756,14 @@ Return a sorted version of it"
 	 (cons 1000 (treadle-dbg-split-component-name-simple full-name)))))
 '
 (treadle-dbg-split-component-name "_T_5")
-(2000 "" "T" "5")
+
 '
 (treadle-dbg-split-component-name
    "cellVec2_0.io_hasWrittenAny")
 '("cellVec2" "0" "" 50 "io" "hasWrittenAny")
 '
 (treadle-dbg-split-component-name "cellVec2_0")
-'
-(1000 "cellVec2" "0")
+
 
 (defun treadle-dbg-mutate-subname-tree (full-name data)
    ""
