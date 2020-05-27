@@ -1738,6 +1738,21 @@ string argument."
 	       (pop-to-buffer buf))
 	    (treadle-dbg-redraw-widgets)))))
 
+(defun treadle-dbg-start-redraw-timer ()
+   ""
+
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   (let
+      ((data (list nil)))
+      (setcar data 
+	 (run-at-time t 1
+	    #'treadle-dbg-redraw-if-needed
+	    (current-buffer)
+	    data))
+   
+      (setq treadle-dbg-timer-for-redraw (car data))))
+
 (defun treadle-dbg-redraw-widgets ()
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
