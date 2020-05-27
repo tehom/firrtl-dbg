@@ -1569,7 +1569,8 @@ Return nil if component has no permanent props."
    "Step the circuit"
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   (incf treadle-dbg-widget-buffer-instability)
+
+   (treadle-dbg-record-work-begun)
    (widget-value-set
       treadle-dbg-widget-of-freshness
       "Stepping")
@@ -1577,29 +1578,19 @@ Return nil if component has no permanent props."
    (when treadle-dbg-writing-script-p
       (push '(step) treadle-dbg-current-script-rv))
 
-   ;; IMPROVE ME:  Setting ddirty should be done in each operation
+   ;; IMPROVE ME:  Setting dirty should be done in each operation
    (setq treadle-dbg-widget-buffer-dirty-p t)
    (treadle-dbg-step-circuit-low)
    (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
-
-   ;; IMPROVE ME: Set this after "step"?
-   (setq treadle-dbg-current-freshness "FRESH")
-
-   (treadle-dbg-do-when-tq-empty
-      (list (current-buffer))
-      #'(lambda (buf)
-	   (with-current-buffer buf
-	      (decf treadle-dbg-widget-buffer-instability))))
-   
-   ' ;; REMOVE ME  Because it's being taken over by the timer.
-   (treadle-dbg-redraw-widgets))
+   (treadle-dbg-enqueue-work-is-done "FRESH"))
 
 (defun treadle-dbg-reset-circuit ()
    "Reset the circuit"
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
+   (treadle-dbg-record-work-begun)
    (widget-value-set
       treadle-dbg-widget-of-freshness
       "Resetting")
@@ -1619,8 +1610,7 @@ Return nil if component has no permanent props."
    (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
-   (setq treadle-dbg-current-freshness "FRESH")
-   (treadle-dbg-redraw-widgets))
+   (treadle-dbg-enqueue-work-is-done "FRESH"))
 
 
 (defun treadle-dbg-record-spurious-response-lines (str step-num)
@@ -2054,10 +2044,12 @@ Script should be a list whose entries are in on of the forms:
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
+   (treadle-dbg-record-work-begun)
    (widget-value-set
       treadle-dbg-widget-of-freshness
       "Running script")
 
+   ;; SUPPORT ME: In each operation, (setq treadle-dbg-widget-buffer-dirty-p t)
    (dolist (line script)
       (case (first line)
 	 (poke
@@ -2078,18 +2070,9 @@ Script should be a list whose entries are in on of the forms:
    (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
-   (setq treadle-dbg-current-freshness "Script finished")
-   ;; IMPROVE ME
-   ;; When that's done,
-   '
-   (unless (<= treadle-dbg-widget-buffer-instability 0)
-       (decf treadle-dbg-widget-buffer-instability))
-   ;; In each operation, (setq treadle-dbg-widget-buffer-dirty-p t)
-   '(and
-      treadle-dbg-widget-buffer-dirty-p
-      (eql treadle-dbg-widget-buffer-instability 0))
-   
-   (treadle-dbg-redraw-widgets))
+
+   (treadle-dbg-enqueue-work-is-done "Script finished"))
+
 
 
 
@@ -2209,10 +2192,35 @@ PROC should return non-nil if it has finished its work"
 	      (apply proc data)))
       t))
 
+(defun treadle-dbg-record-work-begun ()
+   ""
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   (incf treadle-dbg-widget-buffer-instability))
+
+
+(defun treadle-dbg-enqueue-work-is-done (freshness)
+   ""
+
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   (treadle-dbg-do-when-tq-empty
+      (list (current-buffer) freshness)
+      #'(lambda (buf freshness)
+	   (with-current-buffer buf
+	      (when freshness
+		 (setq treadle-dbg-current-freshness freshness))
+	      (unless (<= treadle-dbg-widget-buffer-instability 0)
+		 (decf treadle-dbg-widget-buffer-instability))))))
+
 (defun treadle-dbg-initial-load (fir-file)
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
+
+   (treadle-dbg-record-work-begun)
+   (setq treadle-dbg-widget-buffer-dirty-p t)
+   (setq treadle-dbg-widget-buffer-filled-p nil)
 
    (setq treadle-dbg-current-step 0)
    (setq treadle-dbg-current-freshness "FRESH")
@@ -2247,18 +2255,8 @@ PROC should return non-nil if it has finished its work"
 		 #'treadle-dbg-get-symbol-data
 		 treadle-dbg-obarray)
 
-	      ;; Having enqueued the pre-requisites, now enqueue the
-	      ;; widget drawing, so that the operations will be done
-	      ;; in this order.
-	      (treadle-dbg-do-when-tq-empty
-		 (list (current-buffer))
-		 #'(lambda (buf)
-		      (with-current-buffer buf
-			 (unless (eq treadle-dbg-current-buffer-type 'main)
-			    (treadle-dbg-complain-bad-buffer))
-			 ;; Draw the widgets and go.
-			 (treadle-dbg-create-widgets))
-		      (pop-to-buffer buf)))))))
+	      (treadle-dbg-enqueue-work-is-done "FRESH"))))
+   (treadle-dbg-start-redraw-timer))
 
 
 
