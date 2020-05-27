@@ -160,6 +160,13 @@
 		(boolean :tag "Only as first subname")))
    :group 'treadle-dbg)
 
+(defcustom treadle-dbg-show-full-component-name-p
+   nil
+   "Whether to show the whole component name"
+   :type 'boolean
+   :group 'treadle-dbg)
+
+
 (defconst treadle-dbg-component-perm-spec
    '(choice
        (group
