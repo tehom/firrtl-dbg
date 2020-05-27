@@ -1745,10 +1745,10 @@ string argument."
       (with-current-buffer buf
 	 (when (treadle-dbg-widget-buffer-wants-redraw-p)
 	    (if treadle-dbg-widget-buffer-filled-p
+	       (treadle-dbg-redraw-widgets)
 	       (progn
 		  (treadle-dbg-create-widgets)
-		  (pop-to-buffer buf))
-	       (treadle-dbg-redraw-widgets))))
+		  (pop-to-buffer buf)))))
       (cancel-timer (first data))))
 
 (defun treadle-dbg-start-redraw-timer ()
