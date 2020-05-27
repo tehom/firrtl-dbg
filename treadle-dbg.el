@@ -1276,14 +1276,9 @@ string
 		   ,@start-open-form
 		   :dynargs treadle-dbg-tree-expand))))
       (let*
-	 ((sym (cddr cell))
-	    (tag
-	       (if treadle-dbg-show-full-component-name-p
-		  (symbol-name sym)
-		  (car cell))))
+	 ((sym (cddr cell)))
 	 `(const
-	     :format "%t\n"
-	     :tag ,tag
+	     :format "%v\n"
 	     :value ,sym
 	     :value-create ,#'treadle-dbg-insert-component
 	     :alt-action ,#'treadle-dbg-edit-properties
