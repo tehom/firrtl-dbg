@@ -1262,6 +1262,9 @@ string
       (treadle-dbg-complain-bad-buffer
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
+   (setq treadle-dbg-widget-buffer-dirty-p nil)
+   (setq treadle-dbg-widget-buffer-filled-p t)
+
    (widget-insert "Treadle debugger interface\n")
 
    (setq treadle-dbg-widget-of-circuit-name
@@ -1739,6 +1742,7 @@ string argument."
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
+   (setq treadle-dbg-widget-buffer-dirty-p nil)
    (widget-value-set
       treadle-dbg-widget-of-step-num
       treadle-dbg-current-step)
