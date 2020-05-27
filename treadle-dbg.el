@@ -28,7 +28,7 @@
 ;; Chisel.  To use it, you will need Chisel3 and sbt.  If you don't
 ;; know what those are, you probably don't need this package.
 
-;; The entry point is 'firrtl-dbg'.  You need to have already set up
+;; The entry point is 'treadle-dbg'.  You need to have already set up
 ;; Treadle in Scala.
 
 ;; Instructions for setting up and using Treadle itself can be found
@@ -39,11 +39,11 @@
 ;; You'll have to point it towards the right directory (the one that
 ;; build.sbt lives in) You probably want to set
 ;; treadle-dbg-directory-history so that your current project pops up
-;; at the top of the history lists when calling firrtl-dbg.
+;; at the top of the history lists when calling treadle-dbg.
 
 ;; It doesn't support vpn scripts, but does support a native elisp
-;; script.  Create it with firrtl-dbg-start-recording-script, do stuff
-;; in the main buffer, then firrtl-dbg-stop-recording-script when
+;; script.  Create it with treadle-dbg-start-recording-script, do stuff
+;; in the main buffer, then treadle-dbg-stop-recording-script when
 ;; done.  It will pop up a buffer with the script in it.  It's on you
 ;; to copy that code somewhere.  Run it with treadle-dbg-run-script.
 ;; You can also run handcrafted scripts, or scripts generated from
@@ -90,7 +90,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customizations and constants
 
-(defgroup treadle-dbg nil "Customizations for Firrtl-dbg"
+(defgroup treadle-dbg nil "Customizations for Treadle-dbg"
    :group 'applications)
 
 (defface treadle-dbg-face-value-default nil
@@ -2055,15 +2055,15 @@ Script should be a list whose entries are in one of the forms:
       (case (first line)
 	 (poke
 	    (treadle-dbg-poke-value
-	       (intern (second line) firrtl-dbg-obarray)
+	       (intern (second line) treadle-dbg-obarray)
 	       (third line)))
 	 (force
 	    (treadle-dbg-poke-value
-	       (intern (second line) firrtl-dbg-obarray)
+	       (intern (second line) treadle-dbg-obarray)
 	       (third line)))
 	 (unforce
 	    (treadle-dbg-unforce
-	       (intern (second line) firrtl-dbg-obarray)))
+	       (intern (second line) treadle-dbg-obarray)))
 	 (step
 	    (treadle-dbg-step-circuit-low))))
    
