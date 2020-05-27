@@ -45,7 +45,7 @@
 ;; script.  Create it with firrtl-dbg-start-recording-script, do stuff
 ;; in the main buffer, then firrtl-dbg-stop-recording-script when
 ;; done.  It will pop up a buffer with the script in it.  It's on you
-;; to copy that code somewhere.  Run it with firrtl-dbg-run-script.
+;; to copy that code somewhere.  Run it with treadle-dbg-run-script.
 ;; You can also run handcrafted scripts, or scripts generated from
 ;; Scala but then you're going to have to write the print statements
 ;; and the conversion yourself.
@@ -1367,7 +1367,7 @@ string
 	 (treadle-dbg-compile&restart))
       "Recompile & restart")
    
-   ;; IMPROVE ME: Add other buttons: Reset, (Done), Poison, Randomize,
+   ;; IMPROVE ME: Add other buttons: Reset, (Done), Randomize,
    ;; Start/stop recording script, etc
    (widget-insert "\n\n")
 
@@ -2034,12 +2034,12 @@ If EXTRA-PROC is non-nil, call it with extra-data."
 
 
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-run-script (script)
+(defun treadle-dbg-run-script (script)
    "Run SCRIPT.
-Script should be a list whose entries are in on of the forms:
+Script should be a list whose entries are in one of the forms:
  (poke component-name-string val)
+ (force component-name-string val)
+ (unforce component-name-string)
  (step)"
    
    (unless (eq treadle-dbg-current-buffer-type 'main)
@@ -2077,17 +2077,7 @@ Script should be a list whose entries are in on of the forms:
 
 
 
-;; Examples:
-;; (firrtl-dbg-run-script
-;;    '((poke "io_value1" 4)
-;;        (poke "io_value2" 12)))
-
-;; (firrtl-dbg-run-script
-;;    '((step)))
-
-;; ADAPT ME
-'
-(defun firrtl-dbg-start-recording-script ()
+(defun treadle-dbg-start-recording-script ()
    ""
 
    (interactive)
@@ -2096,9 +2086,7 @@ Script should be a list whose entries are in on of the forms:
    (setq treadle-dbg-current-script-rv '())
    (setq treadle-dbg-writing-script-p t))
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-stop-recording-script ()
+(defun treadle-dbg-stop-recording-script ()
    ""
    
    (interactive)
@@ -2106,17 +2094,15 @@ Script should be a list whose entries are in on of the forms:
       (treadle-dbg-complain-bad-buffer))
    (setq treadle-dbg-writing-script-p nil))
 
-;; ADAPT ME
-'
-(defun firrtl-dbg-get-script ()
+(defun treadle-dbg-get-script ()
    ""
    
    (interactive)
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   (with-output-to-temp-buffer "*FIRRTL script*"
+   (with-output-to-temp-buffer "*TREADLE script*"
       (princ ";;User-generated script\n")
-      (princ ";;Call as '(firrtl-dbg-run-script SCRIPT)'\n")
+      (princ ";;Call as '(treadle-dbg-run-script SCRIPT)'\n")
       (princ "\n")
       (prin1
 	 (reverse treadle-dbg-current-script-rv))))
