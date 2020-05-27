@@ -1728,15 +1728,15 @@ string argument."
 
 (defun treadle-dbg-redraw-if-needed (buf data)
    "Redraw the buffer if needed"
-   (unless (buffer-live-p buf)
-      (cancel-timer (first data)))
-   (with-current-buffer buf
-      (when (treadle-dbg-widget-buffer-wants-redraw-p)
-	 (if treadle-dbg-widget-buffer-filled-p
-	    (progn
-	       (treadle-dbg-create-widgets)
-	       (pop-to-buffer buf))
-	    (treadle-dbg-redraw-widgets)))))
+   (if (buffer-live-p buf)
+      (with-current-buffer buf
+	 (when (treadle-dbg-widget-buffer-wants-redraw-p)
+	    (if treadle-dbg-widget-buffer-filled-p
+	       (progn
+		  (treadle-dbg-create-widgets)
+		  (pop-to-buffer buf))
+	       (treadle-dbg-redraw-widgets))))
+      (cancel-timer (first data))))
 
 (defun treadle-dbg-start-redraw-timer ()
    ""
