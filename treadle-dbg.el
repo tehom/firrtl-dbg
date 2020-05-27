@@ -1151,7 +1151,7 @@ string
       text))
 
 
-(defun treadle-dbg-insert-component-aux (component perm-props)
+(defun treadle-dbg-insert-component-aux (component perm-props subname)
    ""
    (let* 
       ((width-string
@@ -1170,9 +1170,12 @@ string
 		  'treadle-dbg-face-forced-noninput-value
 		  'treadle-dbg-face-value-default)))
 	 (field-list-rv '()))
+
       (push
 	 (list
-	    (treadle-dbg-component-full-name component)
+	    (if treadle-dbg-show-full-component-name-p
+	       (treadle-dbg-component-full-name component)
+	       subname)
 	    nil)
 	 field-list-rv)
       (push
@@ -1230,9 +1233,10 @@ string
    (let* 
       (
 	 (sym (widget-get wid :value))
+	 (subname (widget-get wid :subname))
 	 (v (symbol-value sym))
 	 (perm-props (treadle-dbg-get-perm-props (symbol-name sym))))
-      (treadle-dbg-insert-component-aux v perm-props)))
+      (treadle-dbg-insert-component-aux v perm-props subname)))
 
 (defun treadle-dbg-tree-widget (cell children-open)
    (if (second cell)
@@ -1279,6 +1283,7 @@ string
 	 ((sym (cddr cell)))
 	 `(const
 	     :format "%v\n"
+	     :subname ,(car cell)
 	     :value ,sym
 	     :value-create ,#'treadle-dbg-insert-component
 	     :alt-action ,#'treadle-dbg-edit-properties
