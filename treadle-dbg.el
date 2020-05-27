@@ -126,7 +126,8 @@
 		(repeat string)))
    :group 'treadle-dbg)
 
-;; IMPROVE ME:  Make this local
+;; OBSOLETE
+'
 (defcustom treadle-dbg-custom-sorting
    '(("io" 50)
        ("^/" 2000)
@@ -142,6 +143,7 @@
 		integer))
    :group 'treadle-dbg)
 
+;; IMPROVE ME:  Make this local
 (defcustom treadle-dbg-custom-sorting-2
    '(("io_" 50 nil)
        ("/" 2000 nil)
@@ -584,6 +586,8 @@ Return a sorted version of it"
 			     (string< a-1 b-1))))))))
       (cons (car tree) children-2)))
 
+;; OBSOLETE
+'
 (defun treadle-dbg-split-component-name-simple (str)
    ""
    (if
@@ -752,7 +756,7 @@ Return a sorted version of it"
 	       '()
 	       (treadle-dbg-split-component-name-simple-2 after))))
       (append before-subnames (list num) after-subnames)))
-
+' ;; OBSOLETE
 (defun treadle-dbg-split-component-name (full-name)
    ""
 
