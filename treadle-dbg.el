@@ -2332,38 +2332,43 @@ PROC should return non-nil if it has finished its work"
    (interactive)
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   (if
-      (not (stringp treadle-dbg-fir-file-location))
-      (message "Need to set 'treadle-dbg-fir-file-location'"))
-   (if (not (stringp treadle-dbg-recompile-base-command))
-      (message "Need to set 'treadle-dbg-recompile-base-command'"))
-   
-   (when (stringp treadle-dbg-fir-file-location)
-      (let
-	 ((compile-process
-	     (treadle-dbg-compile-fir-file treadle-dbg-fir-file-location)))
-	 (message "Compiling...")
-	 (when compile-process
-	    (treadle-dbg-call-until-done-w/timeout
-	       treadle-dbg-timeout
-	       #'(lambda (main-buf fir-file compile-process)
-		    (when (eq (process-status compile-process) 'exit)
-		       (message "Restarting")
-		       (let
-			  ((wd (with-current-buffer main-buf
-				  default-directory)))
-			  (with-current-buffer main-buf
-			     (treadle-dbg-shutdown))
-			  (treadle-dbg wd fir-file))
-		       t))
 
-	       (list
-		  (current-buffer)
-		  treadle-dbg-fir-file-location
-		  compile-process)
-	       #'(lambda ()
-		    (message "Compile process timed out"))
-	       '())))))
+   (cond
+      ((not (stringp treadle-dbg-fir-file-location))
+	 (message "Need to set 'treadle-dbg-fir-file-location'"))
+      ((not (stringp treadle-dbg-recompile-base-command))
+	 (message "Need to set 'treadle-dbg-recompile-base-command'"))
+      ((not (eq treadle-dbg-how-to-find-fir-file 'use-custom-file))
+	 (message "You're set up for a different fir file.  Change treadle-dbg-how-to-find-fir-file"))
+      
+      ((stringp treadle-dbg-fir-file-location)
+	 (let
+	    ((compile-process
+		(treadle-dbg-compile-fir-file treadle-dbg-fir-file-location)))
+	    (message "Compiling...")
+	    (when compile-process
+	       (treadle-dbg-call-until-done-w/timeout
+		  treadle-dbg-timeout
+		  #'(lambda (main-buf fir-file compile-process)
+		       (when (eq (process-status compile-process) 'exit)
+			  (message "Restarting")
+			  (let
+			     ((wd (with-current-buffer main-buf
+				     default-directory)))
+			     (with-current-buffer main-buf
+				(treadle-dbg-shutdown))
+			     (treadle-dbg wd fir-file))
+			  t))
+
+		  (list
+		     (current-buffer)
+		     treadle-dbg-fir-file-location
+		     compile-process)
+		  #'(lambda ()
+		       (message "Compile process timed out"))
+		  '()))))
+      (t (message "Can't find fir file"))))
+
 
 
 
