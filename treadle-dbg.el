@@ -1768,6 +1768,59 @@ string argument."
 		  (pop-to-buffer buf)))))
       (cancel-timer (first data))))
 
+(defun treadle-dbg-do-next-update ()
+   ""
+   (if (buffer-live-p buf)
+      (with-current-buffer buf
+	 (case treadle-dbg-state
+	    (initial t)
+	    (loading t)
+	    (load-failed
+	       (cancel-timer (first data)))
+
+	    (loaded
+	       (setq treadle-dbg-state 'getting-state)
+	       (treadle-dbg-show-components
+		  "show state\n"
+		  #'treadle-dbg-record-state)
+	       (treadle-dbg-show-components
+		  "show inputs\n"
+		  #'treadle-dbg-record-inputs)
+	       (treadle-dbg-show-components
+		  "show outputs\n"
+		  #'treadle-dbg-record-outputs)
+	       (treadle-dbg-queue-state-change 'got-state))
+	    
+	    (getting-state t)
+	    (got-state
+	       (setq treadle-dbg-state 'getting-symbols)
+	       (setq treadle-dbg-current-step 0)
+	       (setq treadle-dbg-current-freshness "FRESH")
+	       (setq
+		  treadle-dbg-subname-tree
+		  (treadle-dbg-sort-as-subname-tree treadle-dbg-subname-tree))
+	       (mapatoms
+		  #'treadle-dbg-get-symbol-data
+		  treadle-dbg-obarray)
+	       (treadle-dbg-queue-state-change 'got-symbols))
+
+	    (getting-symbols t)
+	    (got-symbols
+	       (progn
+		  ;; MOVE ME
+		  (setq treadle-dbg-state 'displayed-fresh)
+		  (treadle-dbg-create-widgets)
+		  (pop-to-buffer buf)))
+
+	    (displayed-at-all
+	       ;; MOVE ME
+	       (setq treadle-dbg-state 'displayed-fresh)
+	       (treadle-dbg-redraw-widgets))
+
+	    (displayed-fresh
+	       t)))
+      (cancel-timer (first data))))
+
 (defun treadle-dbg-start-redraw-timer ()
    ""
 
@@ -2203,6 +2256,14 @@ PROC should return non-nil if it has finished its work"
 	      (apply proc data)))
       t))
 
+(defun treadle-dbg-queue-state-change (state)
+   ""
+   (treadle-dbg-do-when-tq-empty
+      (list (current-buffer) state)
+      #'(lambda (buf state)
+	   (with-current-buffer buf
+	      (setq treadle-dbg-state state)))))
+
 (defun treadle-dbg-record-work-begun ()
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
@@ -2230,16 +2291,19 @@ PROC should return non-nil if it has finished its work"
       (treadle-dbg-complain-bad-buffer))
 
    (treadle-dbg-record-work-begun)
+   (setq treadle-dbg-state 'initial)
+   ;; OBSOLESCENT
    (setq treadle-dbg-widget-buffer-dirty-p t)
    (setq treadle-dbg-widget-buffer-filled-p nil)
+
+   ;; FIX ME:  This can abort
+   (treadle-dbg-load-fir-file fir-file)
 
    (setq treadle-dbg-current-step 0)
    (setq treadle-dbg-current-freshness "FRESH")
    (setq treadle-dbg-current-circuit-name
       (treadle-dbg-get-circuit-name fir-file))
 
-   ;; FIX ME:  This can abort
-   (treadle-dbg-load-fir-file fir-file)
 
    (treadle-dbg-show-components
       "show state\n"
@@ -2270,6 +2334,23 @@ PROC should return non-nil if it has finished its work"
 	      (treadle-dbg-enqueue-work-is-done "FRESH"))))
    (treadle-dbg-start-redraw-timer))
 
+(defun treadle-dbg-initial-load-2 (fir-file)
+   ""
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+
+   (setq treadle-dbg-state 'initial)
+
+   ;; FIX ME:  This can abort
+   (treadle-dbg-load-fir-file fir-file)
+   (setq treadle-dbg-current-circuit-name
+      (treadle-dbg-get-circuit-name fir-file))
+
+   ;; WRITE ME
+   (treadle-dbg-start-update-timer)
+
+   )
+
 
 
 
@@ -2277,11 +2358,26 @@ PROC should return non-nil if it has finished its work"
 (defun treadle-dbg-load-fir-file (fir-file)
    ""
 
-   ;; FIX ME:  This can abort
    (let*
       ((command (concat "load " fir-file "\n")))
       (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
-	 nil nil t)))
+	 (list (current-buffer) (tq-buffer treadle-dbg-tq))
+	 #'(lambda (data str)
+	      (let
+		 (  (buf (first data))
+		    (err-buffer (second data))
+		    (found-error
+		       (string-match "firrtl\.passes\.PassException" str)))
+		 (if found-error
+		    (progn
+		       (with-current-buffer buf
+			  (setq treadle-dbg-state 'load-failed))
+		       (message "Loading failed")
+		       (pop-to-buffer err-buffer))
+		    (with-current-buffer buf
+		       (setq treadle-dbg-state 'loaded)))))
+	 t)))
+
 
 (defun treadle-dbg-get-symbol-data (sym)
    ""
