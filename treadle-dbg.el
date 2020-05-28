@@ -2364,11 +2364,8 @@ PROC should return non-nil if it has finished its work"
    (setq treadle-dbg-current-circuit-name
       (treadle-dbg-get-circuit-name fir-file))
 
-   ;; ENABLE ME
-   '
-   (treadle-dbg-start-update-timer)
+   (treadle-dbg-start-update-timer))
 
-   )
 
 
 (defun treadle-dbg-show-in-error-buffer (str)
