@@ -282,6 +282,10 @@ If non-nil, enables compiling"
    "*Treadle-dbg compile process*"
    "Name of the compile process buffer when active" )
 
+(defconst treadle-dbg-error-buffer-name
+   "*Treadle-dbg error*"
+   "Base name of the buffer to display errors in" )
+
 (defcustom treadle-dbg-perm-props-relative-filename
    "tread-dbg-perm-props"   
    "Relative name of the file to store perm properties in"
@@ -2367,7 +2371,14 @@ PROC should return non-nil if it has finished its work"
    )
 
 
-
+(defun treadle-dbg-show-in-error-buffer (str)
+   ""
+   (let* 
+      ((err-buf
+	  (generate-new-buffer treadle-dbg-error-buffer-name)))
+      (with-current-buffer err-buf
+	 (insert str))
+      (pop-to-buffer err-buf)))
 
 
 (defun treadle-dbg-load-fir-file (fir-file)
@@ -2388,7 +2399,7 @@ PROC should return non-nil if it has finished its work"
 		       (with-current-buffer buf
 			  (setq treadle-dbg-state 'load-failed))
 		       (message "Loading failed")
-		       (pop-to-buffer err-buffer))
+		       (treadle-dbg-show-in-error-buffer str))
 		    (with-current-buffer buf
 		       (setq treadle-dbg-state 'loaded)))))
 	 t)))
@@ -2696,7 +2707,7 @@ PROC should return non-nil if it has finished its work"
 		       ((tq (tq-create process)))
 		       (with-current-buffer main-buf
 			  (setq treadle-dbg-tq tq)
-			  (treadle-dbg-initial-load fir-file)))
+			  (treadle-dbg-initial-load-2 fir-file)))
 		    ;; Indicate that we have succeeded
 		    t))
 	    ;; Pass fir-file
