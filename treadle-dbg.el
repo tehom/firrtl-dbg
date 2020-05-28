@@ -437,9 +437,31 @@ Format: Each node is either:
 Values: initial, loaded, got-state, got-symbols,
 displayed-at-all, displayed-fresh")
 
+;; initial, loaded, fresh, stale.  "show state" sets it to fresh,
+;; mutations to stale.
+(defvar-local treadle-dbg-circuit-state
+   'initial
+   "The state of the circuit.
+
+Values: initial, loaded, fresh, stale")
+
+;; initial, got-state, got-symbols
+(defvar-local treadle-dbg-data-state
+   'initial
+   "The state of treadle-dbg's internal data.
+
+Values: initial, got-state, got-symbols")
+
+;; initial, widgets-created, fresh, stale
+(defvar-local treadle-dbg-display-state
+   'initial
+   "The state of treadle-dbg's display.
+
+Values: initial, widgets-created, fresh, stale")
+
 (defvar-local treadle-dbg-widget-buffer-instability
    0
-   "Count of what is currently working to dirty the widget buffer")
+   "Count of what is currently working on the data.  Basically it's non-zero when a script is running")
 
 ;;;;;;;;;;;;;;;;;;;;
 
@@ -1593,19 +1615,23 @@ Return nil if component has no permanent props."
       (treadle-dbg-complain-bad-buffer))
 
    (treadle-dbg-record-work-begun)
-   (widget-value-set
-      treadle-dbg-widget-of-freshness
-      "Stepping")
+   (treadle-dbg-make-buffer-stale "Stepping")
 
    (when treadle-dbg-writing-script-p
       (push '(step) treadle-dbg-current-script-rv))
 
-   ;; IMPROVE ME:  Setting dirty should be done in each operation
+   ;; IMPROVE ME: Setting dirty should be done in each operation such
+   ;; as treadle-dbg-step-circuit-low, and it's
+   ;; treadle-dbg-make-buffer-stale now.
    (setq treadle-dbg-widget-buffer-dirty-p t)
    (treadle-dbg-step-circuit-low)
+   ;; IMPROVE ME: Maybe mark it as displayed but not knowing circuit
+   ;; state.  That's back to buffer-filled checks orthogonal to update
+   ;; state.  Maybe states for both circuit and display.  Or more
    (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
+   ;; "FRESH" might be set by low "show state" functionality instead.
    (treadle-dbg-enqueue-work-is-done "FRESH"))
 
 (defun treadle-dbg-reset-circuit ()
@@ -1769,52 +1795,66 @@ string argument."
 		  (pop-to-buffer buf)))))
       (cancel-timer (first data))))
 
+(defun treadle-dbg-make-buffer-stale (str)
+   ""
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   
+   (when (eq treadle-dbg-state 'displayed-fresh)
+      (setq treadle-dbg-state 'displayed-at-all)
+      (setq treadle-dbg-current-freshness str)
+      (widget-value-set treadle-dbg-widget-of-freshness str)))
+
+
 (defun treadle-dbg-do-next-update (buf data)
    ""
    (if (buffer-live-p buf)
-      (with-current-buffer buf
-	 (case treadle-dbg-state
-	    (initial t)
-	    (loading t)
-	    (load-failed
-	       (cancel-timer (first data)))
+      (when
+	 ;; Don't run when a script is still operating 
+	 (<= treadle-dbg-widget-buffer-instability 0)
+	 (with-current-buffer buf
+	    (case treadle-dbg-state
+	       (initial t)
+	       (loading t)
+	       (load-failed
+		  (cancel-timer (first data)))
 
-	    (loaded
-	       (setq treadle-dbg-state 'getting-state)
-	       (treadle-dbg-show-components
-		  "show state\n"
-		  #'treadle-dbg-record-state)
-	       (treadle-dbg-show-components
-		  "show inputs\n"
-		  #'treadle-dbg-record-inputs)
-	       (treadle-dbg-show-components
-		  "show outputs\n"
-		  #'treadle-dbg-record-outputs)
-	       (treadle-dbg-queue-state-change 'got-state))
+	       (loaded
+		  (setq treadle-dbg-state 'getting-state)
+		  (treadle-dbg-show-components
+		     "show state\n"
+		     #'treadle-dbg-record-state)
+		  (treadle-dbg-show-components
+		     "show inputs\n"
+		     #'treadle-dbg-record-inputs)
+		  (treadle-dbg-show-components
+		     "show outputs\n"
+		     #'treadle-dbg-record-outputs)
+		  (treadle-dbg-queue-state-change 'got-state))
 	    
-	    (getting-state t)
-	    (got-state
-	       (setq treadle-dbg-state 'getting-symbols)
-	       (setq treadle-dbg-current-step 0)
-	       (setq treadle-dbg-current-freshness "FRESH")
-	       (setq
-		  treadle-dbg-subname-tree
-		  (treadle-dbg-sort-as-subname-tree treadle-dbg-subname-tree))
-	       (mapatoms
-		  #'treadle-dbg-get-symbol-data
-		  treadle-dbg-obarray)
-	       (treadle-dbg-queue-state-change 'got-symbols))
+	       (getting-state t)
+	       (got-state
+		  (setq treadle-dbg-state 'getting-symbols)
+		  (setq treadle-dbg-current-step 0)
+		  (setq treadle-dbg-current-freshness "FRESH")
+		  (setq
+		     treadle-dbg-subname-tree
+		     (treadle-dbg-sort-as-subname-tree treadle-dbg-subname-tree))
+		  (mapatoms
+		     #'treadle-dbg-get-symbol-data
+		     treadle-dbg-obarray)
+		  (treadle-dbg-queue-state-change 'got-symbols))
 
-	    (getting-symbols t)
-	    ((got-symbols undisplayed)
-	       (treadle-dbg-create-widgets)
-	       (pop-to-buffer buf))
+	       (getting-symbols t)
+	       ((got-symbols undisplayed)
+		  (treadle-dbg-create-widgets)
+		  (pop-to-buffer buf))
 	    
-	    (displayed-at-all
-	       (treadle-dbg-redraw-widgets))
+	       (displayed-at-all
+		  (treadle-dbg-redraw-widgets))
 
-	    (displayed-fresh
-	       t)))
+	       (displayed-fresh
+		  t))))
       (cancel-timer (first data))))
 
 (defun treadle-dbg-start-update-timer ()
@@ -2080,10 +2120,8 @@ If EXTRA-PROC is non-nil, call it with extra-data."
 		    (with-current-buffer widgets-buffer
 		       (widget-value-set widget (widget-value widget))))
 	       (list widget (current-buffer)))
-	    (setq treadle-dbg-current-freshness "STALE")
-	    (widget-value-set
-	       treadle-dbg-widget-of-freshness
-	       "STALE"))
+	    (treadle-dbg-make-buffer-stale "STALE"))
+	 
 	 (let* 
 	    (  
 	       (current (treadle-dbg-component-current component))
@@ -2109,10 +2147,7 @@ If EXTRA-PROC is non-nil, call it with extra-data."
 		     `(force ,component-name ,new-val)
 		     `(poke ,component-name ,new-val))
 		  treadle-dbg-current-script-rv))
-	    (setq treadle-dbg-current-freshness "STALE")
-	    (widget-value-set
-	       treadle-dbg-widget-of-freshness
-	       "STALE")
+	    (treadle-dbg-make-buffer-stale "STALE")
       
 	    (treadle-dbg-poke-value
 	       sym new-val
