@@ -1817,58 +1817,54 @@ string argument."
       (when
 	 ;; Don't run when a script is still operating 
 	 (<= treadle-dbg-widget-buffer-instability 0)
+	 ;; cond (not (eq treadle-dbg-circuit-state 'loaded)) etc
 	 (with-current-buffer buf
-	    (case treadle-dbg-state
+	    (unless (eq treadle-dbg-data-state 'loaded)
+	       (setq treadle-dbg-data-state 'stale))
+	    (case treadle-dbg-circuit-state
 	       (initial t)
 	       (loading t)
 	       (load-failed
 		  (cancel-timer (first data)))
-
-	       (loaded
-		  (setq treadle-dbg-state 'getting-state)
-		  (treadle-dbg-show-components
-		     "show state\n"
-		     #'treadle-dbg-record-state)
-		  (treadle-dbg-show-components
-		     "show inputs\n"
-		     #'treadle-dbg-record-inputs)
-		  (treadle-dbg-show-components
-		     "show outputs\n"
-		     #'treadle-dbg-record-outputs)
-		  (treadle-dbg-queue-data-state-change 'got-state)
-		  (treadle-dbg-queue-state-change 'got-state))
-	    
-	       (getting-state t)
-	       (got-state
-		  (setq treadle-dbg-state 'getting-symbols)
-		  (setq treadle-dbg-current-step 0)
-		  (setq treadle-dbg-current-freshness "FRESH")
-		  (setq
-		     treadle-dbg-subname-tree
-		     (treadle-dbg-sort-as-subname-tree treadle-dbg-subname-tree))
-		  (mapatoms
-		     #'treadle-dbg-get-symbol-data
-		     treadle-dbg-obarray)
-		  (treadle-dbg-queue-data-state-change 'got-symbols)
-		  (treadle-dbg-queue-state-change 'got-symbols))
-
-	       (getting-symbols t)
-	       ((got-symbols undisplayed)
-		  (treadle-dbg-create-widgets)
-		  (pop-to-buffer buf))
-	    
-	       (displayed-at-all
-		  (treadle-dbg-redraw-widgets))
-
-	       (displayed-fresh
-		  t))
+	       (loaded t))
 	    
 	    (when
 	       (eq treadle-dbg-circuit-state 'loaded)
+	       (unless (eq treadle-dbg-data-state 'fresh)
+		  (setq treadle-dbg-display-state 'stale))
 	       (case treadle-dbg-data-state
-		  ;; mapatoms, etc
+		  (initial
+		     (setq treadle-dbg-data-state 'getting-state)
+		     (treadle-dbg-show-components
+			"show state\n"
+			#'treadle-dbg-record-state)
+		     (treadle-dbg-show-components
+			"show inputs\n"
+			#'treadle-dbg-record-inputs)
+		     (treadle-dbg-show-components
+			"show outputs\n"
+			#'treadle-dbg-record-outputs)
+		     (treadle-dbg-queue-data-state-change 'got-state))
+	    
+		  (getting-state t)
+		  (got-state
+		     (setq treadle-dbg-data-state 'getting-symbols)
+		     (setq treadle-dbg-current-step 0)
+		     (setq treadle-dbg-current-freshness "FRESH")
+		     (setq
+			treadle-dbg-subname-tree
+			(treadle-dbg-sort-as-subname-tree
+			   treadle-dbg-subname-tree))
+		     (mapatoms
+			#'treadle-dbg-get-symbol-data
+			treadle-dbg-obarray)
+		     (treadle-dbg-queue-data-state-change 'fresh))
+
+		  (getting-symbols t)
+
 		  (stale
 		     (setq treadle-dbg-data-state 'getting-state)
+		     (setq treadle-dbg-display-state 'stale)
 		     (treadle-dbg-show-components
 			"show state\n"
 			#'treadle-dbg-record-state)
@@ -2229,6 +2225,7 @@ Script should be a list whose entries are in one of the forms:
 	    (treadle-dbg-step-circuit-low))))
    
    ;; All done, now reload and redisplay everything.
+   ;; IMPROVE ME:  This will be done by timer.  Just mark work-is-done
    (treadle-dbg-show-components
       "show state\n"
       #'treadle-dbg-record-state)
