@@ -241,7 +241,7 @@ If non-nil, enables compiling"
        )
    :group 'treadle-dbg)
 
-
+;; IMPROVE ME:  This must be locally customizable and default to nil
 (defvar-local treadle-dbg-recompile-base-command
    "test:runMain triggerPulses.indirect3.TriggerPulses.CompileDummy"
    ;; nil
