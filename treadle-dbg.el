@@ -1319,6 +1319,8 @@ string
       (treadle-dbg-complain-bad-buffer
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
+   (setq treadle-dbg-state 'displayed-fresh)
+   ;; REPLACED
    (setq treadle-dbg-widget-buffer-dirty-p nil)
    (setq treadle-dbg-widget-buffer-filled-p t)
    ;;
@@ -1358,14 +1360,7 @@ string
 
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		 (unless (eq treadle-dbg-current-buffer-type 'main)
-		    (treadle-dbg-complain-bad-buffer
-		       "Rebuilding the widgets only makes sense in a circuit buffer"))
-
-		 (let
-		    ((inhibit-read-only t))
-		    (erase-buffer))
-		 (treadle-dbg-create-widgets))
+		 (setq treadle-dbg-state 'undisplayed))
       "Rebuild buffer")
 
    (widget-insert "   ")
@@ -1760,6 +1755,8 @@ string argument."
       treadle-dbg-widget-buffer-dirty-p
       (eql treadle-dbg-widget-buffer-instability 0)))
 
+;; REPLACED
+'
 (defun treadle-dbg-redraw-if-needed (buf data)
    "Redraw the buffer if needed"
    (if (buffer-live-p buf)
@@ -1809,16 +1806,11 @@ string argument."
 	       (treadle-dbg-queue-state-change 'got-symbols))
 
 	    (getting-symbols t)
-	    (got-symbols
-	       (progn
-		  ;; MOVE ME
-		  (setq treadle-dbg-state 'displayed-fresh)
-		  (treadle-dbg-create-widgets)
-		  (pop-to-buffer buf)))
-
+	    ((got-symbols undisplayed)
+	       (treadle-dbg-create-widgets)
+	       (pop-to-buffer buf))
+	    
 	    (displayed-at-all
-	       ;; MOVE ME
-	       (setq treadle-dbg-state 'displayed-fresh)
 	       (treadle-dbg-redraw-widgets))
 
 	    (displayed-fresh
@@ -1840,6 +1832,8 @@ string argument."
    
       (setq treadle-dbg-timer-for-redraw (car data))))
 
+;; REPLACED
+'
 (defun treadle-dbg-start-redraw-timer ()
    ""
 
@@ -1859,6 +1853,8 @@ string argument."
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
+   (setq treadle-dbg-state 'displayed-fresh)
+   ;; REPLACED
    (setq treadle-dbg-widget-buffer-dirty-p nil)
    (widget-value-set
       treadle-dbg-widget-of-step-num
@@ -2303,7 +2299,8 @@ PROC should return non-nil if it has finished its work"
 		 (setq treadle-dbg-current-freshness freshness))
 	      (unless (<= treadle-dbg-widget-buffer-instability 0)
 		 (decf treadle-dbg-widget-buffer-instability))))))
-
+;; REPLACED
+'
 (defun treadle-dbg-initial-load (fir-file)
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
