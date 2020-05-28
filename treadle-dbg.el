@@ -2327,6 +2327,34 @@ PROC should return non-nil if it has finished its work"
 	    treadle-dbg-sbt-executable
 	    command))))
 
+(defun treadle-dbg-check-compile-done (main-buf fir-file compile-process)
+   ""
+   (when (eq (process-status compile-process) 'exit)
+      (let* 
+	 ((succeeded-p
+	     (with-current-buffer
+		(process-buffer compile-process)
+		(goto-char (point-min))
+		;; If we find the string "[error]" in the buffer, the
+		;; compile probably failed
+		(if (search-forward "[error]" nil t)
+		   nil
+		   t))))
+	 (if succeeded-p
+	    (progn
+	       (message "Restarting")
+	       (let
+		  ((wd (with-current-buffer main-buf
+			  default-directory)))
+		  (with-current-buffer main-buf
+		     (treadle-dbg-shutdown))
+		  (treadle-dbg wd fir-file)))
+	    (progn
+	       (message "Compile seems to have failed")
+	       (pop-to-buffer (process-buffer compile-process)))))
+
+      t))
+
 (defun treadle-dbg-compile&restart ()
    ""
    (interactive)
@@ -2349,34 +2377,7 @@ PROC should return non-nil if it has finished its work"
 	    (when compile-process
 	       (treadle-dbg-call-until-done-w/timeout
 		  treadle-dbg-timeout
-		  #'(lambda (main-buf fir-file compile-process)
-		       (when (eq (process-status compile-process) 'exit)
-			  (let* 
-			     ((succeeded-p
-				 (with-current-buffer
-				    (process-buffer compile-process)
-				    (goto-char (point-min))
-				    ;; If we find the string "[error]"
-				    ;; in the buffer, the compile
-				    ;; probably failed
-				    (if (search-forward "[error]" nil t)
-				       nil
-				       t))))
-			     (if succeeded-p
-				(progn
-				   (message "Restarting")
-				   (let
-				      ((wd (with-current-buffer main-buf
-					      default-directory)))
-				      (with-current-buffer main-buf
-					 (treadle-dbg-shutdown))
-				      (treadle-dbg wd fir-file)))
-				(progn
-				   (message "Compile seems to have failed")
-				   (pop-to-buffer (process-buffer compile-process)))))
-
-			  t))
-
+		  #'treadle-dbg-check-compile-done
 		  (list
 		     (current-buffer)
 		     treadle-dbg-fir-file-location
