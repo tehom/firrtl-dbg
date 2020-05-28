@@ -1817,72 +1817,68 @@ string argument."
       (when
 	 ;; Don't run when a script is still operating 
 	 (<= treadle-dbg-widget-buffer-instability 0)
-	 ;; cond (not (eq treadle-dbg-circuit-state 'loaded)) etc
+
 	 (with-current-buffer buf
-	    (unless (eq treadle-dbg-data-state 'loaded)
-	       (setq treadle-dbg-data-state 'stale))
-	    (case treadle-dbg-circuit-state
-	       (initial t)
-	       (loading t)
-	       (load-failed
-		  (cancel-timer (first data)))
-	       (loaded t))
+	    (cond
+	       ((not (eq treadle-dbg-circuit-state 'loaded))
+		  (setq treadle-dbg-data-state 'stale)
+		  (case treadle-dbg-circuit-state
+		     (initial t)
+		     (loading t)
+		     (load-failed
+			(cancel-timer (first data)))
+		     (loaded t)))
+
+	       ((not (eq treadle-dbg-data-state 'fresh))
+		  (setq treadle-dbg-display-state 'stale)
+		  (case treadle-dbg-data-state
+		     (initial
+			(setq treadle-dbg-data-state 'getting-state)
+			(treadle-dbg-show-components
+			   "show state\n"
+			   #'treadle-dbg-record-state)
+			(treadle-dbg-show-components
+			   "show inputs\n"
+			   #'treadle-dbg-record-inputs)
+			(treadle-dbg-show-components
+			   "show outputs\n"
+			   #'treadle-dbg-record-outputs)
+			(treadle-dbg-queue-data-state-change 'got-state))
 	    
-	    (when
-	       (eq treadle-dbg-circuit-state 'loaded)
-	       (unless (eq treadle-dbg-data-state 'fresh)
-		  (setq treadle-dbg-display-state 'stale))
-	       (case treadle-dbg-data-state
-		  (initial
-		     (setq treadle-dbg-data-state 'getting-state)
-		     (treadle-dbg-show-components
-			"show state\n"
-			#'treadle-dbg-record-state)
-		     (treadle-dbg-show-components
-			"show inputs\n"
-			#'treadle-dbg-record-inputs)
-		     (treadle-dbg-show-components
-			"show outputs\n"
-			#'treadle-dbg-record-outputs)
-		     (treadle-dbg-queue-data-state-change 'got-state))
-	    
-		  (getting-state t)
-		  (got-state
-		     (setq treadle-dbg-data-state 'getting-symbols)
-		     (setq treadle-dbg-current-step 0)
-		     (setq treadle-dbg-current-freshness "FRESH")
-		     (setq
-			treadle-dbg-subname-tree
-			(treadle-dbg-sort-as-subname-tree
-			   treadle-dbg-subname-tree))
-		     (mapatoms
-			#'treadle-dbg-get-symbol-data
-			treadle-dbg-obarray)
-		     (treadle-dbg-queue-data-state-change 'fresh))
+		     (getting-state t)
+		     (got-state
+			(setq treadle-dbg-data-state 'getting-symbols)
+			(setq treadle-dbg-current-step 0)
+			(setq treadle-dbg-current-freshness "FRESH")
+			(setq
+			   treadle-dbg-subname-tree
+			   (treadle-dbg-sort-as-subname-tree
+			      treadle-dbg-subname-tree))
+			(mapatoms
+			   #'treadle-dbg-get-symbol-data
+			   treadle-dbg-obarray)
+			(treadle-dbg-queue-data-state-change 'fresh))
 
-		  (getting-symbols t)
+		     (getting-symbols t)
 
-		  (stale
-		     (setq treadle-dbg-data-state 'getting-state)
-		     (setq treadle-dbg-display-state 'stale)
-		     (treadle-dbg-show-components
-			"show state\n"
-			#'treadle-dbg-record-state)
-		     (treadle-dbg-queue-data-state-change 'fresh))
-		  (fresh)))
+		     (stale
+			(setq treadle-dbg-data-state 'getting-state)
+			(setq treadle-dbg-display-state 'stale)
+			(treadle-dbg-show-components
+			   "show state\n"
+			   #'treadle-dbg-record-state)
+			(treadle-dbg-queue-data-state-change 'fresh))
+		     (fresh)))
 
-	    (when
-	       (and
-		  (eq treadle-dbg-circuit-state 'loaded)
-		  (eq treadle-dbg-data-state 'fresh))
-	       (case treadle-dbg-display-state
-		  (initial) ;; That's odd.  Buffer was already created.
-		  (buffer-created
-		     (treadle-dbg-create-widgets)
-		     (pop-to-buffer buf))
-		  (stale
-		     (treadle-dbg-redraw-widgets))
-		  (fresh)))))
+	       (t
+		  (case treadle-dbg-display-state
+		     (initial) ;; That's odd.  Buffer was already created.
+		     (buffer-created
+			(treadle-dbg-create-widgets)
+			(pop-to-buffer buf))
+		     (stale
+			(treadle-dbg-redraw-widgets))
+		     (fresh))))))
       
       (cancel-timer (first data))))
 
