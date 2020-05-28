@@ -1768,7 +1768,7 @@ string argument."
 		  (pop-to-buffer buf)))))
       (cancel-timer (first data))))
 
-(defun treadle-dbg-do-next-update ()
+(defun treadle-dbg-do-next-update (buf data)
    ""
    (if (buffer-live-p buf)
       (with-current-buffer buf
@@ -1820,6 +1820,21 @@ string argument."
 	    (displayed-fresh
 	       t)))
       (cancel-timer (first data))))
+
+(defun treadle-dbg-start-update-timer ()
+   ""
+
+   (unless (eq treadle-dbg-current-buffer-type 'main)
+      (treadle-dbg-complain-bad-buffer))
+   (let
+      ((data (list nil)))
+      (setcar data 
+	 (run-at-time t 1
+	    #'treadle-dbg-do-next-update
+	    (current-buffer)
+	    data))
+   
+      (setq treadle-dbg-timer-for-redraw (car data))))
 
 (defun treadle-dbg-start-redraw-timer ()
    ""
@@ -2341,12 +2356,12 @@ PROC should return non-nil if it has finished its work"
 
    (setq treadle-dbg-state 'initial)
 
-   ;; FIX ME:  This can abort
    (treadle-dbg-load-fir-file fir-file)
    (setq treadle-dbg-current-circuit-name
       (treadle-dbg-get-circuit-name fir-file))
 
-   ;; WRITE ME
+   ;; ENABLE ME
+   '
    (treadle-dbg-start-update-timer)
 
    )
