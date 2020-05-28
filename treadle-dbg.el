@@ -430,13 +430,6 @@ Format: Each node is either:
    nil
    "Non-nil if the widget buffer needs rebuilding")
 
-(defvar-local treadle-dbg-state
-   'initial
-   "The overall state of Treadle-dbg for a given main buffer.
-
-Values: initial, loaded, got-state, got-symbols,
-displayed-at-all, displayed-fresh")
-
 ;; initial, loading, load-failed, loaded.  'loaded is final.  Stepping
 ;; and "show state" operate on treadle-dbg-data-state
 (defvar-local treadle-dbg-circuit-state
@@ -1343,11 +1336,7 @@ string
 	 "Creating the widgets only makes sense in a circuit buffer"))
 
    (setq treadle-dbg-display-state 'fresh)
-   (setq treadle-dbg-state 'displayed-fresh)
-   ;; REPLACED
-   (setq treadle-dbg-widget-buffer-dirty-p nil)
-   (setq treadle-dbg-widget-buffer-filled-p t)
-   ;;
+
    (let
       ((inhibit-read-only t))
       (erase-buffer))
@@ -1384,8 +1373,7 @@ string
 
    (widget-create 'push-button
       :notify (lambda (&rest ignore)
-		 (setq treadle-dbg-display-state 'buffer-created)
-		 (setq treadle-dbg-state 'undisplayed))
+		 (setq treadle-dbg-display-state 'buffer-created))
       "Rebuild buffer")
 
    (widget-insert "   ")
@@ -1798,17 +1786,28 @@ string argument."
 		  (pop-to-buffer buf)))))
       (cancel-timer (first data))))
 
+(defun treadle-dbg-set-data-dirty ()
+   ""
+   (when (eq treadle-dbg-data-state 'fresh)
+      (setq treadle-dbg-data-state 'stale)))
+
+(defun treadle-dbg-set-display-dirty ()
+   ""
+   ;; Paranoid:  Could be that it's in an earlier state, no widgets made.
+   (when (eq treadle-dbg-display-state 'fresh)
+      (setq treadle-dbg-display-state 'stale)))
+
+;; RENAME ME treadle-dbg-make-display-stale
 (defun treadle-dbg-make-buffer-stale (str)
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   ;; Paranoid:  Could be that it's in an earlier state, no widgets made.
-   (when (eq treadle-dbg-display-state 'fresh)
-      (setq treadle-dbg-display-state 'stale))
-   (when (eq treadle-dbg-state 'displayed-fresh)
-      (setq treadle-dbg-state 'displayed-at-all)
-      (setq treadle-dbg-current-freshness str)
-      (widget-value-set treadle-dbg-widget-of-freshness str)))
+   (treadle-dbg-set-display-dirty)
+   (setq treadle-dbg-current-freshness str)
+   (case treadle-dbg-display-state
+      ((stale fresh)
+	 (widget-value-set treadle-dbg-widget-of-freshness str))))
+
 
 
 (defun treadle-dbg-do-next-update (buf data)
@@ -1821,7 +1820,7 @@ string argument."
 	 (with-current-buffer buf
 	    (cond
 	       ((not (eq treadle-dbg-circuit-state 'loaded))
-		  (setq treadle-dbg-data-state 'stale)
+		  (treadle-dbg-set-data-dirty)
 		  (case treadle-dbg-circuit-state
 		     (initial t)
 		     (loading t)
@@ -1830,7 +1829,7 @@ string argument."
 		     (loaded t)))
 
 	       ((not (eq treadle-dbg-data-state 'fresh))
-		  (setq treadle-dbg-display-state 'stale)
+		  (treadle-dbg-set-display-dirty)
 		  (case treadle-dbg-data-state
 		     (initial
 			(setq treadle-dbg-data-state 'getting-state)
@@ -1918,10 +1917,8 @@ string argument."
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   (setq treadle-dbg-state 'displayed-fresh)
    (setq treadle-dbg-display-state 'fresh)
-   ;; REPLACED
-   (setq treadle-dbg-widget-buffer-dirty-p nil)
+
    (widget-value-set
       treadle-dbg-widget-of-step-num
       treadle-dbg-current-step)
@@ -2333,14 +2330,6 @@ PROC should return non-nil if it has finished its work"
 	      (apply proc data)))
       t))
 
-(defun treadle-dbg-queue-state-change (state)
-   ""
-   (treadle-dbg-do-when-tq-empty
-      (list (current-buffer) state)
-      #'(lambda (buf state)
-	   (with-current-buffer buf
-	      (setq treadle-dbg-state state)))))
-
 (defun treadle-dbg-queue-circuit-state-change (state)
    ""
    (treadle-dbg-do-when-tq-empty
@@ -2377,65 +2366,13 @@ PROC should return non-nil if it has finished its work"
 		 (setq treadle-dbg-current-freshness freshness))
 	      (unless (<= treadle-dbg-widget-buffer-instability 0)
 		 (decf treadle-dbg-widget-buffer-instability))))))
-;; REPLACED
-'
-(defun treadle-dbg-initial-load (fir-file)
-   ""
-   (unless (eq treadle-dbg-current-buffer-type 'main)
-      (treadle-dbg-complain-bad-buffer))
-
-   (treadle-dbg-record-work-begun)
-   (setq treadle-dbg-state 'initial)
-   (setq treadle-dbg-circuit-state 'initial)
-
-   ;; OBSOLESCENT
-   (setq treadle-dbg-widget-buffer-dirty-p t)
-   (setq treadle-dbg-widget-buffer-filled-p nil)
-
-   ;; FIX ME:  This can abort
-   (treadle-dbg-load-fir-file fir-file)
-
-   (setq treadle-dbg-current-step 0)
-   (setq treadle-dbg-current-freshness "FRESH")
-   (setq treadle-dbg-current-circuit-name
-      (treadle-dbg-get-circuit-name fir-file))
-
-
-   (treadle-dbg-show-components
-      "show state\n"
-      #'treadle-dbg-record-state)
-   (treadle-dbg-show-components
-      "show inputs\n"
-      #'treadle-dbg-record-inputs)
-   (treadle-dbg-show-components
-      "show outputs\n"
-      #'treadle-dbg-record-outputs)
-
-   (treadle-dbg-do-when-tq-empty
-      (list (current-buffer))
-      #'(lambda (buf)
-	   (with-current-buffer buf
-	      (unless (eq treadle-dbg-current-buffer-type 'main)
-	      	 (treadle-dbg-complain-bad-buffer))
-
-	      (setq
-		 treadle-dbg-subname-tree
-		 (treadle-dbg-sort-as-subname-tree treadle-dbg-subname-tree))
-
-	      ;; Call symbol on every name
-	      (mapatoms
-		 #'treadle-dbg-get-symbol-data
-		 treadle-dbg-obarray)
-
-	      (treadle-dbg-enqueue-work-is-done "FRESH"))))
-   (treadle-dbg-start-redraw-timer))
 
 (defun treadle-dbg-initial-load-2 (fir-file)
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
-   (setq treadle-dbg-state 'initial)
+   (setq treadle-dbg-circuit-state 'initial)
 
    (treadle-dbg-load-fir-file fir-file)
    (setq treadle-dbg-current-circuit-name
@@ -2472,13 +2409,11 @@ PROC should return non-nil if it has finished its work"
 		 (if found-error
 		    (progn
 		       (with-current-buffer buf
-			  (setq treadle-dbg-circuit-state 'load-failed)
-			  (setq treadle-dbg-state 'load-failed))
+			  (setq treadle-dbg-circuit-state 'load-failed))
 		       (message "Loading failed")
 		       (treadle-dbg-show-in-error-buffer str))
 		    (with-current-buffer buf
-		       (setq treadle-dbg-circuit-state 'loaded)
-		       (setq treadle-dbg-state 'loaded)))))
+		       (setq treadle-dbg-circuit-state 'loaded)))))
 	 t)))
 
 
@@ -2727,6 +2662,7 @@ PROC should return non-nil if it has finished its work"
 	 ;; Set up most of the local variables.  Some are set further
 	 ;; down as their objects are created.
 	 (setq treadle-dbg-current-buffer-type 'main)
+	 (setq treadle-dbg-display-state 'buffer-created)
 
 	 ;; Init the "easy" local variables
 	 (setq treadle-dbg-obarray
