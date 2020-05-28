@@ -413,6 +413,7 @@ Format: Each node is either:
    nil
    "The Treadle REPL process")
 
+;; This will handle all the major state transitions now.
 (defvar-local treadle-dbg-timer-for-redraw
    nil
    "Timer that handles redrawing")
@@ -424,6 +425,13 @@ Format: Each node is either:
 (defvar-local treadle-dbg-widget-buffer-filled-p
    nil
    "Non-nil if the widget buffer needs rebuilding")
+
+(defvar-local treadle-dbg-state
+   'initial
+   "The overall state of Treadle-dbg for a given main buffer.
+
+Values: initial, loaded, got-state, got-symbols,
+displayed-at-all, displayed-fresh")
 
 (defvar-local treadle-dbg-widget-buffer-instability
    0
@@ -2230,6 +2238,7 @@ PROC should return non-nil if it has finished its work"
    (setq treadle-dbg-current-circuit-name
       (treadle-dbg-get-circuit-name fir-file))
 
+   ;; FIX ME:  This can abort
    (treadle-dbg-load-fir-file fir-file)
 
    (treadle-dbg-show-components
@@ -2267,7 +2276,8 @@ PROC should return non-nil if it has finished its work"
 
 (defun treadle-dbg-load-fir-file (fir-file)
    ""
-   
+
+   ;; FIX ME:  This can abort
    (let*
       ((command (concat "load " fir-file "\n")))
       (tq-enqueue treadle-dbg-tq command treadle-dbg-tq-regexp
