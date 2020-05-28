@@ -1802,7 +1802,9 @@ string argument."
    ""
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
-   
+   ;; Paranoid:  Could be that it's in an earlier state, no widgets made.
+   (when (eq treadle-dbg-display-state 'fresh)
+      (setq treadle-dbg-display-state 'stale))
    (when (eq treadle-dbg-state 'displayed-fresh)
       (setq treadle-dbg-state 'displayed-at-all)
       (setq treadle-dbg-current-freshness str)
@@ -1925,6 +1927,7 @@ string argument."
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
    (setq treadle-dbg-state 'displayed-fresh)
+   (setq treadle-dbg-display-state 'fresh)
    ;; REPLACED
    (setq treadle-dbg-widget-buffer-dirty-p nil)
    (widget-value-set
@@ -2390,6 +2393,8 @@ PROC should return non-nil if it has finished its work"
 
    (treadle-dbg-record-work-begun)
    (setq treadle-dbg-state 'initial)
+   (setq treadle-dbg-circuit-state 'initial)
+
    ;; OBSOLESCENT
    (setq treadle-dbg-widget-buffer-dirty-p t)
    (setq treadle-dbg-widget-buffer-filled-p nil)
