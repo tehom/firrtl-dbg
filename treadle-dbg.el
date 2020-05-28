@@ -2351,13 +2351,30 @@ PROC should return non-nil if it has finished its work"
 		  treadle-dbg-timeout
 		  #'(lambda (main-buf fir-file compile-process)
 		       (when (eq (process-status compile-process) 'exit)
-			  (message "Restarting")
-			  (let
-			     ((wd (with-current-buffer main-buf
-				     default-directory)))
-			     (with-current-buffer main-buf
-				(treadle-dbg-shutdown))
-			     (treadle-dbg wd fir-file))
+			  (let* 
+			     ((succeeded-p
+				 (with-current-buffer
+				    (process-buffer compile-process)
+				    (goto-char (point-min))
+				    ;; If we find the string "[error]"
+				    ;; in the buffer, the compile
+				    ;; probably failed
+				    (if (search-forward "[error]" nil t)
+				       nil
+				       t))))
+			     (if succeeded-p
+				(progn
+				   (message "Restarting")
+				   (let
+				      ((wd (with-current-buffer main-buf
+					      default-directory)))
+				      (with-current-buffer main-buf
+					 (treadle-dbg-shutdown))
+				      (treadle-dbg wd fir-file)))
+				(progn
+				   (message "Compile seems to have failed")
+				   (pop-to-buffer (process-buffer compile-process)))))
+
 			  t))
 
 		  (list
