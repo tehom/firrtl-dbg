@@ -2511,7 +2511,7 @@ PROC should return non-nil if it has finished its work"
       ((not (stringp treadle-dbg-recompile-base-command))
 	 (message "Need to set 'treadle-dbg-recompile-base-command'"))
       ((not (eq treadle-dbg-how-to-find-fir-file 'use-custom-file))
-	 (message "You're set up for a different fir file.  Change treadle-dbg-how-to-find-fir-file"))
+	 (message "You're using a fir file I can't compile to.  Change treadle-dbg-how-to-find-fir-file"))
       
       ((stringp treadle-dbg-fir-file-location)
 	 (let
