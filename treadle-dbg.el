@@ -1889,7 +1889,7 @@ string argument."
    (let
       ((data (list nil)))
       (setcar data 
-	 (run-at-time t 1
+	 (run-at-time t 0.5
 	    #'treadle-dbg-do-next-update
 	    (current-buffer)
 	    data))
