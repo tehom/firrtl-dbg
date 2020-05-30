@@ -150,8 +150,8 @@
        ("_" 2000 nil)
        ("T_" 2000 nil)
        ("GEN_" 2000 nil)
-       ("reset" 2000 t)
-       ("clock" 2000 t))
+       ("reset" 2000 nil)
+       ("clock" 2000 nil))
    "List controlling which components are placed earlier or later in the expanding tree.  Each element is (Regexp Integer Boolean)"
    :type '(repeat
 	     (group
