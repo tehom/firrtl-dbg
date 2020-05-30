@@ -2631,9 +2631,10 @@ PROC should return non-nil if it has finished its work"
       (insert-file-contents fir-file)
       (let* 
 	 ((circuit-name nil))
+	 (goto-char (point-min))
 	 (while (and (null circuit-name) (not (eobp)))
 	    (if
-	       (looking-at "circuit \\([a-zA-Z]+\\) *: *")
+	       (looking-at "circuit \\([^ ]+\\) *: *")
 	       (setq circuit-name (match-string 1))
 	       (forward-line 1)))
 	 circuit-name)))
