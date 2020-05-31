@@ -1257,7 +1257,7 @@ string
 	 (perm-props (treadle-dbg-get-perm-props (symbol-name sym))))
       (treadle-dbg-insert-component-aux v perm-props subname)))
 
-(defun treadle-dbg-tree-widget (cell children-open)
+(defun treadle-dbg-tree-widget (cell children-open high-subname)
    (if (second cell)
       (let* ((raw-tag (car cell))
 	       (value (cddr cell)))
@@ -1268,7 +1268,8 @@ string
 	       (car value)
 	       ;; Still use the number value to decide whether
 	       ;; children are forced open.
-	       (if (numberp raw-tag) (< raw-tag 100) nil))
+	       (if (numberp raw-tag) (< raw-tag 100) nil)
+	       high-subname)
 	    ;; Expand normally
 	    (let*
 	       (  
@@ -1316,7 +1317,7 @@ string
 	    (children-open (widget-get tree :children-open)))
 	 (mapcar
 	    #'(lambda (cell)
-		 (treadle-dbg-tree-widget cell children-open))
+		 (treadle-dbg-tree-widget cell children-open nil))
 	    alist))))
 
 
