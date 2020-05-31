@@ -1269,13 +1269,11 @@ string
 	       ;; Still use the number value to decide whether
 	       ;; children are forced open.
 	       (if (numberp raw-tag) (< raw-tag 100) nil)
-	       high-subname)
+	       (or high-subname (if (stringp raw-tag) raw-tag nil)))
 	    ;; Expand normally
 	    (let*
-	       (  
-
+	       (
 		  (start-open-form (if children-open '(:open t) '()))
-	    
 		  (format "%[%t%]\n")
 		  (tag
 		     (cond
@@ -1303,7 +1301,7 @@ string
 	 ((sym (cddr cell)))
 	 `(const
 	     :format "%v\n"
-	     :subname ,(car cell)
+	     :subname ,(or high-subname (car cell))
 	     :value ,sym
 	     :value-create ,#'treadle-dbg-insert-component
 	     :alt-action ,#'treadle-dbg-edit-properties
@@ -1402,6 +1400,7 @@ string
    (widget-apply-action
       (widget-create (treadle-dbg-tree-widget
 			(cons "root" treadle-dbg-subname-tree)
+			nil
 			nil)))
 
    (use-local-map widget-keymap)
