@@ -64,12 +64,10 @@
 (require 'tree-widget)
 ;;;_. Body
 
-
-
-;; Now all components are this type
 (defstruct (treadle-dbg-component (:type list))
-   ""
+   "Represents a circuit component"
    full-name
+   display-name
    source
    ;; These can be nil if it doesn't do that.
    current
