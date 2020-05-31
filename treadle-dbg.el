@@ -1206,6 +1206,9 @@ string
 	       subname)
 	    nil)
 	 field-list-rv)
+      (push " " field-list-rv)
+      (push sign-string field-list-rv)
+      (push width-string field-list-rv)
       (push
 	 (list 'to-col treadle-dbg-value-column)
 	 field-list-rv)
@@ -1241,16 +1244,6 @@ string
 		  (treadle-dbg-component-in/prev component)
 		  perm-props)
 	       field-list-rv)))
-
-      (push
-	 (list 'to-col (1- treadle-dbg-value-end-column) face-of-current)
-	 field-list-rv)
-      (push
-	 (list 'to-col treadle-dbg-value-end-column nil)
-	 field-list-rv)
-      
-      (push width-string field-list-rv)
-      (push sign-string field-list-rv)
 
       (treadle-dbg-insert-fields (nreverse field-list-rv))))
 
