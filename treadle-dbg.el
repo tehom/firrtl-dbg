@@ -1401,12 +1401,8 @@ string
       (widget-create (treadle-dbg-tree-widget
 			(cons "root" treadle-dbg-subname-tree)
 			nil
-			nil)))
+			nil))))
 
-   (use-local-map widget-keymap)
-
-   (local-set-key "\M-\r"
-      #'treadle-dbg-do-alt-interaction))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1593,6 +1589,7 @@ Return nil if component has no permanent props."
 
 (defun treadle-dbg-step-circuit ()
    "Step the circuit"
+   (interactive)
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
 
@@ -2435,7 +2432,10 @@ PROC should return non-nil if it has finished its work"
    (progn
       (set-keymap-parent treadle-dbg-mode-map widget-keymap)
       (define-key treadle-dbg-mode-map  "\M-\r"
-	 #'treadle-dbg-do-alt-interaction)))
+	 #'treadle-dbg-do-alt-interaction)
+      (define-key treadle-dbg-mode-map "S"
+	 #'treadle-dbg-step-circuit)))
+
 
 
 (defun treadle-dbg-complain-bad-buffer (&optional msg)
