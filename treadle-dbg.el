@@ -172,15 +172,13 @@
        (group
 	  (const boolean))
        (group
-	  (const hexadecimal)
-	  :tag "Hexadecimal")
+	  (const hexadecimal :tag "Hexadecimal"))
        (group
 	  (const enum)
 	  (string))
        (group
-	  (const base)
-	  (integer)
-	  :tag "In a given base"))
+	  (const base :tag "In a given base")
+	  (integer)))
    
    "Customize spec that applies to all components" )
 
