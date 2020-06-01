@@ -1429,6 +1429,7 @@ string
 
       (let
 	 (  (main-buf (current-buffer))
+	    (perm-props-buf treadle-dbg-perm-props-buffer)
 	    (working-directory default-directory)
 	    (buf
 	     (custom-get-fresh-buffer
@@ -1440,6 +1441,7 @@ string
 	       (list (list perm-sym 'custom-variable))
 	       ;; The parm "description" doesn't do anything
 	       nil)
+	    (setq treadle-dbg-perm-props-buffer perm-props-buf)
 	    (setq treadle-dbg-main-buffer main-buf)
 	    (fset (make-local-variable 'Custom-save)
 	       #'treadle-dbg-save-perms)
