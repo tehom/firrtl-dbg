@@ -1676,6 +1676,7 @@ Return nil if component has no permanent props."
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
+	      (setq treadle-dbg-display-state 'stale)
 	      (treadle-dbg-record-spurious-response-lines
 		 str treadle-dbg-current-step)
 	      (incf treadle-dbg-current-step)))
@@ -1683,7 +1684,7 @@ Return nil if component has no permanent props."
       t))
 
 (defun treadle-dbg-reset-circuit-low ()
-   "Step the circuit"
+   "Reset the circuit"
 
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
@@ -1693,6 +1694,7 @@ Return nil if component has no permanent props."
       (list (current-buffer))
       #'(lambda (data str)
 	   (with-current-buffer (first data)
+	      (setq treadle-dbg-data-state 'stale)
 	      (treadle-dbg-record-spurious-response-lines
 		 str treadle-dbg-current-step)
 	      (setq treadle-dbg-current-step 0)))
@@ -1710,6 +1712,7 @@ string argument."
       (list (current-buffer) proc)
       #'(lambda (data str)
 	   (with-current-buffer (first data)
+	      ;; Setting data stale should be handled by caller.
 	      (unless (eq treadle-dbg-current-buffer-type 'main)
 	      	 (treadle-dbg-complain-bad-buffer))
 	      (let* 
@@ -2034,6 +2037,7 @@ Record the new value.  If EXTRA-PROC is non-nil, call it with extra-data."
    
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
+   (setq treadle-dbg-data-state 'stale)
 
    (let* 
       (  
@@ -2078,6 +2082,7 @@ If EXTRA-PROC is non-nil, call it with extra-data."
    
    (unless (eq treadle-dbg-current-buffer-type 'main)
       (treadle-dbg-complain-bad-buffer))
+   (setq treadle-dbg-data-state 'stale)
 
    (let* 
       (  
@@ -2415,6 +2420,7 @@ PROC should return non-nil if it has finished its work"
 	       (list (current-buffer) (symbol-name sym))
 	       #'(lambda (data str)
 		    (with-current-buffer (first data)
+		       ;; Caller handles dirtying display state
 		       (unless (eq treadle-dbg-current-buffer-type 'main)
 			  (treadle-dbg-complain-bad-buffer))
 		       (treadle-dbg-record-symbol-info
